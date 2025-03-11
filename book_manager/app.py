@@ -13,10 +13,6 @@ from book_manager.frames import HomeFrame, ViewBooksFrame, AddBookFrame, UpdateB
 from book_manager.frames.login_frame import LoginFrame
 
 class BookManagerApp(tk.Tk):
-    """
-    Main application class for Book Manager
-    Serves as a controller for all frames
-    """
     def __init__(self):
         super().__init__()
         

@@ -1,13 +1,8 @@
-"""
-Home Frame for Book Manager Application
-"""
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 from book_manager.constants import COLORS, FONTS, BUTTON_SIZES, APP_COPYRIGHT
 
 class HomeFrame(tk.Frame):
-    """Frame utama dengan menu navigasi"""
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
