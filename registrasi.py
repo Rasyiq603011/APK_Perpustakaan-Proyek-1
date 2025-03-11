@@ -78,32 +78,26 @@ def log_in():
 
 def google_login():
     creds = None
-    if os.path.exists("token.pickle"):
-        with open("token.pickle", "rb") as token:
-            creds = pickle.load(token)
     
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
-            creds = flow.run_local_server(port=0)
-        
-        with open("token.pickle", "wb") as token:
-            pickle.dump(creds, token)
-    
-    service = build("oauth2", "v2", credentials=creds)
+    if os.path.exists("token.json"):
+        os.remove("token.json")  # Hapus token cache agar selalu meminta akun
+
+    flow = InstalledAppFlow.from_client_secrets_file(CLIENT_SECRET_FILE, SCOPES)
+    credentials = flow.run_local_server(prompt='select_account')  # Paksa pemilihan akun
+
+    service = build("oauth2", "v2", credentials=credentials)
     user_info = service.userinfo().get().execute()
-    
-    email = user_info["email"]
-    name = user_info.get("name", email)
+
+    email = user_info.get("email")
+    name = user_info.get("name")
+
     users = load_users()
     
     if email not in users:
-        users[email] = {"name": name, "password": hash_password(email)}
+        users[email] = {"name": name, "password": ""}  # Tidak perlu password untuk login Google
         save_users(users)
     
-    messagebox.showinfo("Sukses", f"Login berhasil! Selamat datang, {name}")
+    messagebox.showinfo("Login Sukses", f"Selamat datang, {name}!")
     root.withdraw()
     open_user_panel(name)
 
