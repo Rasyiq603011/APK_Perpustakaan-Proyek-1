@@ -1,9 +1,6 @@
-"""
-Constants for Book Manager Application
-"""
-
 # File settings
 FILE_NAME = "data_buku.xlsx"
+
 
 # Colors
 COLORS = {

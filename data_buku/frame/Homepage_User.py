@@ -2,18 +2,26 @@ import tkinter as tk
 from tkinter import ttk
 import os
 from PIL import Image, ImageTk
-from book_manager.constants import FONTS
-from book_manager.utils import add_book
 
-class HomeFramePage(tk.Frame):
-    def __init__(self, parent, controller):
-        super().__init__(parent)
-        self.controller = controller
-
-        # main_frame
-        self.main_frame = tk.Frame(self)
-        self.main_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+class Homepage(tk.Frame):
+    def __init__(self):
+        super().__init__()
+        self.title("Homepage")
+        self.geometry("800x600")
+        self.resizable(False, False)
         
+        self.create_widgets()
+        self.mainFrame = tk.Frame(self)
+        self.mainFrame.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+        def create_widgets(self):
+            self.book_frame = tk.Frame(self.mainFrame)
+            self.book_frame.pack(fill=tk.BOTH, expand=True)
+            
+            self.photo_references = {}
+            self.total_books = 20
+            self.display_books()
+
         def display_books(self):
             cek = True
             i = 0
@@ -32,7 +40,7 @@ class HomeFramePage(tk.Frame):
                         cek = False
                         break
                 i += 1
-
+        
         def create_book_button(self, book, row, col):
         
             # Frame untuk setiap buku

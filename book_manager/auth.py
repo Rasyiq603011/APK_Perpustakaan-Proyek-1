@@ -1,7 +1,3 @@
-"""
-Authentication Module for Book Manager
-"""
-
 import json
 import os
 import hashlib
@@ -17,9 +13,6 @@ DEFAULT_ADMIN = {
 }
 
 class AuthManager:
-    """
-    Class untuk mengelola autentikasi dan status login
-    """
     def __init__(self):
         self.current_user = None
         self.is_admin = False

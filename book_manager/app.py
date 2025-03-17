@@ -1,14 +1,10 @@
-"""
-Main application controller for Book Manager
-"""
-
 import tkinter as tk
 from book_manager.constants import APP_TITLE, APP_SIZE
 from book_manager.utils import buat_file
 from book_manager.auth import AuthManager
 
 # Import semua frame
-from book_manager.frames import HomeFrame, ViewBooksFrame, AddBookFrame, UpdateBookFrame
+from book_manager.frames import HomeFrame, ViewBooksFrame, AddBookFrame, UpdateBookFrame, HomeFramePage
 # Import LoginFrame secara terpisah karena belum ditambahkan ke frames/__init__.py
 from book_manager.frames.login_frame import LoginFrame
 
@@ -43,9 +39,9 @@ class BookManagerApp(tk.Tk):
         self.show_frame("LoginFrame")
     
     def create_frames(self):
-        """Buat semua frame yang dibutuhkan aplikasi"""
+
         # Daftar semua kelas frame yang akan digunakan
-        frame_classes = (LoginFrame, HomeFrame, ViewBooksFrame, AddBookFrame, UpdateBookFrame)
+        frame_classes = (LoginFrame, HomeFrame, ViewBooksFrame, AddBookFrame, UpdateBookFrame, HomeFramePage)
         
         # Inisialisasi setiap frame
         for F in frame_classes:

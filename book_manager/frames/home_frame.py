@@ -51,6 +51,7 @@ class HomeFrame(tk.Frame):
             fg="white",
             command=lambda: controller.show_frame("ViewBooksFrame")
         )
+        
         self.view_button.pack(pady=10)
         
         # Tambah Buku Button - Admin Only
