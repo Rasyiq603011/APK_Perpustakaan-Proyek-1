@@ -1,3 +1,2 @@
+# Create by ALL
 import MyLibrary
-
-MyLibrary.contoh2()
