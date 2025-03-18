@@ -18,6 +18,22 @@ class BookManager:
     def getBook(self):
         return self.book
     
+    def getCoverImage(self, ISBN):
+        if ISBN in self.book['ISBN'].values:
+            cover_path = os.path.join(self.coverDir, f"{ISBN}.jpg")
+            if os.path.exists(cover_path):
+                return ImageTk.PhotoImage(Image.open(cover_path))
+            else:
+                return ImageTk.PhotoImage(Image.open(self.defaultImage))
+        else:
+            return ImageTk.PhotoImage(Image.open(self.defaultImage))
+        
+    def getBookByIndeks(self, index):
+        if index < len(self.book):
+            return self.book.iloc[index]
+        else:
+            return None
+    
     def ISBNValidator(self,ISBN):
         if len(ISBN) != 13:
             return False

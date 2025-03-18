@@ -1,5 +1,5 @@
 import tkinter as tk
-import MyLibrary
+import MyLibrary as L
 
 
 class Application:
@@ -18,13 +18,15 @@ class Application:
 
         self.frameClases = {
             #"Frame": Frame,
+            "DetailsBookFrame": L.DetailsBookFrame,
+            "DaftarBukuFrame": L.DataBookFrame
         }
 
         self.setupFrames()
 
         self.showFrame("isi frame awal")
 
-        self.bookManager = MyLibrary.BookManager("D:\\Project 1\\Tubes Semester 1\\Asset\\data_buku.xlsx")
+        self.bookManager = L.BookManager("D:\\Project 1\\Tubes Semester 1\\Asset\\data_buku.xlsx")
 
     def create_widgets(self):
         pass
@@ -41,8 +43,6 @@ class Application:
             frame.tkraise()
             self.current_frame = frame_name
             
-
-   
 
     def show_book_detail(self, book):
         self.selectedBook = book

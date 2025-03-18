@@ -6,6 +6,7 @@ class DataBookFrame(tk.Frame):
      def __init__(self, parent, controller):
           tk.Frame.__init__(self, parent)
           self.controller = controller
+          
 def update_book_details(self):
         pass
 
@@ -68,3 +69,13 @@ def populate_book_grid(self, frame):
                 wraplength=100
             )
             title_label.pack(padx=5, pady=5)
+
+
+if __name__ == '__main__':
+     root = tk.Tk()
+
+     frame = tk.Frame(root)
+     frame.pack(expand =True, fill= "both")
+
+     app = DataBookFrame(frame ,root)
+     app.mainloop()
