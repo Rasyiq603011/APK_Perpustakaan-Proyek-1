@@ -13,7 +13,7 @@ class DetailsBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller, book=None):
         ctk.CTkFrame.__init__(self, parent)
         self.configure(fg_color="#1E1E1E", corner_radius=0)
-        self.pack(expand=True, fill="both")
+        # self.pack(expand=True, fill="both")
         self.controller = controller
         self.selectedBook = book
         self.defaultCover = "D:\\Project 1\\Tubes Semester 1\\Asset\\IMG.jpg"
