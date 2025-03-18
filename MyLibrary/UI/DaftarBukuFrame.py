@@ -2,14 +2,14 @@
 import tkinter as tk
 from tkinter import ttk
 
-class DataBookFrame(tk.frame):
+class DataBookFrame(tk.Frame):
      def __init__(self, parent, controller):
           tk.Frame.__init__(self, parent)
           self.controller = controller
 def update_book_details(self):
         pass
 
-    def populate_book_grid(self, frame):
+def populate_book_grid(self, frame):
         for widget in frame.book_grid.winfo_children():
             widget.destroy()
             
