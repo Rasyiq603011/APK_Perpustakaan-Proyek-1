@@ -2,7 +2,6 @@ import json
 import hashlib
 import tkinter as tk
 from tkinter import messagebox
-from PIL import Image, ImageTk
 
 # Konstanta
 USER_DATA_FILE = "users.json"
