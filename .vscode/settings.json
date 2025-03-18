@@ -1,0 +1,8 @@
+{
+    "workbench.colorTheme": "Material Theme Deepforest",
+    "editor.fontSize": 16,
+    "editor.fontFamily": "Fira Code Retina",
+    "editor.lineHeight": 1.5,
+    "editor.wordWrap": "on",
+    "workbench.iconTheme": "vscode-icons"
+}
