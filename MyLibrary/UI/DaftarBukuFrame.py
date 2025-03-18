@@ -1,4 +1,12 @@
- def update_book_details(self):
+    
+import tkinter as tk
+from tkinter import ttk
+
+class DataBookFrame(tk.frame):
+     def __init__(self, parent, controller):
+          tk.Frame.__init__(self, parent)
+          self.controller = controller
+def update_book_details(self):
         pass
 
     def populate_book_grid(self, frame):
@@ -6,7 +14,7 @@
             widget.destroy()
             
         # Get books from manager
-        books = self.MyLibrary.getBook()
+        books = self.controller.getBook()
         
         if len(books) == 0:
             # Show message if no books
