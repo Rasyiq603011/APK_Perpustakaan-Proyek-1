@@ -58,6 +58,8 @@ class BookManager:
         self.book.to_excel(self.file_path, index=False)
         return True
     
+    def Update(self):
+    
     def searchBook(self, keyword):
         return self.book[self.book['Judul'].str.contains(keyword) | 
                          self.book['Penulis'].str.contains(keyword) |

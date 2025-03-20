@@ -1,5 +1,4 @@
-# Cara Import file
-# from .NamaFile import *
-from .DaftarBukuFrame import * 
-from .DetailsBookFrame import * 
-from .PenaltyFrame import * 
+# # Cara Import file
+# # from .NamaFile import *
+# from .DaftarBukuFrame import * 
+# from .DetailsBookFrame import * 

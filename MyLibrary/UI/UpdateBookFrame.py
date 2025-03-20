@@ -81,7 +81,7 @@ class UpdateBookFrame(ctk.CTkFrame):
         self.button_container.pack(fill="x", pady=20)
         
         # Update button
-        self.update_btn = ctk.CTkButton(
+        self.updateBtn = ctk.CTkButton(
             self.button_container,
             text="Simpan Perubahan",
             command=self.update_book,

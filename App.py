@@ -1,35 +1,41 @@
 import tkinter as tk
-import MyLibrary as L
+from MyLibrary.constans import *
+from MyLibrary.Moduls.Book_Manager import BookManager
+from MyLibrary.UI.DaftarBukuFrame import DataBookFrame
+from MyLibrary.UI.DetailsBookFrame import DetailsBookFrame
+from MyLibrary.UI.UpdateBookFrame import UpdateBookFrame
+from MyLibrary.UI.AddBookFrame import AddBookFrame
 
 
 class Application:
-    def __init__(self):
-        self.root = tk.Tk()
+    def __init__(self, root):
+        self.root = root
         self.root.title("Book-Ku")
-        self.root.geometry("400x300")
+        self.root.geometry("1024x768")
+        self.currentFrame = None
+        self.bookManager = BookManager("D:\\Project 1\\Tubes Semester 1\\Asset\\data_buku.xlsx",'Cover', "img.jpg")
+        self.selectedBook = BookManager.getBookByIndeks(self.bookManager, 14)
 
         self.create_widgets()
-        self.currentFrame = None
-        self.selectedBook = None
-
-        self.container = tk.Container
+    
+    def create_widgets(self):
+        # Create the container frame
+        self.container = tk.Frame(self.root)
+        self.container.pack(side="top", fill="both", expand=True)
+        self.container.grid_rowconfigure(0, weight=1)
+        self.container.grid_columnconfigure(0, weight=1)
 
         self.frames = {}
 
         self.frameClases = {
-            #"Frame": Frame,
-            "DetailsBookFrame": L.DetailsBookFrame,
-            "DaftarBukuFrame": L.DataBookFrame
+            "DetailsBookFrame": DetailsBookFrame,
+            # "DaftarBukuFrame": DataBookFrame,
+            "UpdateBookFrame": UpdateBookFrame,
+            "AddBookFrame": AddBookFrame,
         }
 
         self.setupFrames()
-
-        self.showFrame("isi frame awal")
-
-        self.bookManager = L.BookManager("D:\\Project 1\\Tubes Semester 1\\Asset\\data_buku.xlsx")
-
-    def create_widgets(self):
-        pass
+        self.showFrame("DetailsBookFrame")  # Start with book list
 
     def setupFrames(self):
         for name, FrameClass in self.frameClases.items():
@@ -41,9 +47,13 @@ class Application:
         if frame_name in self.frames:
             frame = self.frames[frame_name]
             frame.tkraise()
-            self.current_frame = frame_name
+            self.currentFrame = frame_name
             
-
     def show_book_detail(self, book):
         self.selectedBook = book
-        self.showFrame("detail")
+        self.showFrame("DetailsBookFrame")  # Use correct frame name
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    App = Application(root)
+    root.mainloop()

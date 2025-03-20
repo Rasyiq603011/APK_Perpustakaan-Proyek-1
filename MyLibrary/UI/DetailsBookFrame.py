@@ -10,12 +10,12 @@ from Moduls.Book_Manager import BookManager as L
 
 
 class DetailsBookFrame(ctk.CTkFrame):
-    def __init__(self, parent, controller, book=None):
+    def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         self.configure(fg_color="#1E1E1E", corner_radius=0)
         # self.pack(expand=True, fill="both")
         self.controller = controller
-        self.selectedBook = book
+        self.selectedBook = self.controller.selectedBook
         self.defaultCover = "D:\\Project 1\\Tubes Semester 1\\Asset\\IMG.jpg"
         self.dataDir = os.path.join(os.path.dirname(__file__), "D:\\Project 1\\Tubes Semester 1\\Asset\\Cover")
         
@@ -27,7 +27,7 @@ class DetailsBookFrame(ctk.CTkFrame):
         self.back_btn = ctk.CTkButton(
             self.main_frame, 
             text="← Kembali", 
-            command= lambda: self.controller.show_frame("home") if hasattr(self.controller, 'show_frame') else None,
+            command= lambda: self.controller.show_frame("DataBookFrame") if hasattr(self.controller, 'show_frame') else None,
             fg_color="#4C0086",
             text_color="white",
             font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
@@ -81,10 +81,10 @@ class DetailsBookFrame(ctk.CTkFrame):
         self.borrow_btn.grid(row=0, column=0, padx=10, pady=10, sticky="e")
         
         # Wishlist button
-        self.wishlist_btn = ctk.CTkButton(
+        self.UpdateData = ctk.CTkButton(
             self.button_container,
-            text="Tambah ke Wishlist",
-            command=self.add_to_wishlist if hasattr(self, 'add_to_wishlist') else None,
+            text="Edit Data",
+            command= lambda:self.controller.showFrame() if hasattr(self.controller, 'UpdateBookFrame') else None,
             fg_color="#4C0086",
             hover_color="#3C0066",
             text_color="white",
@@ -211,31 +211,31 @@ class DetailsBookFrame(ctk.CTkFrame):
             desc_textbox.see("1.0")
 
 
-if __name__ == '__main__':
-    root = tk.Tk()
-    root.title("Book Details")
-    root.geometry("1024x768")
+# if __name__ == '__main__':
+#     root = tk.Tk()
+#     root.title("Book Details")
+#     root.geometry("1024x768")
     
-    # Untuk testing, buat sample data sederhana jika BookManager tidak berfungsi
-    try:
-        book = L('D:\\Project 1\\Tubes Semester 1\\Asset\\data_buku.xlsx', 'Cover', "img.jpg")
-        sample_book = L.getBookByIndeks(book, 14)
-    except Exception as e:
-        print(f"Error loading book data: {e}")
-        # Fallback data
-        sample_book = {
-            'Judul': 'Quidditch Through the Ages: the Illustrated Edition',
-            'Penulis': 'J. K. Rowling',
-            'Penerbit': 'Tidak Diketahui',
-            'Tahun': '2020',
-            'Kategori': 'Juvenile Fiction',
-            'ISBN': '9781338340563',
-            'Halaman': '0',
-            'Deskripsi': 'Kennilworthy Whisp is a fictitious author created by J.K. Rowling.'
-        }
+#     # Untuk testing, buat sample data sederhana jika BookManager tidak berfungsi
+#     try:
+#         book = L('D:\\Project 1\\Tubes Semester 1\\Asset\\data_buku.xlsx', 'Cover', "img.jpg")
+#         sample_book = L.getBookByIndeks(book, 14)
+#     except Exception as e:
+#         print(f"Error loading book data: {e}")
+#         # Fallback data
+#         sample_book = {
+#             'Judul': 'Quidditch Through the Ages: the Illustrated Edition',
+#             'Penulis': 'J. K. Rowling',
+#             'Penerbit': 'Tidak Diketahui',
+#             'Tahun': '2020',
+#             'Kategori': 'Juvenile Fiction',
+#             'ISBN': '9781338340563',
+#             'Halaman': '0',
+#             'Deskripsi': 'Kennilworthy Whisp is a fictitious author created by J.K. Rowling.'
+#         }
     
-    frame = tk.Frame(root)
-    frame.pack(expand=True, fill="both")
+#     frame = tk.Frame(root)
+#     frame.pack(expand=True, fill="both")
     
-    app = DetailsBookFrame(frame, root, sample_book)
-    root.mainloop()
+#     app = DetailsBookFrame(frame, root, sample_book)
+#     root.mainloop()

@@ -19,23 +19,23 @@ class AddBookFrame(ctk.CTkFrame):
         # Ensure cover directory exists
         os.makedirs(self.cover_dir, exist_ok=True)
         
-        # Main content container
-        self.main_frame = ctk.CTkFrame(self, fg_color="#1E1E1E", corner_radius=0)
-        self.main_frame.pack(expand=True, fill="both", padx=20, pady=20)
+        # Main content container with fixed maximum height
+        self.main_frame = ctk.CTkFrame(self, fg_color="#1E1E1E", corner_radius=0, height=650)
+        self.main_frame.pack(expand=True, fill="both", padx=20, pady=10)
         
         # Header with back button
-        self.header_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent")
-        self.header_frame.pack(fill="x", pady=10)
+        self.header_frame = ctk.CTkFrame(self.main_frame, fg_color="white")
+        self.header_frame.pack(fill="x", pady=5)
         
         self.back_btn = ctk.CTkButton(
             self.header_frame, 
-            text="← Kembali", 
+            text="Kembali", 
             command=self.go_back,
             fg_color="#4C0086",
             text_color="white",
             font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
-            corner_radius=15,
-            width=150,
+            corner_radius=10,
+            width=100,
             height=35
         )
         self.back_btn.pack(side="left", padx=20)
@@ -47,43 +47,43 @@ class AddBookFrame(ctk.CTkFrame):
             font=ctk.CTkFont(family="Arial", size=24, weight="bold"),
             text_color="white"
         )
-        self.title_label.pack(pady=20)
+        self.title_label.pack(pady=10)
         
         # Form container
         self.form_container = ctk.CTkFrame(self.main_frame, fg_color="#2D2D2D", corner_radius=10)
-        self.form_container.pack(fill="both", expand=True, padx=40, pady=20)
+        self.form_container.pack(fill="both", expand=True, padx=40, pady=10)
         
         # Create two columns
         self.left_column = ctk.CTkFrame(self.form_container, fg_color="transparent")
-        self.left_column.pack(side="left", fill="both", expand=True, padx=20, pady=20)
+        self.left_column.pack(side="left", fill="both", expand=True, padx=20, pady=15)
         
         self.right_column = ctk.CTkFrame(self.form_container, fg_color="transparent")
-        self.right_column.pack(side="right", fill="both", expand=True, padx=20, pady=20)
+        self.right_column.pack(side="right", fill="both", expand=True, padx=20, pady=15)
         
         # Left column - Text fields
-        self.create_form_fields()
+        self.formFields()
         
         # Right column - Cover selection and preview
-        self.create_cover_section()
+        self.coverSection()
         
-        # Button container
-        self.button_container = ctk.CTkFrame(self.main_frame, fg_color="transparent")
-        self.button_container.pack(fill="x", pady=20)
+        # Button container at bottom
+        self.button_container = ctk.CTkFrame(self, fg_color="#1E1E1E", corner_radius=0)
+        self.button_container.pack(fill="x", pady=(0,20))
         
         # Save button
         self.save_btn = ctk.CTkButton(
             self.button_container,
             text="Simpan Buku",
-            command=self.save_book,
+            command=self.controller.save_book,
             fg_color="#00CC00",
             hover_color="#00AA00",
             text_color="black",
             font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
-            corner_radius=15,
-            height=45,
-            width=200
+            corner_radius=10,
+            height=35,
+            width=140
         )
-        self.save_btn.pack(side="right", padx=20)
+        self.save_btn.pack(side="right", padx=(0,80))
         
         # Cancel button
         self.cancel_btn = ctk.CTkButton(
@@ -94,16 +94,16 @@ class AddBookFrame(ctk.CTkFrame):
             hover_color="#FF5555",
             text_color="white",
             font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
-            corner_radius=15,
-            height=45,
-            width=120
+            corner_radius=10,
+            height=35,
+            width=60
         )
-        self.cancel_btn.pack(side="right", padx=20)
+        self.cancel_btn.pack(side="right", padx=(0,20))
         
         # Clear the form
         self.clear_form()
     
-    def create_form_fields(self):
+    def formFields(self):
         # Define fields with their labels
         fields = [
             ("Judul", "title"),
@@ -120,7 +120,7 @@ class AddBookFrame(ctk.CTkFrame):
         
         for i, (label_text, field_name) in enumerate(fields):
             frame = ctk.CTkFrame(self.left_column, fg_color="transparent")
-            frame.pack(fill="x", pady=10)
+            frame.pack(fill="x", pady=5)  # Reduced padding
             
             label = ctk.CTkLabel(
                 frame,
@@ -139,7 +139,7 @@ class AddBookFrame(ctk.CTkFrame):
                 border_color="#555555",
                 text_color="white",
                 corner_radius=8,
-                height=35
+                height=30  # Reduced height
             )
             entry.pack(side="left", fill="x", expand=True, padx=(10, 0))
             
@@ -147,7 +147,7 @@ class AddBookFrame(ctk.CTkFrame):
         
         # Description field (multiline)
         desc_frame = ctk.CTkFrame(self.left_column, fg_color="transparent")
-        desc_frame.pack(fill="x", pady=10)
+        desc_frame.pack(fill="x", pady=5)  # Reduced padding
         
         desc_label = ctk.CTkLabel(
             desc_frame,
@@ -165,11 +165,11 @@ class AddBookFrame(ctk.CTkFrame):
             border_color="#555555",
             text_color="white",
             corner_radius=8,
-            height=150
+            height=120  # Reduced height
         )
-        self.desc_text.pack(fill="both", expand=True, pady=10)
+        self.desc_text.pack(fill="both", expand=True, pady=5)  # Reduced padding
     
-    def create_cover_section(self):
+    def coverSection(self):
         # Cover label
         cover_title = ctk.CTkLabel(
             self.right_column,
@@ -177,11 +177,11 @@ class AddBookFrame(ctk.CTkFrame):
             font=ctk.CTkFont(family="Arial", size=16, weight="bold"),
             text_color="white"
         )
-        cover_title.pack(pady=(0, 10))
+        cover_title.pack(pady=(0, 5))  # Reduced padding
         
         # Cover preview frame
         self.cover_frame = ctk.CTkFrame(self.right_column, fg_color="#333333", corner_radius=5)
-        self.cover_frame.pack(pady=10)
+        self.cover_frame.pack(pady=5)  # Reduced padding
         
         self.cover_label = ctk.CTkLabel(self.cover_frame, text="", image=None)
         self.cover_label.pack(padx=10, pady=10)
@@ -199,9 +199,9 @@ class AddBookFrame(ctk.CTkFrame):
             text_color="white",
             font=ctk.CTkFont(family="Arial", size=14),
             corner_radius=10,
-            height=40
+            height=35  # Reduced height
         )
-        self.upload_btn.pack(pady=10)
+        self.upload_btn.pack(pady=5)  # Reduced padding
         
         # Cover info
         self.cover_info = ctk.CTkLabel(
@@ -211,7 +211,7 @@ class AddBookFrame(ctk.CTkFrame):
             text_color="#888888",
             justify="center"
         )
-        self.cover_info.pack(pady=5)
+        self.cover_info.pack(pady=2)  # Reduced padding
         
         # Selected file info
         self.selected_file_label = ctk.CTkLabel(
@@ -221,7 +221,7 @@ class AddBookFrame(ctk.CTkFrame):
             text_color="#888888",
             justify="center"
         )
-        self.selected_file_label.pack(pady=5)
+        self.selected_file_label.pack(pady=2)  # Reduced padding
     
     def load_default_cover(self):
         """Load default cover image"""
