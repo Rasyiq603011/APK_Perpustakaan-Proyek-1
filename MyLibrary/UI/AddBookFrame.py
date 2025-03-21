@@ -38,7 +38,7 @@ class AddBookFrame(ctk.CTkFrame):
         self.back_btn = ctk.CTkButton(
             self.header_frame, 
             text="← Kembali", 
-            command=lambda: self.controller.show_frame("DataBookFrame") if hasattr(self.controller, 'show_frame') else None,
+            command=lambda: self.controller.showFrame("DataBookFrame"),
             fg_color="#6200EA",  # Deeper purple matching React design
             text_color="white",
             font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
@@ -83,7 +83,7 @@ class AddBookFrame(ctk.CTkFrame):
         self.cancel_btn = ctk.CTkButton(
             self.footer,
             text="Batal",
-            command=lambda: self.controller.show_frame("DataBookFrame") if hasattr(self.controller, 'show_frame') else None,
+            command=lambda: self.controller.showFrame("DataBookFrame"),
             fg_color="#F44336",  # Material design red
             hover_color="#D32F2F",  # Darker red for hover
             text_color="white",
@@ -432,19 +432,19 @@ class AddBookFrame(ctk.CTkFrame):
         
         # Call controller to add book
         try:
-            if hasattr(self.controller, "save_book"):
-                result = self.controller.save_book(book)
+            if hasattr(self.controller, "saveBook"):
+                result = self.controller.saveBook(book)
                 if result:
-                    messagebox.showinfo("Sukses", "Buku berhasil ditambahkan!")
-                    self.clear_form()
+                    # Will be handled by controller
+                    pass
             else:
-                print("Warning: Controller does not have save_book method")
+                print("Warning: Controller does not have saveBook method")
                 messagebox.showinfo("Demo", "Fitur tambah buku akan terintegrasi dengan controller")
                 self.clear_form()
         finally:
             # Restore button state
             self.save_btn.configure(state="normal", text="Simpan Buku")
-    
+        
     def clear_form(self):
         """Clear all form fields"""
         for entry in self.entries.values():

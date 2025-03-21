@@ -60,7 +60,22 @@ class BookManager:
         return True
     
     def UpdateBook(self, bookUpdate):
-        self.book.loc[self.book['ISBN'] == bookUpdate['ISBN'], :] = bookUpdate
+        """Update a book in the DataFrame by ISBN"""
+        # Find the index of the book to update
+        mask = self.book['ISBN'] == bookUpdate['ISBN']
+        if not mask.any():
+            print(f"Book with ISBN {bookUpdate['ISBN']} not found")
+            return False
+            
+        # Get the index where the ISBN matches
+        idx = mask.idxmax()
+        
+        # Update all fields for the book at this index
+        for column in self.book.columns:
+            if column in bookUpdate:
+                self.book.at[idx, column] = bookUpdate[column]
+        
+        # Save the updated DataFrame
         self.save()
         return True
     
@@ -110,8 +125,11 @@ class BookManager:
     
     def daftarPenerbit(self):
         return self.book['Penerbit'].unique().tolist()
-    
+        
     def LoadCover(self, isbn):
+        """Load book cover image as CTkImage"""
+        import customtkinter as ctk
+        
         size = (100, 150)
         
         # Check if book image exists
@@ -119,16 +137,17 @@ class BookManager:
         if not os.path.exists(img_path) or not isbn:
             # Use default image if not found
             img_path = self.defaultImage
-            
+                
         try:
             img = Image.open(img_path)
             img = img.resize(size, Image.LANCZOS)
-            return ImageTk.PhotoImage(img)
+            return ctk.CTkImage(light_image=img, dark_image=img, size=size)
         except Exception as e:
             print(f"Error loading image: {e}")
             # Create blank image on error
             blank_img = Image.new('RGB', size, color='lightgray')
-            return ImageTk.PhotoImage(blank_img)
+            return ctk.CTkImage(light_image=blank_img, dark_image=blank_img, size=size)
+
     
 
 if __name__ == '__main__':

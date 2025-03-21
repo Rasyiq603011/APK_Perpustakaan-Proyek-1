@@ -4,6 +4,7 @@ from tkinter import ttk
 from PIL import Image, ImageTk
 import sys
 import os
+from tkinter import messagebox
 import pandas as pd
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from Moduls.Book_Manager import BookManager as L
@@ -38,7 +39,7 @@ class DetailsBookFrame(ctk.CTkFrame):
         self.back_btn = ctk.CTkButton(
             self.header_frame, 
             text="← Kembali", 
-            command=lambda: self.controller.show_frame("DataBookFrame") if hasattr(self.controller, 'show_frame') else None,
+            command=lambda: self.controller.showFrame("DataBookFrame"),
             fg_color="#6200EA",  # Deeper purple matching React design
             text_color="white",
             font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
@@ -84,7 +85,7 @@ class DetailsBookFrame(ctk.CTkFrame):
         self.edit_btn = ctk.CTkButton(
             self.footer,
             text="Edit Data",
-            command=lambda: self.controller.showFrame("UpdateBookFrame") if hasattr(self.controller, 'showFrame') else None,
+            command=lambda: self.controller.showFrame("UpdateBookFrame"),
             fg_color="#6200EA",  # Purple like other UI elements
             hover_color="#5000D0",  # Slightly lighter purple for hover
             text_color="white",
@@ -154,8 +155,11 @@ class DetailsBookFrame(ctk.CTkFrame):
 
     def borrow_book(self):
         """Handle borrowing book functionality"""
-        # Just a placeholder for now
-        print("Pinjam buku clicked")
+        # Make sure we have a valid book before attempting to borrow
+        if self.selectedBook is None:
+            messagebox.showerror("Error", "No book selected or book data is missing!")
+            return
+            
         if hasattr(self.controller, 'borrowBook'):
             self.controller.borrowBook(self.selectedBook)
 

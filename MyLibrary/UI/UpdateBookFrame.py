@@ -36,7 +36,7 @@ class UpdateBookFrame(ctk.CTkFrame):
         self.back_btn = ctk.CTkButton(
             self.header_frame, 
             text="← Kembali", 
-            command=lambda: self.controller.showFrame("DataBookFrame") if hasattr(self.controller, 'showFrame') else None,
+            command=lambda: self.controller.showFrame("DataBookFrame"),
             fg_color="#6200EA",  # Deeper purple matching React design
             text_color="white",
             font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
@@ -81,7 +81,7 @@ class UpdateBookFrame(ctk.CTkFrame):
         self.cancelBtn = ctk.CTkButton(
             self.footer,
             text="Batal",
-            command=lambda: self.controller.showFrame("DataBookFrame") if hasattr(self.controller, 'showFrame') else None,
+            command=lambda: self.controller.showFrame("DataBookFrame"),
             fg_color="#F44336",  # Material design red
             hover_color="#D32F2F",  # Darker red for hover
             text_color="white",
@@ -257,32 +257,33 @@ class UpdateBookFrame(ctk.CTkFrame):
             justify="center"
         )
         self.selected_file_label.grid(row=4, column=0, pady=5)
-    
     def load_book_data(self):
         """Load book data into form fields"""
-        if not self.book:
+        if self.book is None:
             return
-        
-        # Set values in entry fields
-        for field_name in self.entries:
-            if field_name in self.book:
-                self.entries[field_name].delete(0, "end")
-                self.entries[field_name].insert(0, str(self.book.get(field_name, "")))
-        
-        # Always ensure ISBN is non-empty and disabled for editing
-        if not self.entries["ISBN"].get():
-            self.entries["ISBN"].insert(0, "9999999999999")  # Default placeholder ISBN
-        
-        # Make ISBN field read-only
-        self.entries["ISBN"].configure(state="disabled")
-        
-        # Set description
-        if "Deskripsi" in self.book:
-            self.desc_text.delete("1.0", "end")
-            self.desc_text.insert("1.0", str(self.book.get("Deskripsi", "")))
-        
-        # Load cover image
-        self.load_cover_image()
+            
+        # Check if book is a pandas Series
+        if hasattr(self.book, 'keys'):
+            # Set values in entry fields
+            for field_name in self.entries:
+                if field_name in self.book:
+                    self.entries[field_name].delete(0, "end")
+                    self.entries[field_name].insert(0, str(self.book.get(field_name, "")))
+            
+            # Always ensure ISBN is non-empty and disabled for editing
+            if not self.entries["ISBN"].get():
+                self.entries["ISBN"].insert(0, "9999999999999")  # Default placeholder ISBN
+            
+            # Make ISBN field read-only
+            self.entries["ISBN"].configure(state="disabled")
+            
+            # Set description
+            if "Deskripsi" in self.book:
+                self.desc_text.delete("1.0", "end")
+                self.desc_text.insert("1.0", str(self.book.get("Deskripsi", "")))
+            
+            # Load cover image
+            self.load_cover_image()
     
     def load_cover_image(self):
         """Load book cover image for preview"""
@@ -451,20 +452,13 @@ class UpdateBookFrame(ctk.CTkFrame):
         
         # Call controller update method
         try:
-            if hasattr(self.controller, "UpdateBook"):
-                result = self.controller.UpdateBook(updated_book)
+            if hasattr(self.controller, "updateBook"):
+                result = self.controller.updateBook(updated_book)
                 if result:
-                    messagebox.showinfo("Sukses", "Buku berhasil diperbarui!")
-                    if hasattr(self.controller, "showFrame"):
-                        self.controller.showFrame("DataBookFrame")
-            elif hasattr(self.controller.bookManager, "UpdateBook"):
-                result = self.controller.bookManager.UpdateBook(updated_book)
-                if result:
-                    messagebox.showinfo("Sukses", "Buku berhasil diperbarui!")
-                    if hasattr(self.controller, "showFrame"):
-                        self.controller.showFrame("DataBookFrame")
+                    # Button state is updated by the controller
+                    pass
             else:
-                print("Warning: Controller does not have UpdateBook method")
+                print("Warning: Controller does not have updateBook method")
                 messagebox.showinfo("Demo", "Fitur update akan terintegrasi dengan controller")
                 if hasattr(self.controller, "showFrame"):
                     self.controller.showFrame("DataBookFrame")
