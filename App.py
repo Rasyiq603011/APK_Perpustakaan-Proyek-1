@@ -86,7 +86,6 @@ class Application:
         self.showFrame("DetailsBookFrame")
     
     def saveBook(self, bookData):
-        """Save a new book"""
         if hasattr(self.bookManager, "addBook"):
             result = self.bookManager.addBook(bookData)
             if result:
@@ -151,7 +150,6 @@ class Application:
         return None
     
     def ISBNexists(self, isbn):
-        """Check if book with ISBN already exists"""
         if hasattr(self.bookManager, "ISBNexists"):
             return self.bookManager.ISBNexists(isbn)
         return False
@@ -161,9 +159,3 @@ class Application:
         if hasattr(self.bookManager, "LoadCover"):
             return self.bookManager.LoadCover(isbn)
         return None
-
-
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = Application(root)
-    root.mainloop()

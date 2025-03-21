@@ -48,16 +48,68 @@ class BookManager:
             return False
         
     def ISBNexists(self, isbn):
-        return isbn in self.book['ISBN']
-    
-    def addBook(self,book):
-        self.book = self.book.append(book, ignore_index=True)
+        # Convert to string for comparison if needed
+        isbn_str = str(isbn)
+        # Check if any row's ISBN equals the given ISBN
+        return (self.book['ISBN'].astype(str) == isbn_str).any()
+        
+    def addBook(self, book):
+        """Add a new book to the DataFrame"""
+        # Convert dictionary to DataFrame
+        book_df = pd.DataFrame([book])
+        
+        # Concatenate with existing DataFrame
+        self.book = pd.concat([self.book, book_df], ignore_index=True)
         self.save()
         return True
     
     def save(self):
-        self.book.to_excel(self.file_path, index=False)
-        return True
+        try:
+            # Try to save directly
+            self.book.to_excel(self.file_path, index=False)
+            return True
+        except PermissionError:
+            from tkinter import messagebox
+            import os
+            import time
+            
+            # Inform the user
+            response = messagebox.askretrycancel(
+                "File Access Error",
+                f"Tidak dapat menyimpan ke file '{os.path.basename(self.file_path)}'. File mungkin sedang terbuka di program lain atau Anda tidak memiliki izin yang cukup.\n\nTutup program lain yang membuka file ini dan coba lagi."
+            )
+            
+            if response:  # User wants to retry
+                try:
+                    # Wait briefly then try again
+                    time.sleep(1)
+                    self.book.to_excel(self.file_path, index=False)
+                    return True
+                except Exception as e:
+                    # If still fails, try saving to a backup location
+                    backup_path = self.file_path.replace(".xlsx", f"_backup_{int(time.time())}.xlsx")
+                    try:
+                        self.book.to_excel(backup_path, index=False)
+                        messagebox.showinfo(
+                            "Berhasil Disimpan ke Backup",
+                            f"Data berhasil disimpan ke file backup:\n{os.path.basename(backup_path)}"
+                        )
+                        return True
+                    except Exception as backup_error:
+                        messagebox.showerror(
+                            "Gagal Menyimpan Data",
+                            f"Tidak dapat menyimpan data ke file asli maupun backup.\nError: {str(backup_error)}"
+                        )
+                        return False
+            return False
+        except Exception as e:
+            # Handle other errors
+            from tkinter import messagebox
+            messagebox.showerror(
+                "Error",
+                f"Terjadi kesalahan saat menyimpan data:\n{str(e)}"
+            )
+            return False
     
     def UpdateBook(self, bookUpdate):
         """Update a book in the DataFrame by ISBN"""
