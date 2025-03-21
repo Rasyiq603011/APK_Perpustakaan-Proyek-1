@@ -12,115 +12,163 @@ from Moduls.Book_Manager import BookManager as L
 class DetailsBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-        self.configure(fg_color="#1E1E1E", corner_radius=0)
-        # self.pack(expand=True, fill="both")
+        self.configure(fg_color="#1E1E1E", corner_radius=0)  # Dark background
+        
         self.controller = controller
         self.selectedBook = self.controller.selectedBook
         self.defaultCover = "D:\\Project 1\\Tubes Semester 1\\Asset\\IMG.jpg"
         self.dataDir = os.path.join(os.path.dirname(__file__), "D:\\Project 1\\Tubes Semester 1\\Asset\\Cover")
         
-        # Frame utama untuk layout (tanpa grid)
-        self.main_frame = ctk.CTkFrame(self, fg_color="#1E1E1E", corner_radius=0)
-        self.main_frame.pack(expand=True, fill="both", padx=10, pady=10)
+        # Main frame layout - Optimized for 1024x768
+        self.columnconfigure(0, weight=3)  # Detail content
+        self.columnconfigure(1, weight=2)  # Cover image
+        self.rowconfigure(0, weight=0)  # Header row - fixed height
+        self.rowconfigure(1, weight=1)  # Content row - expands
+        self.rowconfigure(2, weight=0)  # Footer row - fixed height
         
-        # Back button di bagian atas
+        # ===== HEADER SECTION =====
+        # Simplified header with less padding for more compact layout
+        self.header_frame = ctk.CTkFrame(self, fg_color="transparent")
+        self.header_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=20, pady=(10, 5))
+        self.header_frame.columnconfigure(0, weight=1)  # Back button
+        self.header_frame.columnconfigure(1, weight=2)  # Title
+        self.header_frame.columnconfigure(2, weight=1)  # Empty space for symmetry
+        
+        # Back button - made slightly more compact
         self.back_btn = ctk.CTkButton(
-            self.main_frame, 
+            self.header_frame, 
             text="← Kembali", 
-            command= lambda: self.controller.show_frame("DataBookFrame") if hasattr(self.controller, 'show_frame') else None,
-            fg_color="#4C0086",
+            command=lambda: self.controller.show_frame("DataBookFrame") if hasattr(self.controller, 'show_frame') else None,
+            fg_color="#6200EA",  # Deeper purple matching React design
             text_color="white",
             font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
             corner_radius=15,
-            width=150,
-            height=35
+            width=120,
+            height=30
         )
-        self.back_btn.pack(anchor="nw", padx=20, pady=10)
+        self.back_btn.grid(row=0, column=0, sticky="w", padx=10)
         
-        # Content container for book details
-        self.content_frame = ctk.CTkFrame(self.main_frame, fg_color="#1E1E1E", corner_radius=10)
-        self.content_frame.pack(fill="both", expand=True, padx=40, pady=10)
-        
-        # Book image and info container
-        self.info_container = ctk.CTkFrame(self.content_frame, fg_color="#2D2D2D", corner_radius=10)
-        self.info_container.pack(fill="both", expand=True, padx=10, pady=10)
-        
-        # Left side for image
-        self.img_frame = ctk.CTkFrame(self.info_container, fg_color="#2D2D2D", corner_radius=0, width=200)
-        self.img_frame.pack(side="left", fill="y", padx=(20, 20))
-        
-        # Placeholder for book cover
-        self.img_label = ctk.CTkLabel(self.img_frame, text="")
-        self.img_label.pack(pady=10)
-        
-        # Right side for book info
-        self.details_frame = ctk.CTkFrame(self.info_container, fg_color="#2D2D2D", corner_radius=0)
-        self.details_frame.pack(side="left", fill="both", expand=True, padx=20, pady=20)
-        
-        # Button container di bawah
-        self.button_container = ctk.CTkFrame(self.main_frame, fg_color="transparent", height=60)
-        self.button_container.pack(fill="x", pady=(10, 20))
-        
-        # Dua kolom untuk tombol
-        self.button_container.columnconfigure(0, weight=1)
-        self.button_container.columnconfigure(1, weight=1)
-        
-        # Borrow button
-        self.borrow_btn = ctk.CTkButton(
-            self.button_container,
-            text="Pinjam Buku",
-            command=self.borrow_book if hasattr(self, 'borrow_book') else None,
-            fg_color="#00CC00",
-            hover_color="#00AA00",
-            text_color="black",
-            font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
-            corner_radius=15,
-            height=45,
-            width=200
+        # Title - same size but centered better
+        self.title_label = ctk.CTkLabel(
+            self.header_frame,
+            text="DETAIL BUKU",
+            font=ctk.CTkFont(family="Arial", size=24, weight="bold"),
+            text_color="white"
         )
-        self.borrow_btn.grid(row=0, column=0, padx=10, pady=10, sticky="e")
+        self.title_label.grid(row=0, column=1)
         
-        # Wishlist button
-        self.UpdateData = ctk.CTkButton(
-            self.button_container,
+        # ===== CONTENT SECTION =====
+        # Info container (left side)
+        self.info_container = ctk.CTkFrame(self, fg_color="#2B2B2B", corner_radius=10)  # Slightly lighter background for info
+        self.info_container.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=5)
+        
+        # Initialize info frame - will be populated in update_book_details
+        self.info_frame = ctk.CTkFrame(self.info_container, fg_color="transparent")
+        self.info_frame.pack(fill="both", expand=True, padx=20, pady=20)
+        
+        # Cover container (right side)
+        self.cover_container = ctk.CTkFrame(self, fg_color="#2B2B2B", corner_radius=10)  # Matching info container color
+        self.cover_container.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=5)
+        
+        # Setup cover section
+        self.setup_cover_section()
+        
+        # ===== FOOTER SECTION =====
+        # More compact footer
+        self.footer = ctk.CTkFrame(self, fg_color="#232323", height=60, corner_radius=10)  # Darker footer
+        self.footer.grid(row=2, column=0, columnspan=2, sticky="ew", padx=20, pady=(5, 10))
+        # Prevent height from changing
+        self.footer.pack_propagate(False)
+        
+        # Edit button - Left side
+        self.edit_btn = ctk.CTkButton(
+            self.footer,
             text="Edit Data",
-            command= lambda:self.controller.showFrame() if hasattr(self.controller, 'UpdateBookFrame') else None,
-            fg_color="#4C0086",
-            hover_color="#3C0066",
+            command=lambda: self.controller.showFrame("UpdateBookFrame") if hasattr(self.controller, 'showFrame') else None,
+            fg_color="#6200EA",  # Purple like other UI elements
+            hover_color="#5000D0",  # Slightly lighter purple for hover
             text_color="white",
             font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
             corner_radius=15,
-            height=45,
-            width=200
+            height=40,
+            width=150
         )
-        self.wishlist_btn.grid(row=0, column=1, padx=10, pady=10, sticky="w")
+        self.edit_btn.pack(side="left", padx=40, pady=10)
+        
+        # Borrow button - Right side
+        self.borrow_btn = ctk.CTkButton(
+            self.footer,
+            text="Pinjam Buku",
+            command=self.borrow_book,
+            fg_color="#4CAF50",  # Material design green
+            hover_color="#388E3C",  # Darker green for hover
+            text_color="white",  # White text for better contrast
+            font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
+            corner_radius=15,
+            height=40,
+            width=180
+        )
+        self.borrow_btn.pack(side="right", padx=40, pady=10)
         
         # Update book details if provided
         if self.selectedBook is not None:
             self.update_book_details()
 
-    def borrow_book(self):
-        print("Pinjam buku clicked")
+    def setup_cover_section(self):
+        """Setup the cover preview section"""
+        # Configure cover container layout
+        self.cover_container.columnconfigure(0, weight=1)
+        self.cover_container.rowconfigure(0, weight=0)  # Label
+        self.cover_container.rowconfigure(1, weight=1)  # Cover image
+        self.cover_container.rowconfigure(2, weight=0)  # Info
         
-    def add_to_wishlist(self):
-        print("Tambah ke wishlist clicked")
+        # Cover title
+        cover_title = ctk.CTkLabel(
+            self.cover_container,
+            text="Cover Buku",
+            font=ctk.CTkFont(family="Arial", size=18, weight="bold"),
+            text_color="white"
+        )
+        cover_title.grid(row=0, column=0, pady=(15, 10))
+        
+        # Cover image frame - Light background like in React design
+        self.cover_frame = ctk.CTkFrame(self.cover_container, fg_color="#F5F5F5", corner_radius=5)  # Light background for cover
+        self.cover_frame.grid(row=1, column=0, pady=5)
+        
+        # Cover image label - using the recommended 180x270 ratio
+        self.img_label = ctk.CTkLabel(self.cover_frame, text="", image=None)
+        self.img_label.pack(padx=10, pady=10)
+        
+        # Book status info
+        status_frame = ctk.CTkFrame(self.cover_container, fg_color="#363636", corner_radius=5)  # Slightly darker info frame
+        status_frame.grid(row=2, column=0, padx=20, pady=5, sticky="ew")
+        
+        self.status_label = ctk.CTkLabel(
+            status_frame,
+            text="Status: Tersedia",  # Default status, will be updated
+            font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
+            text_color="#FFFFFF",
+            justify="center"
+        )
+        self.status_label.pack(pady=8, padx=10)
 
-    def show_book_detail(self, book):
-        self.selectedBook = book
-        if hasattr(self.controller, 'show_frame'):
-            self.controller.show_frame("detail")
-        self.update_book_details()
+    def borrow_book(self):
+        """Handle borrowing book functionality"""
+        # Just a placeholder for now
+        print("Pinjam buku clicked")
+        if hasattr(self.controller, 'borrowBook'):
+            self.controller.borrowBook(self.selectedBook)
 
     def update_book_details(self):
         """Update the detail frame with selected book info"""
         if self.selectedBook is None:
             return
             
-        # Clear existing content
-        for widget in self.details_frame.winfo_children():
+        # Clear existing content in info frame
+        for widget in self.info_frame.winfo_children():
             widget.destroy()
             
-        # Load book image
+        # Load book cover image
         size = (180, 270)
         isbn = str(self.selectedBook.get('ISBN', ''))
         img_path = os.path.join(self.dataDir, f"{isbn}.jpeg")
@@ -136,26 +184,41 @@ class DetailsBookFrame(ctk.CTkFrame):
             self.img_label.image = photo_img
         except Exception as e:
             print(f"Error loading image: {e}")
+        
+        # Update status
+        status = self.selectedBook.get('Status', 'Tersedia')
+        status_color = "#4CAF50" if status == "Tersedia" else "#FF6B6B"  # Green if available, red otherwise
+        self.status_label.configure(text=f"Status: {status}", text_color=status_color)
             
-        # Title frame with textbox for better wrapping
-        title_frame = ctk.CTkFrame(self.details_frame, fg_color="transparent")
-        title_frame.pack(fill="x", anchor="w", pady=(0, 20))
+        # Book title in larger font
+        title_frame = ctk.CTkFrame(self.info_frame, fg_color="transparent", height=70)
+        title_frame.pack(fill="x", anchor="w", pady=(0, 15))
+        title_frame.pack_propagate(False)  # Keep fixed height
 
         title_textbox = ctk.CTkTextbox(
             title_frame,
-            height=60,
-            font=ctk.CTkFont(family="Arial", size=18, weight="bold"),
+            font=ctk.CTkFont(family="Arial", size=20, weight="bold"),
             text_color="white",
             wrap="word",
             fg_color="transparent",
             border_width=0,
             activate_scrollbars=False
         )
-        title_textbox.pack(fill="x", anchor="w")
+        title_textbox.pack(fill="both", expand=True)
         title_textbox.insert("1.0", self.selectedBook.get('Judul', 'Tidak Ada Judul'))
         title_textbox.configure(state="disabled")
 
-        # Info fields
+        # Book details in grid layout
+        details_grid = ctk.CTkFrame(self.info_frame, fg_color="transparent")
+        details_grid.pack(fill="x", pady=10)
+        
+        # Configure grid
+        details_grid.columnconfigure(0, weight=0)  # Label 1
+        details_grid.columnconfigure(1, weight=1)  # Value 1
+        details_grid.columnconfigure(2, weight=0)  # Label 2
+        details_grid.columnconfigure(3, weight=1)  # Value 2
+        
+        # Info fields (first group in a grid)
         fields = [
             ("Penulis", "Penulis", "Tidak Diketahui"),
             ("Penerbit", "Penerbit", "Tidak Diketahui"),
@@ -165,77 +228,98 @@ class DetailsBookFrame(ctk.CTkFrame):
             ("Halaman", "Halaman", "Tidak Diketahui")
         ]
         
-        for label_text, key, default in fields:
-            field_label = ctk.CTkLabel(
-                self.details_frame,
-                text=f"{label_text}: {self.selectedBook.get(key, default)}",
-                font=ctk.CTkFont(family="Arial", size=14),
-                text_color="white",
-                wraplength=600,
-                justify="left"
-            )
-            field_label.pack(anchor="w", pady=5)
-
-        # Description with scrollable textbox
-        if 'Deskripsi' in self.selectedBook and str(self.selectedBook['Deskripsi']) != 'nan':
-            desc_title = ctk.CTkLabel(
-                self.details_frame,
-                text="Deskripsi:",
+        for i, (label_text, key, default) in enumerate(fields):
+            # Calculate row and column
+            row = i // 2
+            base_col = (i % 2) * 2
+            
+            # Label
+            label = ctk.CTkLabel(
+                details_grid,
+                text=f"{label_text}:",
                 font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
                 text_color="white",
-                wraplength=600,
-                justify="left"
+                anchor="w",
+                width=70
+            )
+            label.grid(row=row, column=base_col, padx=(5, 5), pady=8, sticky="w")
+            
+            # Value
+            value = ctk.CTkLabel(
+                details_grid,
+                text=f"{self.selectedBook.get(key, default)}",
+                font=ctk.CTkFont(family="Arial", size=14),
+                text_color="white",
+                anchor="w"
+            )
+            value.grid(row=row, column=base_col+1, padx=(0, 10), pady=8, sticky="w")
+
+        # Description section
+        if 'Deskripsi' in self.selectedBook and str(self.selectedBook['Deskripsi']) != 'nan':
+            desc_title = ctk.CTkLabel(
+                self.info_frame,
+                text="Deskripsi:",
+                font=ctk.CTkFont(family="Arial", size=16, weight="bold"),
+                text_color="white",
+                anchor="w"
             )
             desc_title.pack(anchor="w", pady=(20, 5))
             
-            # Frame for scrollable description
-            desc_frame = ctk.CTkFrame(self.details_frame, fg_color="transparent")
-            desc_frame.pack(fill="both", expand=True, anchor="w", pady=5)
-            
             # Description textbox with scrollbar
             desc_textbox = ctk.CTkTextbox(
-                desc_frame,
-                width=600,
+                self.info_frame,
                 height=150,
-                font=ctk.CTkFont(family="Arial", size=12),
+                font=ctk.CTkFont(family="Arial", size=14),
                 text_color="white",
                 wrap="word",
-                fg_color="#333333",
-                border_width=0,
+                fg_color="#3D3D3D",  # Lighter background for textarea
+                border_color="#666666",  # Matching border color
+                corner_radius=8,
+                border_width=1,
                 activate_scrollbars=True
             )
-            desc_textbox.pack(fill="both", expand=True, padx=(0, 10))
+            desc_textbox.pack(fill="both", expand=True, pady=(0, 10))
             
             desc_textbox.insert("1.0", str(self.selectedBook['Deskripsi']))
             desc_textbox.configure(state="disabled")
             desc_textbox.see("1.0")
 
 
-# if __name__ == '__main__':
-#     root = tk.Tk()
-#     root.title("Book Details")
-#     root.geometry("1024x768")
+# Test function if run directly
+if __name__ == "__main__":
+    root = ctk.CTk()
+    root.title("Detail Buku")
+    root.geometry("1024x768")
     
-#     # Untuk testing, buat sample data sederhana jika BookManager tidak berfungsi
-#     try:
-#         book = L('D:\\Project 1\\Tubes Semester 1\\Asset\\data_buku.xlsx', 'Cover', "img.jpg")
-#         sample_book = L.getBookByIndeks(book, 14)
-#     except Exception as e:
-#         print(f"Error loading book data: {e}")
-#         # Fallback data
-#         sample_book = {
-#             'Judul': 'Quidditch Through the Ages: the Illustrated Edition',
-#             'Penulis': 'J. K. Rowling',
-#             'Penerbit': 'Tidak Diketahui',
-#             'Tahun': '2020',
-#             'Kategori': 'Juvenile Fiction',
-#             'ISBN': '9781338340563',
-#             'Halaman': '0',
-#             'Deskripsi': 'Kennilworthy Whisp is a fictitious author created by J.K. Rowling.'
-#         }
+    # For testing, make a simple controller class
+    class TestController:
+        def show_frame(self, frame_name):
+            print(f"Would show frame: {frame_name}")
+        
+        def showFrame(self, frame_name):
+            print(f"Would show frame (camelCase): {frame_name}")
+        
+        def borrowBook(self, book):
+            print(f"Would borrow book: {book.get('Judul', 'Unknown')}")
     
-#     frame = tk.Frame(root)
-#     frame.pack(expand=True, fill="both")
+    # Sample book data for testing
+    test_controller = TestController()
+    test_controller.selectedBook = {
+        'Judul': 'Laskar Pelangi',
+        'Penulis': 'Andrea Hirata',
+        'Penerbit': 'Bentang Pustaka',
+        'Tahun': '2005',
+        'Kategori': 'Novel',
+        'ISBN': '9789793062792',
+        'Halaman': '529',
+        'Status': 'Tersedia',
+        'Deskripsi': 'Novel ini bercerita tentang kehidupan 10 anak dari keluarga miskin yang bersekolah di sebuah sekolah Muhammadiyah di Belitung yang penuh dengan keterbatasan. Meskipun sekolah itu sangat sederhana, mereka menjadikan masa kanak-kanak mereka yang bahagia, dan Ikal menjadi penulis buku bertaraf internasional.'
+    }
     
-#     app = DetailsBookFrame(frame, root, sample_book)
-#     root.mainloop()
+    frame = ctk.CTkFrame(root)
+    frame.pack(expand=True, fill="both")
+    
+    app = DetailsBookFrame(frame, test_controller)
+    app.pack(expand=True, fill="both")
+    
+    root.mainloop()

@@ -1,8 +1,11 @@
 {
-    "workbench.colorTheme": "Material Theme Deepforest",
-    "editor.fontSize": 16,
-    "editor.fontFamily": "Fira Code Retina",
-    "editor.lineHeight": 1.5,
-    "editor.wordWrap": "on",
-    "workbench.iconTheme": "vscode-icons"
+    "editor.fontSize": 18,
+    "terminal.integrated.fontSize": 18,
+    "window.zoomLevel": 0,
+    "editor.tabSize": 4,
+    "workbench.iconTheme": "vscode-icons",
+    "workbench.colorTheme": "Noctis Minimus",
+    "editor.minimap.enabled": false,
+    "python.linting.enabled": false,
+    "python.linting.lintOnSave": false
 }

@@ -34,31 +34,35 @@ class BookManager:
         else:
             return None
     
-    def ISBNValidator(self,ISBN):
-        if len(ISBN) != 13:
+    def ISBNValidator(self,isbn):
+        if not isbn.isdigit() or len(isbn) < 10:
             return False
-        return True
-    def addBook(self, Judul, Penulis,Penerbit,Tahun, ISBN,Halaman,Status):
-        if ISBN in self.book['ISBN'].values | self.ISBNValidator(ISBN):
+    
+    def TahunValidator(self, tahun):
+        # Validate year is a number
+        if tahun < 1000 or tahun > 3000:
             return False
         
-        buku_baru = {
-            'Judul': Judul,
-            'Penulis': Penulis,
-            'Penerbit': Penerbit,
-            'Tahun': Tahun,
-            'ISBN': ISBN,
-            'Halaman': Halaman,
-            'Status': Status,
-        }
-        self.book = self.book.append(buku_baru, ignore_index=True)
+    def PageValidator(self,page):       
+        if page < 0:
+            return False
+        
+    def ISBNexists(self, isbn):
+        return isbn in self.book['ISBN']
+    
+    def addBook(self,book):
+        self.book = self.book.append(book, ignore_index=True)
+        self.save()
         return True
     
     def save(self):
         self.book.to_excel(self.file_path, index=False)
         return True
     
-    def Update(self):
+    def UpdateBook(self, bookUpdate):
+        self.book.loc[self.book['ISBN'] == bookUpdate['ISBN'], :] = bookUpdate
+        self.save()
+        return True
     
     def searchBook(self, keyword):
         return self.book[self.book['Judul'].str.contains(keyword) | 

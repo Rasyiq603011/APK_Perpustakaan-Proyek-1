@@ -9,7 +9,7 @@ from PIL import Image
 class UpdateBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller, book=None):
         ctk.CTkFrame.__init__(self, parent)
-        self.configure(fg_color="#1E1E1E", corner_radius=0)  # Dark background
+        self.configure(fg_color="#1E1E1E", corner_radius=0)
         
         self.controller = controller
         self.book = book
@@ -17,63 +17,61 @@ class UpdateBookFrame(ctk.CTkFrame):
         self.cover_dir = "D:\\Project 1\\Tubes Semester 1\\Asset\\Cover"
         self.selected_cover_path = None  # Path to temporarily selected cover
 
-        # Main frame layout - Optimized for 1024x768
-        self.columnconfigure(0, weight=3)  # Form container gets more space
-        self.columnconfigure(1, weight=2)  # Cover container
-        self.rowconfigure(0, weight=0)  # Header row - fixed height
-        self.rowconfigure(1, weight=1)  # Content row - expands
-        self.rowconfigure(2, weight=0)  # Footer row - fixed height
+        # Main frame - Sebenarnya kita tidak perlu membuat frame lagi di dalam frame
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(1, weight=1)
+        self.rowconfigure(0, weight=0)  # Header row
+        self.rowconfigure(1, weight=1)  # Content row
+        self.rowconfigure(2, weight=0)  # Footer row
         
         # ===== HEADER SECTION =====
-        # Simplified header with less padding for more compact layout
         self.header_frame = ctk.CTkFrame(self, fg_color="transparent")
-        self.header_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=20, pady=(10, 5))
+        self.header_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=20, pady=10)
         self.header_frame.columnconfigure(0, weight=1)  # Back button
         self.header_frame.columnconfigure(1, weight=2)  # Title
         self.header_frame.columnconfigure(2, weight=1)  # Empty space for symmetry
         
-        # Back button - made slightly more compact
+        # Back button
         self.back_btn = ctk.CTkButton(
             self.header_frame, 
             text="← Kembali", 
             command=lambda: self.controller.showFrame("DataBookFrame") if hasattr(self.controller, 'showFrame') else None,
-            fg_color="#6200EA",  # Deeper purple matching React design
+            fg_color="#4C0086",
             text_color="white",
             font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
             corner_radius=15,
-            width=120,
-            height=30
+            width=150,
+            height=35
         )
         self.back_btn.grid(row=0, column=0, sticky="w", padx=10)
         
-        # Title - same size but centered better
+        # Title
         self.title_label = ctk.CTkLabel(
             self.header_frame,
-            text="UPDATE BUKU",  # Changed to reflect this is an update frame, not adding new book
+            text="UPDATE BUKU",
             font=ctk.CTkFont(family="Arial", size=24, weight="bold"),
             text_color="white"
         )
         self.title_label.grid(row=0, column=1)
         
         # ===== CONTENT SECTION =====
-        # Form container (left side) - more compact with grid layout
-        self.form_container = ctk.CTkFrame(self, fg_color="#2B2B2B", corner_radius=10)  # Slightly lighter background for form
-        self.form_container.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=5)
+        # Form container (left side)
+        self.form_container = ctk.CTkFrame(self, fg_color="#2D2D2D", corner_radius=10)
+        self.form_container.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=10)
         
-        # Create form fields with optimized layout
+        # Create form fields
         self.create_form_fields()
         
-        # Cover container (right side) - more compact
-        self.cover_container = ctk.CTkFrame(self, fg_color="#2B2B2B", corner_radius=10)  # Matching form container color
-        self.cover_container.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=5)
+        # Cover container (right side)
+        self.cover_container = ctk.CTkFrame(self, fg_color="#2D2D2D", corner_radius=10)
+        self.cover_container.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=10)
         
         # Add cover section
         self.create_cover_section()
         
         # ===== FOOTER SECTION =====
-        # More compact footer
-        self.footer = ctk.CTkFrame(self, fg_color="#232323", height=60, corner_radius=10)  # Darker footer
-        self.footer.grid(row=2, column=0, columnspan=2, sticky="ew", padx=20, pady=(5, 10))
+        self.footer = ctk.CTkFrame(self, fg_color="#262626", height=70, corner_radius=10)
+        self.footer.grid(row=2, column=0, columnspan=2, sticky="ew", padx=20, pady=10)
         # Prevent height from changing
         self.footer.pack_propagate(False)
         
@@ -82,42 +80,37 @@ class UpdateBookFrame(ctk.CTkFrame):
             self.footer,
             text="Batal",
             command=lambda: self.controller.showFrame("DataBookFrame") if hasattr(self.controller, 'showFrame') else None,
-            fg_color="#F44336",  # Material design red
-            hover_color="#D32F2F",  # Darker red for hover
+            fg_color="#FF6B6B",
+            hover_color="#FF5555",
             text_color="white",
             font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
             corner_radius=15,
-            height=40,
-            width=120
+            height=45,
+            width=150
         )
-        self.cancelBtn.pack(side="left", padx=40, pady=10)
+        self.cancelBtn.pack(side="left", padx=40, pady=12)
         
         # Update button - Right side
         self.updateBtn = ctk.CTkButton(
             self.footer,
-            text="Simpan Perubahan",  # Changed to reflect it's for updating
+            text="Simpan Perubahan",
             command=self.update_book,
-            fg_color="#4CAF50",  # Material design green
-            hover_color="#388E3C",  # Darker green for hover
-            text_color="white",  # White text for better contrast
-            font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
+            fg_color="#00CC00",
+            hover_color="#00AA00",
+            text_color="black",
+            font=ctk.CTkFont(family="Arial", size=16, weight="bold"),
             corner_radius=15,
-            height=40,
-            width=180
+            height=45,
+            width=250
         )
-        self.updateBtn.pack(side="right", padx=40, pady=10)
+        self.updateBtn.pack(side="right", padx=40, pady=12)
         
         # Load book data if provided
         if self.book:
             self.load_book_data()
-        else:
-            # If no book data is provided, pre-fill ISBN with a placeholder
-            # This ensures ISBN is never empty, even when creating a new book
-            self.entries["ISBN"].insert(0, "Belum ada ISBN")
-            self.entries["ISBN"].configure(state="disabled")
     
     def create_form_fields(self):
-        """Create entry fields for book data using grid layout for better space utilization"""
+        """Create entry fields for book data"""
         # Define fields with their labels
         fields = [
             ("Judul", "Judul"),
@@ -132,19 +125,12 @@ class UpdateBookFrame(ctk.CTkFrame):
         # Create entry fields
         self.entries = {}
         
-        # Configure form container with grid layout
-        # Use 2 columns to make more efficient use of space
-        self.form_container.columnconfigure(0, weight=0)  # Label 1
-        self.form_container.columnconfigure(1, weight=1)  # Entry 1
-        self.form_container.columnconfigure(2, weight=0)  # Label 2
-        self.form_container.columnconfigure(3, weight=1)  # Entry 2
+        # Configure form container layout
+        self.form_container.columnconfigure(0, weight=0)  # Labels
+        self.form_container.columnconfigure(1, weight=1)  # Entry fields
         
-        # Create fields in a grid layout - 2 columns side by side
+        # Create fields
         for i, (label_text, field_name) in enumerate(fields):
-            # Calculate row and column
-            row = i // 2
-            base_col = (i % 2) * 2
-            
             # Label
             label = ctk.CTkLabel(
                 self.form_container,
@@ -152,25 +138,28 @@ class UpdateBookFrame(ctk.CTkFrame):
                 font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
                 text_color="white",
                 anchor="w",
-                width=70  # Reduced width
+                width=100
             )
-            label.grid(row=row, column=base_col, padx=(10, 5), pady=8, sticky="w")
+            label.grid(row=i, column=0, padx=10, pady=10, sticky="w")
             
             # Entry
             entry = ctk.CTkEntry(
                 self.form_container,
                 font=ctk.CTkFont(family="Arial", size=14),
-                fg_color="#3D3D3D",  # Lighter input field background
-                border_color="#666666",  # Lighter border for better visibility
+                fg_color="#333333",
+                border_color="#555555",
                 text_color="white",
                 corner_radius=8,
-                height=30  # Reduced height
+                height=35
             )
-            entry.grid(row=row, column=base_col+1, padx=(0, 10), pady=8, sticky="ew")
+            entry.grid(row=i, column=1, padx=10, pady=10, sticky="ew")
             
             self.entries[field_name] = entry
         
-        # Description label (spans all columns)
+        # Make ISBN field read-only
+        self.entries["ISBN"].configure(state="disabled")
+        
+        # Description label (one row below the last field)
         desc_label = ctk.CTkLabel(
             self.form_container,
             text="Deskripsi:",
@@ -178,22 +167,22 @@ class UpdateBookFrame(ctk.CTkFrame):
             text_color="white",
             anchor="w"
         )
-        desc_label.grid(row=4, column=0, padx=10, pady=(10, 5), sticky="w")
+        desc_label.grid(row=len(fields), column=0, padx=10, pady=(20, 5), sticky="nw")
         
-        # Description textbox (spans all columns)
+        # Description textbox
         self.desc_text = ctk.CTkTextbox(
             self.form_container,
             font=ctk.CTkFont(family="Arial", size=14),
-            fg_color="#3D3D3D",  # Lighter input field background
-            border_color="#666666",  # Lighter border
+            fg_color="#333333",
+            border_color="#555555",
             text_color="white",
             corner_radius=8,
-            height=120  # Reduced height
+            height=150
         )
-        self.desc_text.grid(row=5, column=0, columnspan=4, padx=10, pady=(0, 10), sticky="nsew")
+        self.desc_text.grid(row=len(fields)+1, column=0, columnspan=2, padx=10, pady=(0, 10), sticky="nsew")
         
         # Make the description row expandable
-        self.form_container.rowconfigure(5, weight=1)
+        self.form_container.rowconfigure(len(fields)+1, weight=1)
     
     def create_cover_section(self):
         """Create the cover preview and upload section"""
@@ -211,13 +200,13 @@ class UpdateBookFrame(ctk.CTkFrame):
             font=ctk.CTkFont(family="Arial", size=18, weight="bold"),
             text_color="white"
         )
-        cover_title.grid(row=0, column=0, pady=(15, 10))
+        cover_title.grid(row=0, column=0, pady=(20, 10))
         
-        # Cover image frame - Light background like in React design
-        self.cover_frame = ctk.CTkFrame(self.cover_container, fg_color="#F5F5F5", corner_radius=5)  # Light background for cover like in design
-        self.cover_frame.grid(row=1, column=0, pady=5)
+        # Cover image frame
+        self.cover_frame = ctk.CTkFrame(self.cover_container, fg_color="#333333", corner_radius=5)
+        self.cover_frame.grid(row=1, column=0, pady=10)
         
-        # Cover image label - using the recommended 180x270 ratio
+        # Cover image label
         self.cover_label = ctk.CTkLabel(self.cover_frame, text="", image=None)
         self.cover_label.pack(padx=10, pady=10)
         
@@ -226,34 +215,34 @@ class UpdateBookFrame(ctk.CTkFrame):
             self.cover_container,
             text="Ubah Gambar Cover",
             command=self.browse_cover,
-            fg_color="#6200EA",  # Deeper purple matching React design
-            hover_color="#5000D0",  # Slightly lighter purple for hover
+            fg_color="#4C0086",
+            hover_color="#3C0066",
             text_color="white",
             font=ctk.CTkFont(family="Arial", size=14),
             corner_radius=10,
-            height=30
+            height=35
         )
         self.upload_btn.grid(row=2, column=0, pady=10)
         
         # Cover info
-        info_frame = ctk.CTkFrame(self.cover_container, fg_color="#363636", corner_radius=5)  # Slightly darker info frame
-        info_frame.grid(row=3, column=0, padx=20, pady=5, sticky="ew")
+        info_frame = ctk.CTkFrame(self.cover_container, fg_color="#3D3D3D", corner_radius=5)
+        info_frame.grid(row=3, column=0, padx=20, pady=10, sticky="ew")
         
         info_text = ctk.CTkLabel(
             info_frame,
-            text="Format: JPEG/JPG\nUkuran yang disarankan: 180x270 px",
+            text="Format: JPEG/JPG\nUkuran yang disarankan: 180x270 px\nKlik tombol di atas untuk mengganti cover",
             font=ctk.CTkFont(family="Arial", size=12),
             text_color="#FFFFFF",
             justify="center"
         )
-        info_text.pack(pady=8, padx=10)
+        info_text.pack(pady=10, padx=10)
         
         # Selected file info
         self.selected_file_label = ctk.CTkLabel(
             self.cover_container,
-            text="Tidak ada file dipilih",
+            text="Tidak ada file baru dipilih",
             font=ctk.CTkFont(family="Arial", size=12),
-            text_color="#AAAAAA",  # Lighter text for better readability
+            text_color="#888888",
             justify="center"
         )
         self.selected_file_label.grid(row=4, column=0, pady=5)
@@ -268,13 +257,6 @@ class UpdateBookFrame(ctk.CTkFrame):
             if field_name in self.book:
                 self.entries[field_name].delete(0, "end")
                 self.entries[field_name].insert(0, str(self.book.get(field_name, "")))
-        
-        # Always ensure ISBN is non-empty and disabled for editing
-        if not self.entries["ISBN"].get():
-            self.entries["ISBN"].insert(0, "9999999999999")  # Default placeholder ISBN
-        
-        # Make ISBN field read-only
-        self.entries["ISBN"].configure(state="disabled")
         
         # Set description
         if "Deskripsi" in self.book:
@@ -332,7 +314,7 @@ class UpdateBookFrame(ctk.CTkFrame):
             
             # Update selected file info
             file_name = os.path.basename(file_path)
-            self.selected_file_label.configure(text=f"File: {file_name}")
+            self.selected_file_label.configure(text=f"File baru: {file_name}")
             
             # Save path for later updating
             self.selected_cover_path = file_path
@@ -355,8 +337,7 @@ class UpdateBookFrame(ctk.CTkFrame):
     
     def validate_form(self):
         """Validate form inputs"""
-        # Modified to skip ISBN validation since it's read-only
-        required_fields = ["Judul", "Penulis", "Penerbit", "Tahun", "Kategori", "Halaman"]
+        required_fields = ["Judul", "Penulis", "Penerbit", "Tahun", "Kategori", "ISBN", "Halaman"]
         
         for field in required_fields:
             if not self.entries[field].get().strip():
@@ -394,9 +375,6 @@ class UpdateBookFrame(ctk.CTkFrame):
         judul = self.entries["Judul"].get()
         penulis = self.entries["Penulis"].get()
         
-        # Get ISBN for cover file naming (read-only, but we still need the value)
-        isbn = self.entries["ISBN"].get().strip()
-        
         # Show confirmation dialog with book details
         confirm_message = f"Yakin ingin menyimpan perubahan untuk buku berikut?\n\nJudul: {judul}\nPenulis: {penulis}"
         if self.selected_cover_path:
@@ -411,6 +389,9 @@ class UpdateBookFrame(ctk.CTkFrame):
         
         if not user_confirm:
             return
+        
+        # Get ISBN for cover file naming
+        isbn = self.entries["ISBN"].get().strip()
         
         # Save new cover image if selected
         if self.selected_cover_path:
@@ -440,7 +421,7 @@ class UpdateBookFrame(ctk.CTkFrame):
             "Penerbit": self.entries["Penerbit"].get(),
             "Tahun": self.entries["Tahun"].get(),
             "Kategori": self.entries["Kategori"].get(),
-            "ISBN": isbn,  # Using the original ISBN which is read-only
+            "ISBN": isbn,
             "Halaman": self.entries["Halaman"].get(),
             "Deskripsi": self.desc_text.get("1.0", "end-1c")
         }
@@ -477,7 +458,7 @@ class UpdateBookFrame(ctk.CTkFrame):
 # Test function if run directly
 if __name__ == "__main__":
     root = ctk.CTk()
-    root.title("Update Buku")  # Changed to reflect this is updating, not adding
+    root.title("Update Book")
     root.geometry("1024x768")
     
     # Create simple controller class for testing
@@ -491,14 +472,14 @@ if __name__ == "__main__":
     
     # Sample book data for testing
     sample_book = {
-        "Judul": "Laskar Pelangi",
-        "Penulis": "Andrea Hirata",
-        "Penerbit": "Bentang Pustaka",
-        "Tahun": "2005",
-        "Kategori": "Novel",
-        "ISBN": "9789793062792",
-        "Halaman": "529",
-        "Deskripsi": "Novel ini bercerita tentang kehidupan 10 anak dari keluarga miskin yang bersekolah di sebuah sekolah Muhammadiyah di Belitung yang penuh dengan keterbatasan."
+        "Judul": "Quidditch Through the Ages: the Illustrated Edition",
+        "Penulis": "J. K. Rowling",
+        "Penerbit": "Bloomsbury",
+        "Tahun": "2020",
+        "Kategori": "Juvenile Fiction",
+        "ISBN": "9781338340563",
+        "Halaman": "158",
+        "Deskripsi": "Kennilworthy Whisp is a fictitious author created by J.K. Rowling."
     }
     
     frame = ctk.CTkFrame(root)

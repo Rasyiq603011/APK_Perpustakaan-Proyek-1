@@ -53,6 +53,17 @@ class Application:
         self.selectedBook = book
         self.showFrame("DetailsBookFrame")  # Use correct frame name
 
+    def save_book(self, book_data):
+    # Logic to save book to your data source (Excel file?)
+        if hasattr(self.bookManager, "addBook"):
+            return self.bookManager.addBook(book_data)
+        return False
+    
+    def UpdateBook(self, book):
+        if hasattr(self.bookManager, "updateBook"):
+            return self.bookManager.updateBook(book)
+        return False
+
 if __name__ == "__main__":
     root = tk.Tk()
     App = Application(root)
