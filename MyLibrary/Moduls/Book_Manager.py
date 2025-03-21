@@ -112,11 +112,10 @@ class BookManager:
             return False
     
     def UpdateBook(self, bookUpdate):
-        """Update a book in the DataFrame by ISBN"""
         # Find the index of the book to update
-        mask = self.book['ISBN'] == bookUpdate['ISBN']
+        mask = self.book['ISBN'].astype(str) == str(bookUpdate['ISBN'])
         if not mask.any():
-            print(f"Book with ISBN {bookUpdate['ISBN']} not found")
+            # print(f"Book with ISBN {bookUpdate['ISBN']} not found")
             return False
             
         # Get the index where the ISBN matches

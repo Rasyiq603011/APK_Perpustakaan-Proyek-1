@@ -106,15 +106,6 @@ class UpdateBookFrame(ctk.CTkFrame):
             width=180
         )
         self.updateBtn.pack(side="right", padx=40, pady=10)
-        
-        # Load book data if provided
-        if self.book:
-            self.load_book_data()
-        else:
-            # If no book data is provided, pre-fill ISBN with a placeholder
-            # This ensures ISBN is never empty, even when creating a new book
-            self.entries["ISBN"].insert(0, "Belum ada ISBN")
-            self.entries["ISBN"].configure(state="disabled")
     
     def create_form_fields(self):
         """Create entry fields for book data using grid layout for better space utilization"""
@@ -262,6 +253,10 @@ class UpdateBookFrame(ctk.CTkFrame):
         if self.book is None:
             return
             
+        # Debug: Print the keys and the ISBN value
+        # print(f"Book data keys: {self.book.keys()}")
+        # print(f"ISBN value: {self.book.get('ISBN', 'Not found')}")
+    
         # Check if book is a pandas Series
         if hasattr(self.book, 'keys'):
             # Set values in entry fields
@@ -269,10 +264,20 @@ class UpdateBookFrame(ctk.CTkFrame):
                 if field_name in self.book:
                     self.entries[field_name].delete(0, "end")
                     self.entries[field_name].insert(0, str(self.book.get(field_name, "")))
+
+            # Check what happens to ISBN specifically
+            isbn_value = self.book.get("ISBN", "")
+            # print(f"Setting ISBN field to: {isbn_value}")
+            self.entries["ISBN"].delete(0, "end")
+            self.entries["ISBN"].insert(0, isbn_value)
+            # print(f"ISBN field now contains: {self.entries['ISBN'].get()}")
             
             # Always ensure ISBN is non-empty and disabled for editing
-            if not self.entries["ISBN"].get():
-                self.entries["ISBN"].insert(0, "9999999999999")  # Default placeholder ISBN
+            self.entries["ISBN"].delete(0, "end")
+            if "ISBN" in self.book and self.book["ISBN"]:
+                self.entries["ISBN"].insert(0, str(self.book["ISBN"]))
+            else:
+                self.entries["ISBN"].insert(0, "9999999999999")
             
             # Make ISBN field read-only
             self.entries["ISBN"].configure(state="disabled")
@@ -355,7 +360,6 @@ class UpdateBookFrame(ctk.CTkFrame):
             messagebox.showerror("Error", f"Gagal menampilkan preview: {e}")
     
     def validate_form(self):
-        """Validate form inputs"""
         # Modified to skip ISBN validation since it's read-only
         required_fields = ["Judul", "Penulis", "Penerbit", "Tahun", "Kategori", "Halaman"]
         
@@ -441,7 +445,7 @@ class UpdateBookFrame(ctk.CTkFrame):
             "Penerbit": self.entries["Penerbit"].get(),
             "Tahun": self.entries["Tahun"].get(),
             "Kategori": self.entries["Kategori"].get(),
-            "ISBN": isbn,  # Using the original ISBN which is read-only
+            "ISBN": isbn,
             "Halaman": self.entries["Halaman"].get(),
             "Deskripsi": self.desc_text.get("1.0", "end-1c")
         }

@@ -95,7 +95,6 @@ class Application:
         return False
     
     def updateBook(self, book):
-        """Update an existing book"""
         if hasattr(self.bookManager, "UpdateBook"):
             result = self.bookManager.UpdateBook(book)
             if result:
