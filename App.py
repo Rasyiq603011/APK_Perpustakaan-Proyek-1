@@ -159,3 +159,4 @@ class Application:
         if hasattr(self.bookManager, "LoadCover"):
             return self.bookManager.LoadCover(isbn)
         return None
+    #bismillah
