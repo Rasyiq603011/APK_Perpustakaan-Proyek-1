@@ -144,7 +144,6 @@ class Application:
         return False
     
     def getBook(self):
-        """Get all books from manager"""
         if hasattr(self.bookManager, "getBook"):
             return self.bookManager.getBook()
         return None
@@ -155,8 +154,7 @@ class Application:
         return False
     
     def loadCover(self, isbn):
-        """Load book cover image"""
         if hasattr(self.bookManager, "LoadCover"):
             return self.bookManager.LoadCover(isbn)
         return None
-    #bismillah
+
