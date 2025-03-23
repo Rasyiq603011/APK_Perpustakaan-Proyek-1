@@ -7,25 +7,8 @@ import sys
 import math
 import pandas as pd
 
-CATEGORY_MAPPING = {
-    "Science Fiction": ["Science fiction", "Science fiction, American", "Science fiction, English",
-                        "Interplanetary voyages", "Robots"],
-    "Young Adult": ["Juvenile Fiction", "Young Adult Fiction", "Young adult fiction", "Fiksi Remaja"],
-    "Graphic Novels": ["Graphic novel", "Graphic novels", "COMICS & GRAPHIC NOVELS", "Comic books, strips, etc",
-                       "Horror comic books, strips, etc"],
-    "Fiction": ["American fiction", "English fiction", "Fantasy fiction", "Historical fiction", "Adventure stories",
-                "Romantic suspense fiction", "Detective and mystery stories", "Detective and mystery stories, English"],
-    "Non-Fiction": ["Biography & Autobiography", "History", "Political Science", "Science", "Medical", "Psychology",
-                    "Philosophy", "Self-Help", "True Crime"],
-    "Education": ["Mathematics", "Literature", "Language Arts & Disciplines", "Study Aids", "Foreign Language Study"],
-    "Arts & Humanities": ["ART", "Architecture", "Aesthetics", "Music", "Performing Arts", "Photography", "Design"],
-    "Religion & Spirituality": ["Christian ethics", "Christian life", "Islam", "Islam and civilization", "Hadith",
-                                "Faith"],
-    "Social Sciences": ["Political leadership", "Sociology", "Anthropology", "Equality", "Ethics", "Economics",
-                        "Business & Economics", "Law", "International relations"],
-    "Nature & Environment": ["Nature", "Nature photography", "Climatic changes", "Wetland animals", "Agriculture",
-                             "Animals", "Birds"],
-}
+#Import data CATEGORY_MAPPING from contans.py
+from MyLibrary.constans import CATEGORY_MAPPING
 
 
 def categorize_genre(genre):
