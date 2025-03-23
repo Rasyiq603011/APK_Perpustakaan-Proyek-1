@@ -7,9 +7,7 @@ import sys
 import math
 import pandas as pd
 
-#Import data CATEGORY_MAPPING from contans.py
-from MyLibrary.constans import CATEGORY_MAPPING
-
+from MyLibrary.constans import CATEGORY_MAPPING  # Impor dari folder MyLibrary
 
 def categorize_genre(genre):
     for category, keywords in CATEGORY_MAPPING.items():
@@ -166,7 +164,7 @@ class DataBookFrame(ctk.CTkFrame):
         self.header_frame = self.create_frame(self, fg_color="#232323", height=80)
         self.header_frame.grid(row=0, column=0, sticky="ew", padx=0, pady=0)
 
-        # Configure grid for header frame
+        # Config grid untuk frame header
         self.header_frame.columnconfigure(0, weight=1)  # For left items
         self.header_frame.columnconfigure(1, weight=1)  # For center title
         self.header_frame.columnconfigure(2, weight=1)  # For right items
@@ -188,23 +186,14 @@ class DataBookFrame(ctk.CTkFrame):
         )
         title_label.grid(row=0, column=1, padx=28, pady=12)
 
-        # Add Book button
-        self.add_btn = self.create_button(
-            self.header_frame,
-            text="+ Tambah Buku",
-            command=lambda: self.controller.showFrame("AddBookFrame"),
-            font_weight="bold",
-            height=40,
-            width=150
-        )
-        self.add_btn.grid(row=0, column=2, padx=20, pady=12, sticky="e")
+        # Removed the Add Book button
 
     def setup_misc_bar(self):
         """Membangun bar pencarian menggunakan grid"""
         search_filter_frame = self.create_frame(self, fg_color="#2B2B2B", height=80)
         search_filter_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=(10, 10))
 
-        # Configure grid
+        # Config grid untuk frame search & filter
         search_filter_frame.columnconfigure(0, weight=1)  # Search section
         search_filter_frame.columnconfigure(1, weight=0)  # Genre filter
         search_filter_frame.columnconfigure(2, weight=0)  # Status filter
@@ -213,7 +202,7 @@ class DataBookFrame(ctk.CTkFrame):
         search_frame = self.create_frame(search_filter_frame, fg_color="transparent")
         search_frame.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        # Configure search frame grid
+        # Config untuk grid search frame
         search_frame.columnconfigure(0, weight=0)  # Label
         search_frame.columnconfigure(1, weight=1)  # Entry
 
@@ -233,7 +222,7 @@ class DataBookFrame(ctk.CTkFrame):
         self.search_entry.grid(row=0, column=1, sticky="w")
         self.search_entry.bind("<KeyRelease>", self.on_search_change)
 
-        # Genre filter frame
+        # Frame untuk filter genre
         genre_frame = self.create_frame(search_filter_frame, fg_color="transparent")
         genre_frame.grid(row=0, column=1, padx=20, pady=10, sticky="e")
 
@@ -244,7 +233,7 @@ class DataBookFrame(ctk.CTkFrame):
         )
         genre_label.grid(row=0, column=0, padx=(0, 10))
 
-        # Create the dropdown list with initial value "All Genre"
+        # Membuat dropdown dengan input awal All Genre
         self.genre_dropdown = ctk.CTkOptionMenu(
             genre_frame,
             values=["All Genre"],
@@ -290,13 +279,13 @@ class DataBookFrame(ctk.CTkFrame):
 
     def update_genre_dropdown(self):
         """Update the genre dropdown with available genres"""
-        # Get available genres
+        # Mengambil genre yang tersedia
         genres = self.get_available_genres()
 
-        # Create the dropdown values list with "All Genre" at the beginning
+        # Membuat drowpdown
         dropdown_values = ["All Genre"] + genres
 
-        # Update the dropdown menu with these values
+        # Memperbaharui dropdown
         self.genre_dropdown.configure(values=dropdown_values)
         self.genre_dropdown.set("All Genre")
 
@@ -308,7 +297,7 @@ class DataBookFrame(ctk.CTkFrame):
         self.content_frame.columnconfigure(0, weight=1)
         self.content_frame.rowconfigure(0, weight=1)
 
-        # Create scrollable frame for books
+        # Membuata frame yang bisa di scroll
         self.book_container = ctk.CTkScrollableFrame(
             self.content_frame,
             fg_color="#1E1E1E",
@@ -346,7 +335,7 @@ class DataBookFrame(ctk.CTkFrame):
         )
         self.prev_btn.grid(row=0, column=1, padx=(5, 10), pady=10)
 
-        # Page indicator
+        # Indikator halaman
         self.page_label = self.create_label(
             self.pagination_frame,
             text=f"Page {self.current_page} of {self.total_pages}",
@@ -372,7 +361,7 @@ class DataBookFrame(ctk.CTkFrame):
 
     def create_book_card(self, book):
         """Membuat kartu buku individual"""
-        # Create book frame - card-like appearance
+        # Membuat frame buku
         book_frame = self.create_frame(
             self.book_grid,
             fg_color="#2B2B2B",
@@ -380,7 +369,7 @@ class DataBookFrame(ctk.CTkFrame):
             border_width=0
         )
 
-        # Use grid inside each book card to keep layout consistent
+        # Menggunakan grid untuk setiap book card
         book_frame.columnconfigure(0, weight=1)
         book_frame.rowconfigure(0, weight=0)  # Cover image
         book_frame.rowconfigure(1, weight=0)  # Title
@@ -403,7 +392,7 @@ class DataBookFrame(ctk.CTkFrame):
         btn.image = img  # Keep reference
         btn.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        # Book title (truncate if too long)
+        # Fungsi truncated untuk judul yang panjang
         title = book.get('Judul', 'Judul Tidak Ada')
         title_truncated = self.truncate_text(title, 20)
 
@@ -417,7 +406,7 @@ class DataBookFrame(ctk.CTkFrame):
         )
         title_label.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
-        # Add tooltip for truncated titles
+        # Menambahkan tooltip untuk judul yang di truncated
         if title_truncated != title:
             self.create_tooltip(title_label, title)
 
@@ -436,7 +425,7 @@ class DataBookFrame(ctk.CTkFrame):
             )
             author_label.grid(row=2, column=0, padx=5, pady=(0, 5), sticky="ew")
 
-            # Add tooltip for truncated author names
+            # Menambahkan tooltip untuk author yang di truncated
             if author_truncated != author:
                 self.create_tooltip(author_label, author)
 
@@ -481,7 +470,7 @@ class DataBookFrame(ctk.CTkFrame):
 
         self.page_label.configure(text=f"Page {self.current_page} of {self.total_pages}")
 
-        # Update button states
+        # Update status button
         self.prev_btn.configure(state="normal" if self.current_page > 1 else "disabled")
         self.next_btn.configure(state="normal" if self.current_page < self.total_pages else "disabled")
 
@@ -508,34 +497,34 @@ class DataBookFrame(ctk.CTkFrame):
     def populate_book_grid(self):
         """Mengisi grid dengan buku-buku untuk halaman saat ini"""
         # Metode ini digunakan untuk populasi awal dan refresh total
-        # Clear existing content
+        # Menghapus widget saat ini
         for widget in self.book_grid.winfo_children():
             widget.destroy()
 
-        # Get all books from manager
+        # Mendapatkan buku dari controller
         all_books = self.controller.getBook()
 
         if all_books is None or len(all_books) == 0:
             self.show_no_books_message()
             return
 
-        # Update pagination information
+        # Mengupdate pagination
         self.update_pagination_info(len(all_books))
 
-        # Get books for current page
+        # Mengambil buku untuk halaman ini
         page_books = self.get_page_slice(all_books)
 
-        # Grid configuration
+        # Tampilan grid
         cols = 5  # Number of books per row
         for i in range(cols):
             self.book_grid.columnconfigure(i, weight=1)
 
-        # Display books in grid
+        # Menampilkan buku
         for i, (_, book) in enumerate(page_books.iterrows()):
             row = i // cols
             col = i % cols
 
-            # Create book card
+            # Membuat book_card
             book_card = self.create_book_card(book)
             book_card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
 
@@ -575,7 +564,6 @@ class DataBookFrame(ctk.CTkFrame):
 
     def show_no_books_message(self):
         """Menampilkan pesan jika tidak ada buku"""
-        # Use grid for consistency in this parent container
         self.book_grid.columnconfigure(0, weight=1)
         self.book_grid.rowconfigure(0, weight=1)
 
@@ -633,14 +621,14 @@ class DataBookFrame(ctk.CTkFrame):
 
     def create_tooltip(self, widget, text):
         """Create a tooltip for a given widget with the specified text"""
-        # Use our custom Tooltip class instead of CalendarTooltip
+        #Tooltip for message
         tooltip = Tooltip(widget, text)
         return tooltip
 
     def on_search_change(self, event=None):
         """Handle search input changes"""
         self.search_query = self.search_entry.get().strip()
-        self.current_page = 1  # Reset to first page
+        self.current_page = 1 
         self.load_books()
 
     def get_available_genres(self):
@@ -678,7 +666,7 @@ class DataBookFrame(ctk.CTkFrame):
             self.selected_status = None
         else:
             self.selected_status = choice  # Simpan sebagai string tunggal, bukan list
-        self.current_page = 1  # Reset to first page
+        self.current_page = 1  
         self.load_books()
 
 
