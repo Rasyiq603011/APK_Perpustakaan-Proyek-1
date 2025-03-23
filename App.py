@@ -74,7 +74,7 @@ class Application:
             # For DataBookFrame, refresh the book grid
             elif frameName == "DataBookFrame":
                 if hasattr(frame, "populate_book_grid"):
-                    frame.populate_book_grid(frame)
+                    frame.populate_book_grid()
             
             frame.tkraise()
             self.currentFrame = frameName
