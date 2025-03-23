@@ -2,12 +2,11 @@
 
 # Colors
 COLORS = {
-    "primary": "#1A7A8B",
-    "secondary": "#F0B86C",
-    "darkaccent": "#1E3A5F",
-    "accent":"#9E2B33",
+    "primary": "#1a73e8",
+    "secondary": "#34a853",
+    "accent": "#fbbc05",
     "error": "#ea4335",
-    "background": "#F5F5F0",
+    "background": "#ffffff",
     "text": "#202124",
     "light_gray": "#f1f3f4",
     "dark_gray": "#5f6368"
