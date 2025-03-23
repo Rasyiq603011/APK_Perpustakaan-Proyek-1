@@ -5,6 +5,43 @@ from PIL import Image, ImageTk
 import os
 import sys
 import math
+import pandas as pd
+
+CATEGORY_MAPPING = {
+    "Science Fiction": ["Science fiction", "Science fiction, American", "Science fiction, English",
+                        "Interplanetary voyages", "Robots"],
+    "Young Adult": ["Juvenile Fiction", "Young Adult Fiction", "Young adult fiction", "Fiksi Remaja"],
+    "Graphic Novels": ["Graphic novel", "Graphic novels", "COMICS & GRAPHIC NOVELS", "Comic books, strips, etc",
+                       "Horror comic books, strips, etc"],
+    "Fiction": ["American fiction", "English fiction", "Fantasy fiction", "Historical fiction", "Adventure stories",
+                "Romantic suspense fiction", "Detective and mystery stories", "Detective and mystery stories, English"],
+    "Non-Fiction": ["Biography & Autobiography", "History", "Political Science", "Science", "Medical", "Psychology",
+                    "Philosophy", "Self-Help", "True Crime"],
+    "Education": ["Mathematics", "Literature", "Language Arts & Disciplines", "Study Aids", "Foreign Language Study"],
+    "Arts & Humanities": ["ART", "Architecture", "Aesthetics", "Music", "Performing Arts", "Photography", "Design"],
+    "Religion & Spirituality": ["Christian ethics", "Christian life", "Islam", "Islam and civilization", "Hadith",
+                                "Faith"],
+    "Social Sciences": ["Political leadership", "Sociology", "Anthropology", "Equality", "Ethics", "Economics",
+                        "Business & Economics", "Law", "International relations"],
+    "Nature & Environment": ["Nature", "Nature photography", "Climatic changes", "Wetland animals", "Agriculture",
+                             "Animals", "Birds"],
+}
+
+
+def categorize_genre(genre):
+    for category, keywords in CATEGORY_MAPPING.items():
+        if genre in keywords:
+            return category
+    return "Other"
+
+
+def load_genre_data():
+    file_path = "Asset/data_buku_2.xlsx"  # Menggunakan file data_buku_2.xlsx
+    df = pd.read_excel(file_path)
+    if "Kategori" in df.columns:
+        df["Category"] = df["Kategori"].apply(categorize_genre)
+        return df["Category"].unique().tolist()
+    return []
 
 
 # Create our own Tooltip class instead of importing from tkcalendar
@@ -45,13 +82,14 @@ class DataBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         self.configure(fg_color="#1E1E1E", corner_radius=0)  # Dark background
+        self.genre_options = load_genre_data()
 
         self.controller = controller
         self.MyLibrary = controller.bookManager
 
         self.search_query = ""
-        self.selected_genre = None  # Ubah dari list kosong menjadi None
-        self.selected_status = None  # Ubah dari list kosong menjadi None
+        self.selected_genre = None
+        self.selected_status = None
 
         # Pagination settings
         self.books_per_page = 50  # 10 rows of 5 books
@@ -70,6 +108,9 @@ class DataBookFrame(ctk.CTkFrame):
         self.setup_misc_bar()
         self.setup_content_area()
         self.setup_pagination()
+
+        # Update genre dropdown with available genres
+        self.update_genre_dropdown()
 
         # Populate grid with books
         self.populate_book_grid()
@@ -142,13 +183,18 @@ class DataBookFrame(ctk.CTkFrame):
         self.header_frame = self.create_frame(self, fg_color="#232323", height=80)
         self.header_frame.grid(row=0, column=0, sticky="ew", padx=0, pady=0)
 
+        # Configure grid for header frame
+        self.header_frame.columnconfigure(0, weight=1)  # For left items
+        self.header_frame.columnconfigure(1, weight=1)  # For center title
+        self.header_frame.columnconfigure(2, weight=1)  # For right items
+
         # Back button
         back_btn = self.create_button(
             self.header_frame,
             text="Back",
-            command=lambda: self.controller.showFrame("MainMenuFrame")  # Added back button command
+            command=lambda: self.controller.showFrame("MainMenuFrame")
         )
-        back_btn.pack(side="left", padx=20, pady=12)
+        back_btn.grid(row=0, column=0, padx=20, pady=12, sticky="w")
 
         # Title
         title_label = self.create_label(
@@ -157,7 +203,7 @@ class DataBookFrame(ctk.CTkFrame):
             font_size=28,
             font_weight="bold"
         )
-        title_label.pack(side="left", padx=28, pady=12)
+        title_label.grid(row=0, column=1, padx=28, pady=12)
 
         # Add Book button
         self.add_btn = self.create_button(
@@ -168,23 +214,32 @@ class DataBookFrame(ctk.CTkFrame):
             height=40,
             width=150
         )
-        self.add_btn.pack(side="right", padx=20, pady=12)
+        self.add_btn.grid(row=0, column=2, padx=20, pady=12, sticky="e")
 
     def setup_misc_bar(self):
-        """Membangun bar pencarian"""
+        """Membangun bar pencarian menggunakan grid"""
         search_filter_frame = self.create_frame(self, fg_color="#2B2B2B", height=80)
         search_filter_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=(10, 10))
 
+        # Configure grid
+        search_filter_frame.columnconfigure(0, weight=1)  # Search section
+        search_filter_frame.columnconfigure(1, weight=0)  # Genre filter
+        search_filter_frame.columnconfigure(2, weight=0)  # Status filter
+
         # Frame pencarian
         search_frame = self.create_frame(search_filter_frame, fg_color="transparent")
-        search_frame.pack(side="left", fill="both", padx=20, pady=10)
+        search_frame.grid(row=0, column=0, padx=20, pady=10, sticky="w")
+
+        # Configure search frame grid
+        search_frame.columnconfigure(0, weight=0)  # Label
+        search_frame.columnconfigure(1, weight=1)  # Entry
 
         search_label = self.create_label(
             search_frame,
             text="Search :",
             font_size=14
         )
-        search_label.pack(side="left", padx=(0, 10))
+        search_label.grid(row=0, column=0, padx=(0, 10))
 
         self.search_entry = self.create_entry(
             search_frame,
@@ -192,26 +247,50 @@ class DataBookFrame(ctk.CTkFrame):
             width=300,
             height=36
         )
-        self.search_entry.pack(side="left")
+        self.search_entry.grid(row=0, column=1, sticky="w")
         self.search_entry.bind("<KeyRelease>", self.on_search_change)
 
-        # Frame filter
-        filter_frame = self.create_frame(search_filter_frame, fg_color="transparent")
-        filter_frame.pack(side="right", fill="both", padx=20, pady=10)
+        # Genre filter frame
+        genre_frame = self.create_frame(search_filter_frame, fg_color="transparent")
+        genre_frame.grid(row=0, column=1, padx=20, pady=10, sticky="e")
 
-        # Gunakan dropdown genre kustom
-        self.setup_genre_filter(filter_frame)
+        genre_label = self.create_label(
+            genre_frame,
+            text="Genre:",
+            font_size=14
+        )
+        genre_label.grid(row=0, column=0, padx=(0, 10))
 
-        # Status filter tetap menggunakan CTkOptionMenu standar
+        # Create the dropdown list with initial value "All Genre"
+        self.genre_dropdown = ctk.CTkOptionMenu(
+            genre_frame,
+            values=["All Genre"],
+            font=ctk.CTkFont(family="Arial", size=14),
+            fg_color="#1E1E1E",
+            button_color="#6200EA",
+            button_hover_color="#5000D0",
+            dropdown_fg_color="#1E1E1E",
+            text_color="white",
+            width=120,
+            height=36,
+            command=self.on_genre_filter_change
+        )
+        self.genre_dropdown.grid(row=0, column=1)
+        self.genre_dropdown.set("All Genre")
+
+        # Status filter frame
+        status_frame = self.create_frame(search_filter_frame, fg_color="transparent")
+        status_frame.grid(row=0, column=2, padx=20, pady=10, sticky="e")
+
         status_label = self.create_label(
-            filter_frame,
+            status_frame,
             text="Status:",
             font_size=14
         )
-        status_label.pack(side="left", padx=(0, 10))
+        status_label.grid(row=0, column=0, padx=(0, 10))
 
         status_dropdown = ctk.CTkOptionMenu(
-            filter_frame,
+            status_frame,
             values=["All", "Available", "Borrowed", "Booked"],
             font=ctk.CTkFont(family="Arial", size=14),
             fg_color="#1E1E1E",
@@ -223,166 +302,20 @@ class DataBookFrame(ctk.CTkFrame):
             height=36,
             command=self.on_status_filter_change
         )
-        status_dropdown.pack(side="left", padx=(0, 20))
+        status_dropdown.grid(row=0, column=1)
         status_dropdown.set("All")
 
-    def setup_genre_filter(self, parent_frame):
-        """Membuat filter genre kustom dengan kemampuan scrolling"""
-        # Frame untuk filter genre
-        genre_filter_frame = self.create_frame(parent_frame, fg_color="transparent")
-        genre_filter_frame.pack(side="left", fill="y", padx=(0, 20))
-
-        # Label genre
-        genre_label = self.create_label(
-            genre_filter_frame,
-            text="Genre:",
-            font_size=14
-        )
-        genre_label.pack(side="left", padx=(0, 10))
-
-        # Variabel untuk menyimpan genre yang terpilih
-        self.genre_text = tk.StringVar()
-        self.genre_text.set("All Genre")
-
-        # Frame container untuk dropdown
-        self.dropdown_container = self.create_frame(
-            genre_filter_frame,
-            fg_color="#1E1E1E",
-            corner_radius=6
-        )
-        self.dropdown_container.pack(side="left")
-
-        # Tombol dropdown utama
-        self.genre_button = ctk.CTkButton(
-            self.dropdown_container,
-            textvariable=self.genre_text,
-            font=ctk.CTkFont(family="Arial", size=14),
-            fg_color="#1E1E1E",
-            text_color="white",
-            hover_color="#333333",
-            width=120,
-            height=36,
-            corner_radius=6,
-            command=self.toggle_genre_dropdown
-        )
-        self.genre_button.pack(fill="x", expand=True)
-
-        # Indikator dropdown (panah bawah)
-        self.dropdown_indicator = ctk.CTkLabel(
-            self.genre_button,
-            text="▼",
-            text_color="#AAAAAA",
-            font=ctk.CTkFont(size=9)
-        )
-        self.dropdown_indicator.place(relx=0.9, rely=0.5, anchor="center")
-
-        # Frame dropdown yang dapat di-scroll (awalnya tersembunyi)
-        self.dropdown_frame = ctk.CTkFrame(
-            self.winfo_toplevel(),
-            fg_color="#1E1E1E",
-            border_width=1,
-            border_color="#444444",
-            corner_radius=6
-        )
-
-        # Membuat frame scrollable untuk daftar genre
-        self.genre_list_frame = ctk.CTkScrollableFrame(
-            self.dropdown_frame,
-            fg_color="transparent",
-            scrollbar_fg_color="#333333",
-            scrollbar_button_color="#666666",
-            width=200,
-            height=300  # Tinggi maksimal dropdown
-        )
-        self.genre_list_frame.pack(fill="both", expand=True)
-
-        # Dropdown terbuka atau tidak
-        self.is_dropdown_open = False
-
-        # Populate genre options (akan dipanggil saat perlu menampilkan dropdown)
-
-    def populate_genre_options(self):
-        """Mengisi dropdown dengan opsi genre"""
-        # Hapus semua item yang ada
-        for widget in self.genre_list_frame.winfo_children():
-            widget.destroy()
-
-        # Tambahkan opsi "All Genre"
-        all_genre_btn = ctk.CTkButton(
-            self.genre_list_frame,
-            text="All Genre",
-            fg_color="transparent",
-            hover_color="#333333",
-            text_color="white",
-            height=30,
-            anchor="w",
-            command=lambda: self.select_genre("All Genre")
-        )
-        all_genre_btn.pack(fill="x", padx=5, pady=2)
-
-        # Tambahkan semua genre yang tersedia
+    def update_genre_dropdown(self):
+        """Update the genre dropdown with available genres"""
+        # Get available genres
         genres = self.get_available_genres()
-        for genre in genres:
-            truncated_genre = self.truncate_text(genre, 25)
-            genre_btn = ctk.CTkButton(
-                self.genre_list_frame,
-                text=truncated_genre,
-                fg_color="transparent",
-                hover_color="#333333",
-                text_color="white",
-                height=30,
-                anchor="w",
-                command=lambda g=genre: self.select_genre(g)
-            )
-            genre_btn.pack(fill="x", padx=5, pady=2)
 
-            # Add tooltip functionality for truncated genres
-            if truncated_genre != genre:
-                self.create_tooltip(genre_btn, genre)
+        # Create the dropdown values list with "All Genre" at the beginning
+        dropdown_values = ["All Genre"] + genres
 
-    def toggle_genre_dropdown(self):
-        """Menampilkan atau menyembunyikan dropdown genre"""
-        if not self.is_dropdown_open:
-            # Posisikan dropdown di bawah tombol
-            x = self.genre_button.winfo_rootx()
-            y = self.genre_button.winfo_rooty() + self.genre_button.winfo_height()
-
-            self.dropdown_frame.place(x=x, y=y)
-            self.populate_genre_options()  # Isi dropdown dengan genre
-            self.is_dropdown_open = True
-
-            # Bind event untuk menutup dropdown saat klik di luar
-            self.bind_clickaway = self.winfo_toplevel().bind("<Button-1>", self.close_dropdown_if_clickaway)
-        else:
-            self.close_dropdown()
-
-    def close_dropdown_if_clickaway(self, event):
-        """Menutup dropdown jika klik di luar area dropdown"""
-        if not (self.dropdown_frame.winfo_containing(event.x_root, event.y_root) or
-                self.genre_button.winfo_containing(event.x_root, event.y_root)):
-            self.close_dropdown()
-
-    def close_dropdown(self):
-        """Menutup dropdown genre"""
-        if self.is_dropdown_open:
-            self.dropdown_frame.place_forget()
-            self.is_dropdown_open = False
-
-            # Unbind clickaway event
-            if hasattr(self, 'bind_clickaway'):
-                self.winfo_toplevel().unbind("<Button-1>", self.bind_clickaway)
-
-    def select_genre(self, genre):
-        """Menangani pemilihan genre"""
-        self.genre_text.set(genre)
-        if genre == "All Genre":
-            self.selected_genre = None
-        else:
-            self.selected_genre = genre
-
-        self.close_dropdown()
-        self.current_page = 1
-        self.load_books()
+        # Update the dropdown menu with these values
+        self.genre_dropdown.configure(values=dropdown_values)
+        self.genre_dropdown.set("All Genre")
 
     def setup_content_area(self):
         """Menyiapkan area konten untuk grid buku"""
@@ -464,6 +397,13 @@ class DataBookFrame(ctk.CTkFrame):
             border_width=0
         )
 
+        # Use grid inside each book card to keep layout consistent
+        book_frame.columnconfigure(0, weight=1)
+        book_frame.rowconfigure(0, weight=0)  # Cover image
+        book_frame.rowconfigure(1, weight=0)  # Title
+        book_frame.rowconfigure(2, weight=0)  # Author
+        book_frame.rowconfigure(3, weight=0)  # Status
+
         # Load book cover
         img = self.MyLibrary.LoadCover(book.get('ISBN', ''))
 
@@ -478,7 +418,7 @@ class DataBookFrame(ctk.CTkFrame):
             command=lambda b=book: self.controller.showBookDetail(b)
         )
         btn.image = img  # Keep reference
-        btn.pack(padx=5, pady=5, fill="x")
+        btn.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
         # Book title (truncate if too long)
         title = book.get('Judul', 'Judul Tidak Ada')
@@ -492,7 +432,7 @@ class DataBookFrame(ctk.CTkFrame):
             wraplength=120,
             anchor="center"
         )
-        title_label.pack(padx=5, pady=5, fill="x")
+        title_label.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
         # Add tooltip for truncated titles
         if title_truncated != title:
@@ -511,7 +451,7 @@ class DataBookFrame(ctk.CTkFrame):
                 wraplength=120,
                 anchor="center"
             )
-            author_label.pack(padx=5, pady=(0, 5), fill="x")
+            author_label.grid(row=2, column=0, padx=5, pady=(0, 5), sticky="ew")
 
             # Add tooltip for truncated author names
             if author_truncated != author:
@@ -528,7 +468,7 @@ class DataBookFrame(ctk.CTkFrame):
                 font_weight="bold",
                 text_color=status_color
             )
-            status_label.pack(padx=10, pady=(0, 10))
+            status_label.grid(row=3, column=0, padx=10, pady=(0, 10), sticky="ew")
 
         return book_frame
 
@@ -652,43 +592,59 @@ class DataBookFrame(ctk.CTkFrame):
 
     def show_no_books_message(self):
         """Menampilkan pesan jika tidak ada buku"""
+        # Use grid for consistency in this parent container
+        self.book_grid.columnconfigure(0, weight=1)
+        self.book_grid.rowconfigure(0, weight=1)
+
         no_books_label = self.create_label(
             self.book_grid,
             text="Tidak ada buku yang tersedia",
-            fg_color="transparent",  # Ubah dari "black" ke "transparent"
+            fg_color="transparent",
             font_size=14
         )
-        no_books_label.pack(pady=50)
+        no_books_label.grid(row=0, column=0, pady=50)
 
     def get_filtered_books(self):
         """Memfilter buku berdasarkan pencarian, genre, dan status."""
         if not hasattr(self.controller, 'bookManager') or not hasattr(self.controller.bookManager, 'getBook'):
             return None
 
-        books = self.controller.getBook()  # Menggunakan controller.getBook() bukan bookManager.getBook()
+        books = self.controller.getBook()
 
         if books is None or books.empty:
             return None
 
         # Apply search filter
-        if isinstance(self.search_query, str) and self.search_query.strip():  # Pastikan tidak kosong
+        if isinstance(self.search_query, str) and self.search_query.strip():
             search_columns = ['Judul', 'Penulis', 'Penerbit', 'ISBN', 'Kategori']
             available_columns = [col for col in search_columns if col in books.columns]
 
-            if available_columns:  # Pastikan kolom tersedia sebelum melakukan apply
+            if available_columns:
                 mask = books[available_columns].apply(
                     lambda col: col.astype(str).str.contains(self.search_query, case=False, na=False)
                 ).any(axis=1)
 
                 books = books[mask]
 
-        # Apply genre filter
+        # Apply genre filter - Ubah untuk menggunakan kategori dari CATEGORY_MAPPING
         if self.selected_genre is not None and 'Kategori' in books.columns:
-            books = books[books['Kategori'].astype(str) == self.selected_genre]  # Gunakan == bukan isin
+            if self.selected_genre in CATEGORY_MAPPING:
+                # Filter berdasarkan genre yang termasuk dalam kategori yang dipilih
+                category_genres = CATEGORY_MAPPING[self.selected_genre]
+                mask = books['Kategori'].astype(str).apply(lambda x: x in category_genres)
+                books = books[mask]
+            elif self.selected_genre == 'Other':
+                # Filter semua genre yang tidak termasuk dalam kategori manapun
+                all_mapped_genres = [genre for genres in CATEGORY_MAPPING.values() for genre in genres]
+                mask = ~books['Kategori'].astype(str).isin(all_mapped_genres)
+                books = books[mask]
+            else:
+                # Filter untuk kategori spesifik (jika tidak termasuk dalam CATEGORY_MAPPING)
+                books = books[books['Kategori'].astype(str) == self.selected_genre]
 
         # Apply status filter
         if self.selected_status is not None and 'Status' in books.columns:
-            books = books[books['Status'] == self.selected_status]  # Gunakan == bukan isin
+            books = books[books['Status'] == self.selected_status]
 
         return books
 
@@ -705,19 +661,31 @@ class DataBookFrame(ctk.CTkFrame):
         self.load_books()
 
     def get_available_genres(self):
+        """Mendapatkan daftar kategori dari CATEGORY_MAPPING"""
+        # Gunakan kategori dari CATEGORY_MAPPING yang sudah didefinisikan
+        categories = list(CATEGORY_MAPPING.keys())
+        # Tambahkan 'Other' jika ada dalam data tetapi tidak dalam mapping
         if hasattr(self.controller, 'bookManager') and hasattr(self.controller.bookManager, 'getBook'):
-            books = self.controller.getBook()  # Gunakan controller.getBook()
+            books = self.controller.getBook()
             if books is not None and 'Kategori' in books.columns:
-                genre = sorted(books['Kategori'].astype(str).unique().tolist())
-                return genre
-        return []
+                # Cek apakah ada kategori 'Other' dalam data
+                for genre in books['Kategori'].astype(str).unique():
+                    categorized = False
+                    for category, keywords in CATEGORY_MAPPING.items():
+                        if genre in keywords:
+                            categorized = True
+                            break
+                    if not categorized and 'Other' not in categories:
+                        categories.append('Other')
+                        break
+        return sorted(categories)
 
     def on_genre_filter_change(self, choice):
         """Handle genre filter changes"""
         if choice == "All Genre":
             self.selected_genre = None
         else:
-            self.selected_genre = choice  # Simpan sebagai string tunggal, bukan list
+            self.selected_genre = choice
         self.current_page = 1
         self.load_books()
 
