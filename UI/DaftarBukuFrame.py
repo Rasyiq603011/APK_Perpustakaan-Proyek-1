@@ -7,7 +7,12 @@ import sys
 import math
 import pandas as pd
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+# Import Category_Mapping untuk genre
 from constans import CATEGORY_MAPPING
+
+# Import Tema //Dark or //Light
+from constans import COLOR_DARK, COLOR_LIGHT
 
 
 def categorize_genre(genre):
@@ -63,8 +68,11 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 class DataBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-        self.configure(fg_color="#1E1E1E", corner_radius=0)  # Dark background
         self.genre_options = load_genre_data()
+
+        self.color = COLOR_DARK
+
+        self.configure(fg_color=self.color["surface"], corner_radius=0)  # Dark background
 
         self.controller = controller
         self.MyLibrary = controller.bookManager
@@ -99,10 +107,17 @@ class DataBookFrame(ctk.CTkFrame):
 
     # =================== WIDGET FACTORY FUNCTIONS ===================
 
-    def create_button(self, parent, text, command=None, fg_color="#6200EA", hover_color="#5000D0",
+    def create_button(self, parent, text, command=None, fg_color=None, hover_color=None,
                       text_color="white", font_size=14, corner_radius=10, width=100, height=36,
                       font_weight="normal", **kwargs):
         """Membuat tombol dengan styling yang konsisten"""
+
+        if fg_color is None:
+            fg_color = self.color["success"]
+
+        if hover_color is None:
+            hover_color = self.color["active"]["accent"]
+
         return ctk.CTkButton(
             parent,
             text=text,
@@ -117,9 +132,13 @@ class DataBookFrame(ctk.CTkFrame):
             **kwargs
         )
 
-    def create_label(self, parent, text, font_size=14, text_color="white", font_weight="normal",
+    def create_label(self, parent, text, font_size=14, text_color=None, font_weight="normal",
                      **kwargs):
         """Membuat label dengan styling yang konsisten"""
+
+        if text_color is None:
+            text_color = self.color["primaryText"]
+
         return ctk.CTkLabel(
             parent,
             text=text,
@@ -128,23 +147,37 @@ class DataBookFrame(ctk.CTkFrame):
             **kwargs
         )
 
-    def create_entry(self, parent, placeholder_text="", width=300, height=36, **kwargs):
+    def create_entry(self, parent, placeholder_text="", fg_color=None, border_color=None, text_color=None, width=300, height=36, **kwargs):
         """Membuat entry field dengan styling yang konsisten"""
+
+        if fg_color is None:
+            fg_color = self.color["inputField"]
+
+        if border_color is None:
+            border_color = self.color["border"]
+
+        if text_color is None:
+            text_color = self.color["secondaryText"]
+
         return ctk.CTkEntry(
             parent,
             placeholder_text=placeholder_text,
             font=ctk.CTkFont(family="Arial", size=14),
-            fg_color="#1E1E1E",
-            border_color="#666666",
-            text_color="white",
+            fg_color=fg_color,
+            border_color=border_color,
+            text_color=text_color,
             corner_radius=6,
             width=width,
             height=height,
             **kwargs
         )
 
-    def create_frame(self, parent, fg_color="#2B2B2B", corner_radius=0, height=None, **kwargs):
+    def create_frame(self, parent, fg_color=None, corner_radius=0, height=None, **kwargs):
         """Membuat frame dengan styling yang konsisten"""
+
+        if fg_color is None:
+            fg_color = self.color["surface"]
+
         frame = ctk.CTkFrame(
             parent,
             fg_color=fg_color,
@@ -162,7 +195,7 @@ class DataBookFrame(ctk.CTkFrame):
 
     def setup_header(self):
         """Membangun header aplikasi"""
-        self.header_frame = self.create_frame(self, fg_color="#232323", height=80)
+        self.header_frame = self.create_frame(self, fg_color=None, height=80)
         self.header_frame.grid(row=0, column=0, sticky="ew", padx=0, pady=0)
 
         # Configure grid for header frame
@@ -191,7 +224,7 @@ class DataBookFrame(ctk.CTkFrame):
 
     def setup_misc_bar(self):
         """Membangun bar pencarian menggunakan grid"""
-        search_filter_frame = self.create_frame(self, fg_color="#2B2B2B", height=80)
+        search_filter_frame = self.create_frame(self, fg_color=self.color["disabled"], height=80)
         search_filter_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=(10, 10))
 
         # Configure grid
@@ -200,7 +233,7 @@ class DataBookFrame(ctk.CTkFrame):
         search_filter_frame.columnconfigure(2, weight=0)  # Status filter
 
         # Frame pencarian
-        search_frame = self.create_frame(search_filter_frame, fg_color="transparent")
+        search_frame = self.create_frame(search_filter_frame, fg_color=self.color["disabled"])
         search_frame.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
         # Configure search frame grid
@@ -226,7 +259,7 @@ class DataBookFrame(ctk.CTkFrame):
         self.search_timer = None
 
         # Genre filter frame
-        genre_frame = self.create_frame(search_filter_frame, fg_color="transparent")
+        genre_frame = self.create_frame(search_filter_frame, fg_color=self.color["disabled"])
         genre_frame.grid(row=0, column=1, padx=20, pady=10, sticky="e")
 
         genre_label = self.create_label(
@@ -241,11 +274,11 @@ class DataBookFrame(ctk.CTkFrame):
             genre_frame,
             values=["All Genre"],
             font=ctk.CTkFont(family="Arial", size=14),
-            fg_color="#1E1E1E",
-            button_color="#6200EA",
-            button_hover_color="#5000D0",
-            dropdown_fg_color="#1E1E1E",
-            text_color="white",
+            fg_color=self.color["inputField"],
+            button_color=self.color["primary"],
+            button_hover_color=self.color["active"]["primary"],
+            dropdown_fg_color=self.color["disabled"],
+            text_color=self.color["secondaryText"],
             width=120,
             height=36,
             command=self.on_genre_filter_change
@@ -268,11 +301,11 @@ class DataBookFrame(ctk.CTkFrame):
             status_frame,
             values=["All", "Available", "Borrowed", "Booked"],
             font=ctk.CTkFont(family="Arial", size=14),
-            fg_color="#1E1E1E",
-            button_color="#6200EA",
-            button_hover_color="#5000D0",
-            dropdown_fg_color="#1E1E1E",
-            text_color="white",
+            fg_color=self.color["inputField"],
+            button_color=self.color["primary"],
+            button_hover_color=self.color["active"]["primary"],
+            dropdown_fg_color=self.color["disabled"],
+            text_color=self.color["secondaryText"],
             width=120,
             height=36,
             command=self.on_status_filter_change
@@ -295,7 +328,7 @@ class DataBookFrame(ctk.CTkFrame):
     def setup_content_area(self):
         """Menyiapkan area konten untuk grid buku"""
         # Content frame
-        self.content_frame = self.create_frame(self, fg_color="#1E1E1E")
+        self.content_frame = self.create_frame(self)
         self.content_frame.grid(row=2, column=0, sticky="nsew", padx=0, pady=0)
         self.content_frame.columnconfigure(0, weight=1)
         self.content_frame.rowconfigure(0, weight=1)
@@ -303,19 +336,19 @@ class DataBookFrame(ctk.CTkFrame):
         # Create scrollable frame for books
         self.book_container = ctk.CTkScrollableFrame(
             self.content_frame,
-            fg_color="#1E1E1E",
-            scrollbar_fg_color="#333333",
-            scrollbar_button_color="#666666"
+            fg_color=self.color["surface"],
+            scrollbar_fg_color=self.color["surface"],
+            scrollbar_button_color=self.color["disabled"]
         )
         self.book_container.grid(row=0, column=0, sticky="nsew", padx=20, pady=20)
 
         # Book grid inside scrollable container
-        self.book_grid = self.create_frame(self.book_container, fg_color="transparent")
+        self.book_grid = self.create_frame(self.book_container, fg_color=None)
         self.book_grid.pack(fill="both", expand=True)
 
     def setup_pagination(self):
         """Membangun kontrol paginasi"""
-        self.pagination_frame = self.create_frame(self, fg_color="#232323", height=50)
+        self.pagination_frame = self.create_frame(self, fg_color=self.color["selected"], height=50)
         self.pagination_frame.grid(row=3, column=0, sticky="ew", padx=0, pady=0)
 
         # Configure grid columns
@@ -332,8 +365,8 @@ class DataBookFrame(ctk.CTkFrame):
             nav_buttons_frame,
             text="<<",
             command=self.first_page,
-            fg_color="#333333",
-            hover_color="#444444",
+            fg_color=self.color["primaryVariant"],
+            hover_color=self.color["hover"]["primary"],
             font_size=12,
             corner_radius=8,
             width=40,
@@ -346,8 +379,8 @@ class DataBookFrame(ctk.CTkFrame):
             nav_buttons_frame,
             text="<",
             command=self.previous_page,
-            fg_color="#333333",
-            hover_color="#444444",
+            fg_color=self.color["primary"],
+            hover_color=self.color["hover"]["primary"],
             font_size=12,
             corner_radius=8,
             width=40,
@@ -368,8 +401,8 @@ class DataBookFrame(ctk.CTkFrame):
             nav_buttons_frame,
             text=">",
             command=self.next_page,
-            fg_color="#333333",
-            hover_color="#444444",
+            fg_color=self.color["primary"],
+            hover_color=self.color["hover"]["primary"],
             font_size=12,
             corner_radius=8,
             width=40,
@@ -382,8 +415,8 @@ class DataBookFrame(ctk.CTkFrame):
             nav_buttons_frame,
             text=">>",
             command=self.last_page,
-            fg_color="#333333",
-            hover_color="#444444",
+            fg_color=self.color["primaryVariant"],
+            hover_color=self.color["hover"]["primary"],
             font_size=12,
             corner_radius=8,
             width=40,
@@ -417,8 +450,8 @@ class DataBookFrame(ctk.CTkFrame):
             goto_frame,
             text="Go",
             command=self.go_to_page,
-            fg_color="#6200EA",
-            hover_color="#5000D0",
+            fg_color=self.color["primaryVariant"],
+            hover_color=self.color["active"]["primary"],
             font_size=12,
             corner_radius=8,
             width=50,
