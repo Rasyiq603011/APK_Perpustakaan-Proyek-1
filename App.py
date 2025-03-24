@@ -83,7 +83,7 @@ class Application:
         }
 
         self.setupFrames()
-        self.showFrame("DataBookFrame")  # Start with book list
+        self.showFrame("AddBookFrame")  # Start with book list
 
     def setupFrames(self):
         for name, FrameClass in self.frameClasses.items():
@@ -117,7 +117,8 @@ class Application:
             frame.tkraise()
             self.currentFrame = frameName
 
-    
+    def GetStatusUser(self):
+        pass
     def showBookDetail(self, book):
         """Show details of the selected book"""
         self.selectedBook = book
