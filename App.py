@@ -18,7 +18,7 @@ class Application:
         self.root.title("Book-Ku")
         self.root.geometry("1024x768")
         self.currentFrame = None
-        self.dataDir = "D:\\Project 1\\Tubes Semester 1\\Asset"
+        self.dataDir = "D:\\Project 1\\Tubes Semester 1\\assets"
         self.bookManager = BookManager(
             os.path.join(self.dataDir, "data_buku_2.xlsx"),
             os.path.join(self.dataDir, "Cover"),
