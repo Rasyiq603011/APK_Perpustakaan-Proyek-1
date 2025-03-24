@@ -44,6 +44,8 @@ class Application:
         # Covers directory
         self.covers_dir = os.path.join(self.assets_dir, "Cover")
         os.makedirs(self.covers_dir, exist_ok=True)
+
+        self.defaultCover = os.path.join(self.assets_dir, "IMG.jpg")
         
         # Create required files if they don't exist
         required_files = [
@@ -75,6 +77,7 @@ class Application:
             "DetailsBookFrame": DetailsBookFrame,
             "UpdateBookFrame": UpdateBookFrame,
             "AddBookFrame": AddBookFrame,
+            
         }
 
         self.setupFrames()
