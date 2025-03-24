@@ -18,7 +18,7 @@ def categorize_genre(genre):
 
 
 def load_genre_data():
-    file_path = "assets/data_buku_2.xlsx"  # Menggunakan file data_buku_2.xlsx
+    file_path = "data/data_buku_2.xlsx"  # Menggunakan file data_buku_2.xlsx
     df = pd.read_excel(file_path)
     if "Kategori" in df.columns:
         df["Category"] = df["Kategori"].apply(categorize_genre)

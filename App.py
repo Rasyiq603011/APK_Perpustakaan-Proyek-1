@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import os
+import json
 from PIL import Image, ImageTk
 
 # Import all frames and modules
@@ -18,16 +19,47 @@ class Application:
         self.root.title("Book-Ku")
         self.root.geometry("1024x768")
         self.currentFrame = None
-        self.dataDir = "D:\\Project 1\\Tubes Semester 1\\assets"
+        self.setupDirectories()
         self.bookManager = BookManager(
-            os.path.join(self.dataDir, "data_buku_2.xlsx"),
-            os.path.join(self.dataDir, "Cover"),
-            os.path.join(self.dataDir, "IMG.jpg")
+            os.path.join(self.data_dir, "data_buku_2.xlsx"),
+            os.path.join(self.assets_dir, "Cover"),
+            os.path.join(self.assets_dir, "IMG.jpg")
         )
         self.color= None
         self.selectedBook = None
         self.createWidgets()
     
+    def setupDirectories(self):
+        # Base directory
+        self.base_dir = os.path.dirname(os.path.abspath(__file__))
+        
+        # Data directory
+        self.data_dir = os.path.join(self.base_dir, "data")
+        os.makedirs(self.data_dir, exist_ok=True)
+        
+        # Assets directory
+        self.assets_dir = os.path.join(self.base_dir, "assets")
+        os.makedirs(self.assets_dir, exist_ok=True)
+        
+        # Covers directory
+        self.covers_dir = os.path.join(self.assets_dir, "Cover")
+        os.makedirs(self.covers_dir, exist_ok=True)
+        
+        # Create required files if they don't exist
+        required_files = [
+            ("users.json", {"admin": {"password": "admin123", "email": "admin@bookku.com", "role": "admin"}}),
+            ("logs.json", []),
+            ("loans.json", []),
+            ("bookings.json", []),
+            ("penalties.json", [])
+        ]
+        
+        for filename, default_content in required_files:
+            file_path = os.path.join(self.data_dir, filename)
+            if not os.path.exists(file_path):
+                with open(file_path, 'w') as f:
+                    json.dump(default_content, f, indent=2)
+
     def createWidgets(self):
         # Create the container frame
         self.container = tk.Frame(self.root)
