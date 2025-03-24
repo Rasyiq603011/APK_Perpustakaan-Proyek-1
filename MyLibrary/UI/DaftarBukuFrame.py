@@ -64,7 +64,6 @@ class DataBookFrame(ctk.CTkFrame):
         ctk.CTkFrame.__init__(self, parent)
         self.configure(fg_color="#1E1E1E", corner_radius=0)  # Dark background
         self.genre_options = load_genre_data()
-
         self.controller = controller
         self.MyLibrary = controller.bookManager
 

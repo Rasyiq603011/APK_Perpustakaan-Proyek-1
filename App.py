@@ -24,6 +24,7 @@ class Application:
             os.path.join(self.dataDir, "Cover"),
             os.path.join(self.dataDir, "IMG.jpg")
         )
+        self.color= None
         self.selectedBook = None
         self.createWidgets()
     
