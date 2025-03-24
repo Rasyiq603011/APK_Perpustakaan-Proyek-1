@@ -273,7 +273,6 @@ class UpdateBookFrame(ctk.CTkFrame):
         # Debug: Print the keys and the ISBN value
         # print(f"Book data keys: {self.book.keys()}")
         # print(f"ISBN value: {self.book.get('ISBN', 'Not found')}")
-    
         # Check if book is a pandas Series
         if hasattr(self.book, 'keys'):
             # Set values in entry fields

@@ -4,12 +4,12 @@ import os
 from PIL import Image, ImageTk
 
 # Import all frames and modules
-from MyLibrary.constans import *
-from MyLibrary.Moduls.Book_Manager import BookManager
-from MyLibrary.UI.DaftarBukuFrame import DataBookFrame
-from MyLibrary.UI.DetailsBookFrame import DetailsBookFrame
-from MyLibrary.UI.UpdateBookFrame import UpdateBookFrame
-from MyLibrary.UI.AddBookFrame import AddBookFrame
+from constans import *
+from Moduls.Book_Manager import BookManager
+from UI.DaftarBukuFrame import DataBookFrame
+from UI.DetailsBookFrame import DetailsBookFrame
+from UI.UpdateBookFrame import UpdateBookFrame
+from UI.AddBookFrame import AddBookFrame
 
 
 class Application:
