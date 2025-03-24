@@ -206,14 +206,11 @@ class UpdateBookFrame(ctk.CTkFrame):
             height=120  # Reduced height
         )
         self.desc_text.grid(row=5, column=0, columnspan=4, padx=20, pady=(0, 20), sticky="nsew")
-        
-        self.entries["ISBN"].configure(state = "disabled")
 
         # Make the description row expandable
         self.form_container.rowconfigure(5, weight=1)
     
     def create_cover_section(self):
-        """Create the cover preview and upload section"""
         
         # Cover title
         cover_title = ctk.CTkLabel(
@@ -234,6 +231,7 @@ class UpdateBookFrame(ctk.CTkFrame):
         # Update cover button
         self.upload_btn = ctk.CTkButton(
             self.cover_container,
+            text="Upload cover",
             command=self.browse_cover,
             fg_color="#6200EA",
             hover_color="#5000D0", 
@@ -272,8 +270,8 @@ class UpdateBookFrame(ctk.CTkFrame):
             return
             
         # Debug: Print the keys and the ISBN value
-        # print(f"Book data keys: {self.book.keys()}")
-        # print(f"ISBN value: {self.book.get('ISBN', 'Not found')}")
+        print(f"Book data keys: {self.book.keys()}")
+        print(f"ISBN value: {self.book.get('ISBN', 'Not found')}")
     
         # Check if book is a pandas Series
         if hasattr(self.book, 'keys'):
@@ -282,20 +280,7 @@ class UpdateBookFrame(ctk.CTkFrame):
                 if field_name in self.book and field_name != "Kategori":
                     self.entries[field_name].delete(0, "end")
                     self.entries[field_name].insert(0, str(self.book.get(field_name, "")))
-
-            # Check what happens to ISBN specifically
-            isbn_value = self.book.get("ISBN", "")
-            # print(f"Setting ISBN field to: {isbn_value}")
-            self.entries["ISBN"].delete(0, "end")
-            self.entries["ISBN"].insert(0, isbn_value)
-            # print(f"ISBN field now contains: {self.entries['ISBN'].get()}")
-            
-            self.entries["ISBN"].delete(0, "end")
-            if "ISBN" in self.book and self.book["ISBN"]:
-                self.entries["ISBN"].insert(0, str(self.book["ISBN"]))
-            else:
-                self.entries["ISBN"].insert(0, "9999999999999")
-            
+                
             # Make ISBN field read-only
             self.entries["ISBN"].configure(state="disabled")
             
