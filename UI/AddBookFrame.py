@@ -16,8 +16,8 @@ class AddBookFrame(ctk.CTkFrame):
         self.color = COLOR_DARK if self.is_dark_mode else COLOR_LIGHT
 
         self.controller = controller
-        self.default_cover = "D:\\Project 1\\Tubes Semester 1\\Asset\\IMG.jpg"
-        self.cover_dir = "D:\\Project 1\\Tubes Semester 1\\Asset\\Cover"
+        self.default_cover = "C:\\Users\\R d t\\Desktop\\Project Learning\\tkinter\\Last Week\\APK_Perpustakaan-Proyek-1\\assets\\IMG.jpg"
+        self.cover_dir = "C:\\Users\\R d t\\Desktop\\Project Learning\\tkinter\\Last Week\\APK_Perpustakaan-Proyek-1\\assets\\Cover"
         self.UploadCoverpath = None  # Path to temporarily selected cover
         self.Layout()
     
