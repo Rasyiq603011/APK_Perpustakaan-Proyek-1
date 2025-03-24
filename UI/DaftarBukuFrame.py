@@ -7,7 +7,7 @@ import sys
 import math
 import pandas as pd
 
-from MyLibrary.constans import CATEGORY_MAPPING
+from constans import CATEGORY_MAPPING
 
 
 def categorize_genre(genre):
