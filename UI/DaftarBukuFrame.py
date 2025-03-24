@@ -7,7 +7,8 @@ import sys
 import math
 import pandas as pd
 
-from MyLibrary.constans import CATEGORY_MAPPING  # Impor dari folder MyLibrary
+from MyLibrary.constans import CATEGORY_MAPPING
+
 
 def categorize_genre(genre):
     for category, keywords in CATEGORY_MAPPING.items():
@@ -64,6 +65,7 @@ class DataBookFrame(ctk.CTkFrame):
         ctk.CTkFrame.__init__(self, parent)
         self.configure(fg_color="#1E1E1E", corner_radius=0)  # Dark background
         self.genre_options = load_genre_data()
+
         self.controller = controller
         self.MyLibrary = controller.bookManager
 
@@ -163,7 +165,7 @@ class DataBookFrame(ctk.CTkFrame):
         self.header_frame = self.create_frame(self, fg_color="#232323", height=80)
         self.header_frame.grid(row=0, column=0, sticky="ew", padx=0, pady=0)
 
-        # Config grid untuk frame header
+        # Configure grid for header frame
         self.header_frame.columnconfigure(0, weight=1)  # For left items
         self.header_frame.columnconfigure(1, weight=1)  # For center title
         self.header_frame.columnconfigure(2, weight=1)  # For right items
@@ -192,7 +194,7 @@ class DataBookFrame(ctk.CTkFrame):
         search_filter_frame = self.create_frame(self, fg_color="#2B2B2B", height=80)
         search_filter_frame.grid(row=1, column=0, sticky="ew", padx=20, pady=(10, 10))
 
-        # Config grid untuk frame search & filter
+        # Configure grid
         search_filter_frame.columnconfigure(0, weight=1)  # Search section
         search_filter_frame.columnconfigure(1, weight=0)  # Genre filter
         search_filter_frame.columnconfigure(2, weight=0)  # Status filter
@@ -201,7 +203,7 @@ class DataBookFrame(ctk.CTkFrame):
         search_frame = self.create_frame(search_filter_frame, fg_color="transparent")
         search_frame.grid(row=0, column=0, padx=20, pady=10, sticky="w")
 
-        # Config untuk grid search frame
+        # Configure search frame grid
         search_frame.columnconfigure(0, weight=0)  # Label
         search_frame.columnconfigure(1, weight=1)  # Entry
 
@@ -219,9 +221,11 @@ class DataBookFrame(ctk.CTkFrame):
             height=36
         )
         self.search_entry.grid(row=0, column=1, sticky="w")
-        self.search_entry.bind("<KeyRelease>", self.on_search_change)
+        self.search_entry.bind("<KeyRelease>", self.start_search_timer)
 
-        # Frame untuk filter genre
+        self.search_timer = None
+
+        # Genre filter frame
         genre_frame = self.create_frame(search_filter_frame, fg_color="transparent")
         genre_frame.grid(row=0, column=1, padx=20, pady=10, sticky="e")
 
@@ -232,7 +236,7 @@ class DataBookFrame(ctk.CTkFrame):
         )
         genre_label.grid(row=0, column=0, padx=(0, 10))
 
-        # Membuat dropdown dengan input awal All Genre
+        # Create the dropdown list with initial value "All Genre"
         self.genre_dropdown = ctk.CTkOptionMenu(
             genre_frame,
             values=["All Genre"],
@@ -278,13 +282,13 @@ class DataBookFrame(ctk.CTkFrame):
 
     def update_genre_dropdown(self):
         """Update the genre dropdown with available genres"""
-        # Mengambil genre yang tersedia
+        # Get available genres
         genres = self.get_available_genres()
 
-        # Membuat drowpdown
+        # Create the dropdown values list with "All Genre" at the beginning
         dropdown_values = ["All Genre"] + genres
 
-        # Memperbaharui dropdown
+        # Update the dropdown menu with these values
         self.genre_dropdown.configure(values=dropdown_values)
         self.genre_dropdown.set("All Genre")
 
@@ -296,7 +300,7 @@ class DataBookFrame(ctk.CTkFrame):
         self.content_frame.columnconfigure(0, weight=1)
         self.content_frame.rowconfigure(0, weight=1)
 
-        # Membuata frame yang bisa di scroll
+        # Create scrollable frame for books
         self.book_container = ctk.CTkScrollableFrame(
             self.content_frame,
             fg_color="#1E1E1E",
@@ -315,46 +319,115 @@ class DataBookFrame(ctk.CTkFrame):
         self.pagination_frame.grid(row=3, column=0, sticky="ew", padx=0, pady=0)
 
         # Configure grid columns
-        columns = 5
-        for i in range(columns):
-            weight = 1 if i in [0, 4] else 0
-            self.pagination_frame.columnconfigure(i, weight=weight)
+        self.pagination_frame.columnconfigure(0, weight=1)  # Left spacer
+        self.pagination_frame.columnconfigure(1, weight=0)  # Navigation buttons
+        self.pagination_frame.columnconfigure(2, weight=1)  # Right spacer with Go to components
 
-        # Previous page button
+        # Membuat frame untuk navigasi
+        nav_buttons_frame = self.create_frame(self.pagination_frame, fg_color="transparent")
+        nav_buttons_frame.grid(row=0, column=1, padx=0, pady=10)
+
+        # First page button
+        self.first_btn = self.create_button(
+            nav_buttons_frame,
+            text="<<",
+            command=self.first_page,
+            fg_color="#333333",
+            hover_color="#444444",
+            font_size=12,
+            corner_radius=8,
+            width=40,
+            height=30
+        )
+        self.first_btn.pack(side="left", padx=(0, 0))
+
+        # Previous page button - Setelah first button
         self.prev_btn = self.create_button(
-            self.pagination_frame,
+            nav_buttons_frame,
             text="<",
             command=self.previous_page,
             fg_color="#333333",
             hover_color="#444444",
             font_size=12,
             corner_radius=8,
-            width=80,
+            width=40,
             height=30
         )
-        self.prev_btn.grid(row=0, column=1, padx=(5, 10), pady=10)
+        self.prev_btn.pack(side="left", padx=(0, 10))
 
-        # Indikator halaman
+        # Page indicator
         self.page_label = self.create_label(
-            self.pagination_frame,
+            nav_buttons_frame,
             text=f"Page {self.current_page} of {self.total_pages}",
             font_size=12
         )
-        self.page_label.grid(row=0, column=2, padx=10, pady=10)
+        self.page_label.pack(side="left", padx=10)
 
         # Next page button
         self.next_btn = self.create_button(
-            self.pagination_frame,
+            nav_buttons_frame,
             text=">",
             command=self.next_page,
             fg_color="#333333",
             hover_color="#444444",
             font_size=12,
             corner_radius=8,
-            width=80,
+            width=40,
             height=30
         )
-        self.next_btn.grid(row=0, column=3, padx=(10, 5), pady=10)
+        self.next_btn.pack(side="left", padx=(10, 0))
+
+        # Last page button - Setelah next button
+        self.last_btn = self.create_button(
+            nav_buttons_frame,
+            text=">>",
+            command=self.last_page,
+            fg_color="#333333",
+            hover_color="#444444",
+            font_size=12,
+            corner_radius=8,
+            width=40,
+            height=30
+        )
+        self.last_btn.pack(side="left", padx=(0, 0))
+
+        # Create a frame for "Go to" components on the right
+        goto_frame = self.create_frame(self.pagination_frame, fg_color="transparent")
+        goto_frame.grid(row=0, column=2, padx=(0, 20), pady=10, sticky="e")
+
+        # Go to page label - Di dalam goto_frame
+        goto_label = self.create_label(
+            goto_frame,
+            text="Go to:",
+            font_size=12
+        )
+        goto_label.pack(side="left", padx=(0, 5))
+
+        # Page number entry - Sebelah kanan label
+        self.page_entry = self.create_entry(
+            goto_frame,
+            placeholder_text="Page #",
+            width=60,
+            height=30
+        )
+        self.page_entry.pack(side="left", padx=(0, 5))
+
+        # Go button - Sebelah kanan entry
+        go_btn = self.create_button(
+            goto_frame,
+            text="Go",
+            command=self.go_to_page,
+            fg_color="#6200EA",
+            hover_color="#5000D0",
+            font_size=12,
+            corner_radius=8,
+            width=50,
+            height=30
+        )
+        go_btn.pack(side="left")
+
+        # Add Enter key binding to page entry
+        self.page_entry.bind("<Return>", lambda event: self.go_to_page())
 
     # =================== BOOK CARD FUNCTIONS ===================
 
@@ -368,7 +441,6 @@ class DataBookFrame(ctk.CTkFrame):
             border_width=0
         )
 
-        # Menggunakan grid untuk setiap book card
         book_frame.columnconfigure(0, weight=1)
         book_frame.rowconfigure(0, weight=0)  # Cover image
         book_frame.rowconfigure(1, weight=0)  # Title
@@ -391,7 +463,7 @@ class DataBookFrame(ctk.CTkFrame):
         btn.image = img  # Keep reference
         btn.grid(row=0, column=0, padx=5, pady=5, sticky="ew")
 
-        # Fungsi truncated untuk judul yang panjang
+        # Book title (truncate if too long)
         title = book.get('Judul', 'Judul Tidak Ada')
         title_truncated = self.truncate_text(title, 20)
 
@@ -405,7 +477,7 @@ class DataBookFrame(ctk.CTkFrame):
         )
         title_label.grid(row=1, column=0, padx=5, pady=5, sticky="ew")
 
-        # Menambahkan tooltip untuk judul yang di truncated
+        # Add tooltip for truncated titles
         if title_truncated != title:
             self.create_tooltip(title_label, title)
 
@@ -424,7 +496,7 @@ class DataBookFrame(ctk.CTkFrame):
             )
             author_label.grid(row=2, column=0, padx=5, pady=(0, 5), sticky="ew")
 
-            # Menambahkan tooltip untuk author yang di truncated
+            # Add tooltip for truncated author names
             if author_truncated != author:
                 self.create_tooltip(author_label, author)
 
@@ -469,7 +541,7 @@ class DataBookFrame(ctk.CTkFrame):
 
         self.page_label.configure(text=f"Page {self.current_page} of {self.total_pages}")
 
-        # Update status button
+        # Update button states
         self.prev_btn.configure(state="normal" if self.current_page > 1 else "disabled")
         self.next_btn.configure(state="normal" if self.current_page < self.total_pages else "disabled")
 
@@ -483,47 +555,100 @@ class DataBookFrame(ctk.CTkFrame):
         """Pindah ke halaman berikutnya"""
         if self.current_page < self.total_pages:
             self.current_page += 1
-            self.load_books()  # Gunakan load_books daripada populate_book_grid
+            self.load_books()
+
+    def first_page(self):
+        """Pindah ke halaman pertama"""
+        if self.current_page != 1:
+            self.current_page = 1
+            self.load_books()
 
     def previous_page(self):
         """Pindah ke halaman sebelumnya"""
         if self.current_page > 1:
             self.current_page -= 1
-            self.load_books()  # Gunakan load_books daripada populate_book_grid
+            self.load_books()
+
+    def last_page(self):
+        """Pindah ke halaman terakhir"""
+        if self.current_page != self.total_pages:
+            self.current_page = self.total_pages
+            self.load_books()
+
+    def go_to_page(self):
+        """Menampilkan halaman sesuai user input"""
+        try:
+            # Mengambil halaman dari entry
+            page_num = int(self.page_entry.get())
+
+            # Check input
+            if 1 <= page_num <= self.total_pages:
+                self.current_page = page_num
+                self.load_books()
+                # Membersihkan entry
+                self.page_entry.delete(0, tk.END)
+            else:
+                # Case untuk angka yang dimasukkan tidak valid
+                self.show_page_error(f"Please enter a page number between 1 and {self.total_pages}")
+        except ValueError:
+            # Case untuk masukkan selain angka / integer
+            self.show_page_error("Please enter a valid page number")
+
+    def show_page_error(self, message):
+        """Display error message for invalid page navigation"""
+        # Create or update error tooltip near the page entry
+        if hasattr(self, 'error_tooltip'):
+            # Memperbaharui tooltip jika ada
+            if self.error_tooltip.tooltip:
+                self.error_tooltip.tooltip.destroy()
+            self.error_tooltip.text = message
+            self.error_tooltip.show_tooltip()
+        else:
+            # Membuat tooltip untuk error
+            self.error_tooltip = Tooltip(self.page_entry, message)
+            self.error_tooltip.show_tooltip()
+
+        # Menampilkan tooltip error
+        self.page_entry.after(2000,
+                              lambda: self.error_tooltip.hide_tooltip() if hasattr(self, 'error_tooltip') else None)
+
+        # Tampilan merah yang menandakan error di border
+        original_border = self.page_entry.cget("border_color")
+        self.page_entry.configure(border_color="#F44336")  # Red border
+        self.page_entry.after(100, lambda: self.page_entry.configure(border_color=original_border))
 
     # =================== GRID MANAGEMENT FUNCTIONS ===================
 
     def populate_book_grid(self):
         """Mengisi grid dengan buku-buku untuk halaman saat ini"""
         # Metode ini digunakan untuk populasi awal dan refresh total
-        # Menghapus widget saat ini
         for widget in self.book_grid.winfo_children():
             widget.destroy()
 
-        # Mendapatkan buku dari controller
+        # Get all books from manager
         all_books = self.controller.getBook()
 
         if all_books is None or len(all_books) == 0:
             self.show_no_books_message()
             return
 
-        # Mengupdate pagination
+        # Memperbaharui pagination
         self.update_pagination_info(len(all_books))
 
-        # Mengambil buku untuk halaman ini
+        # Mengambil buku untuk halaman saat ini
         page_books = self.get_page_slice(all_books)
 
-        # Tampilan grid
+        # Konfig grid
         cols = 5  # Number of books per row
         for i in range(cols):
             self.book_grid.columnconfigure(i, weight=1)
 
-        # Menampilkan buku
+        # Menampilkan books di grid
         for i, (_, book) in enumerate(page_books.iterrows()):
             row = i // cols
             col = i % cols
 
-            # Membuat book_card
+            # Create book_card
             book_card = self.create_book_card(book)
             book_card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
 
@@ -619,16 +744,26 @@ class DataBookFrame(ctk.CTkFrame):
         return books
 
     def create_tooltip(self, widget, text):
-        """Create a tooltip for a given widget with the specified text"""
-        #Tooltip for message
+        """Membuat text panjang dari text yang di truncated dengan tooltip custom"""
         tooltip = Tooltip(widget, text)
         return tooltip
 
-    def on_search_change(self, event=None):
-        """Handle search input changes"""
+    def start_search_timer(self, event=None):
+        # Memulai timer untuk pencarian
+        if self.search_timer is not None:
+            self.after_cancel(self.search_timer)
+
+        # Memulai ulang timer setelah 1 detik
+        self.search_timer = self.after(1000, self.perform_search)
+
+    def perform_search(self):
+        """Program Search"""
         self.search_query = self.search_entry.get().strip()
-        self.current_page = 1 
+        self.current_page = 1
         self.load_books()
+
+        # Reset timer
+        self.search_timer = None
 
     def get_available_genres(self):
         """Mendapatkan daftar kategori dari CATEGORY_MAPPING"""
@@ -651,7 +786,7 @@ class DataBookFrame(ctk.CTkFrame):
         return sorted(categories)
 
     def on_genre_filter_change(self, choice):
-        """Handle genre filter changes"""
+        """Mengatur perubahan dari filter genre"""
         if choice == "All Genre":
             self.selected_genre = None
         else:
@@ -660,12 +795,12 @@ class DataBookFrame(ctk.CTkFrame):
         self.load_books()
 
     def on_status_filter_change(self, choice):
-        """Handle status filter changes"""
+        """Mengatur perubahan dari filter status"""
         if choice == "All":
             self.selected_status = None
         else:
             self.selected_status = choice  # Simpan sebagai string tunggal, bukan list
-        self.current_page = 1  
+        self.current_page = 1
         self.load_books()
 
 
