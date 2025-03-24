@@ -5,9 +5,8 @@ import os
 import sys
 import shutil
 from PIL import Image
-
-from constans import COLOR_DARK, COLOR_LIGHT  # Sesuai dengan folder utama
-
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from constans import COLOR_DARK, COLOR_LIGHT 
 
 class UpdateBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -113,7 +112,6 @@ class UpdateBookFrame(ctk.CTkFrame):
             )
         self.cancelBtn.pack(side="left", padx=40, pady=10)
             
-        # Update button - dengan warna dari palette
         self.updateBtn = ctk.CTkButton(
                 self.footer,
                 text="Update book", 
@@ -166,6 +164,8 @@ class UpdateBookFrame(ctk.CTkFrame):
                     button_color=self.color["primary"],
                     button_hover_color=self.color["hover"]["primary"],
                     dropdown_fg_color=self.color["surface"],
+                    dropdown_text_color=self.color["primaryText"],
+                    dropdown_hover_color=self.color["hover"]["primary"],
                     text_color=self.color["primaryText"],
                     height=30,
                     dynamic_resizing=False

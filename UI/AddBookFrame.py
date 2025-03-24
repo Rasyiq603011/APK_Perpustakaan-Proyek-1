@@ -5,12 +5,16 @@ import os
 import sys
 import shutil
 from PIL import Image, ImageTk
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from constans import COLOR_DARK, COLOR_LIGHT 
 
 class AddBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         self.configure(fg_color="#1E1E1E", corner_radius=0)  # Dark background
-        
+        self.is_dark_mode = True
+        self.color = COLOR_DARK if self.is_dark_mode else COLOR_LIGHT
+
         self.controller = controller
         self.default_cover = "D:\\Project 1\\Tubes Semester 1\\Asset\\IMG.jpg"
         self.cover_dir = "D:\\Project 1\\Tubes Semester 1\\Asset\\Cover"
@@ -42,8 +46,8 @@ class AddBookFrame(ctk.CTkFrame):
                 self.header_frame, 
                 text="← Kembali", 
                 command=lambda: self.controller.showFrame("DataBookFrame"),
-                fg_color="#6200EA",
-                hover_color= "#5000D0",
+                fg_color=self.color["primary"],
+                hover_color= self.color["primaryText"],
                 text_color="white",
                 font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
                 corner_radius=15,
@@ -57,14 +61,14 @@ class AddBookFrame(ctk.CTkFrame):
                 self.header_frame,
                 text="TAMBAH BUKU", 
                 font=ctk.CTkFont(family="Arial", size=24, weight="bold"),
-                text_color="white"
+                text_color=self.color["primaryText"]
         )
         self.title_label.grid(row=0, column=1)
             
     def Content(self):
     # ===== CONTENT SECTION =====
     # Form container
-        self.form_container = ctk.CTkFrame(self, fg_color="#2B2B2B", corner_radius=10)  # Slightly lighter background for form
+        self.form_container = ctk.CTkFrame(self, fg_color=self.color["surface"], corner_radius=10)  # Slightly lighter background for form
         self.form_container.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=20)
             
         self.form_container.columnconfigure(0, weight= 0)
@@ -75,7 +79,7 @@ class AddBookFrame(ctk.CTkFrame):
         self.create_form_fields()
             
     # Cover container (right side) - more compact
-        self.cover_container = ctk.CTkFrame(self, fg_color="#2B2B2B", corner_radius=10)  # Matching form container color
+        self.cover_container = ctk.CTkFrame(self, fg_color=self.color["surface"], corner_radius=10)  # Matching form container color
         self.cover_container.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=20)
         self.create_cover_section()
             
@@ -90,9 +94,9 @@ class AddBookFrame(ctk.CTkFrame):
                 self.footer,
                 text="Batal",
                 command=lambda: self.controller.showFrame("DetailsBookFrame"),
-                fg_color="#F44336",
-                hover_color="#D32F2F",
-                text_color="white",
+                fg_color=self.color["cancelButton"],
+                hover_color=self.color["error"],
+                text_color=self.color["primaryText"],
                 font=ctk.CTkFont(family="Arial", size=14),
                 corner_radius=10,
                 height=40,
@@ -105,9 +109,9 @@ class AddBookFrame(ctk.CTkFrame):
                 self.footer,
                 text="save book", 
                 command=self.save_book,
-                fg_color="#4CAF50", 
-                hover_color="#388E3C",
-                text_color="white",
+                fg_color=self.color["success"], 
+                hover_color=self.color["active"]["accent"],
+                text_color=self.color["primaryText"],
                 font=ctk.CTkFont(family="Arial", size=16, weight="bold"),
                 corner_radius=10,
                 height=40,
@@ -138,7 +142,7 @@ class AddBookFrame(ctk.CTkFrame):
                 self.form_container,
                 text=f"{field_name}:",
                 font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
-                text_color="white",
+                text_color=self.color["primaryText"],
                 anchor="w",
                 width=70  # Reduced width
             )
@@ -150,11 +154,13 @@ class AddBookFrame(ctk.CTkFrame):
                     self.form_container,
                     values=["Science Fiction","Young Adult","Graphic Novels","Fiction","Non-Fiction", "Education","Arts & Humanities","Religion & Spirituality", "Social Sciences","Nature & Environment"],
                     font=ctk.CTkFont(family="Arial", size=14),
-                    fg_color="#1E1E1E",
-                    button_color="#6200EA",
-                    button_hover_color="#5000D0",
-                    dropdown_fg_color="#1E1E1E",
-                    text_color="white",
+                    fg_color=self.color["inputField"],
+                    button_color=self.color["primary"],
+                    button_hover_color=self.color["hover"]["primary"],
+                    dropdown_fg_color=self.color["surface"],
+                    dropdown_text_color=self.color["primaryText"],
+                    dropdown_hover_color=self.color["hover"]["primary"],
+                    text_color=self.color["primaryText"],
                     height=30,
                     dynamic_resizing=False
                 )
@@ -167,9 +173,9 @@ class AddBookFrame(ctk.CTkFrame):
                 entry = ctk.CTkEntry(
                     self.form_container,
                     font=ctk.CTkFont(family="Arial", size=14),
-                    fg_color="#3D3D3D",
-                    border_color="#666666",
-                    text_color="white",
+                    fg_color=self.color["inputField"],
+                    border_color=self.color["border"],
+                    text_color=self.color["primaryText"],
                     corner_radius=8,
                     height=30
                 )
@@ -184,7 +190,7 @@ class AddBookFrame(ctk.CTkFrame):
             self.form_container,
             text="Deskripsi:",
             font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
-            text_color="white",
+            text_color=self.color["primaryText"],
             anchor="w"
         )
         self.desc_label.grid(row=4, column=0, padx=20, pady=(20, 5), sticky="w")
@@ -193,9 +199,9 @@ class AddBookFrame(ctk.CTkFrame):
         self.desc_text = ctk.CTkTextbox(
             self.form_container,
             font=ctk.CTkFont(family="Arial", size=14),
-            fg_color="#3D3D3D",  # Lighter input field background
-            border_color="#666666",  # Lighter border
-            text_color="white",
+            fg_color=self.color["inputField"],  # Lighter input field background
+            border_color=self.color["border"],  # Lighter border
+            text_color=self.color["primaryText"],
             corner_radius=8,
             height=120  # Reduced height
         )
@@ -211,11 +217,11 @@ class AddBookFrame(ctk.CTkFrame):
             self.cover_container,
             text="Cover Buku",
             font=ctk.CTkFont(family="Arial", size=18, weight="bold"),
-            text_color="white"
+            text_color=self.color["primaryText"]
         )
         cover_title.pack(pady=(20, 10))
         
-        self.cover_frame = ctk.CTkFrame(self.cover_container, fg_color="#F5F5F5", corner_radius=10)  # Light background for cover like in design
+        self.cover_frame = ctk.CTkFrame(self.cover_container, fg_color=self.color["background"], corner_radius=10)  # Light background for cover like in design
         self.cover_frame.pack(padx=20, pady=10, fill="both", expand=True)
         
         # Cover image label - using the recommended 180x270 ratio
@@ -227,9 +233,9 @@ class AddBookFrame(ctk.CTkFrame):
             self.cover_container,
             text="Upload cover",
             command=self.browse_cover,
-            fg_color="#6200EA",
-            hover_color="#5000D0", 
-            text_color="white",
+            fg_color=self.color["accent"],
+            hover_color=self.color["hover"]["accent"], 
+            text_color=self.color["primaryText"],
             font=ctk.CTkFont(family="Arial", size=14),
             corner_radius=8,
             height=36
@@ -241,20 +247,20 @@ class AddBookFrame(ctk.CTkFrame):
             self.cover_container,
             text="Tidak ada file dipilih",
             font=ctk.CTkFont(family="Arial", size=12),
-            text_color="#AAAAAA", 
+            text_color=self.color["secondaryText"], 
             justify="center"
         )
         self.selected_file_label.pack()
 
         # Cover info
-        info_frame = ctk.CTkFrame(self.cover_container, fg_color="#363636", corner_radius=8) 
+        info_frame = ctk.CTkFrame(self.cover_container, fg_color=self.color["inputField"], corner_radius=8) 
         info_frame.pack(padx=20, pady=20, fill="x")
         
         info_text = ctk.CTkLabel(
             info_frame,
             text="Format: JPEG/JPG\nUkuran yang disarankan: 180x270 px",
             font=ctk.CTkFont(family="Arial", size=12),
-            text_color="#FFFFFF",
+            text_color=self.color["primaryText"],
             justify="center"
         )
         info_text.pack(pady=15, padx=15)
