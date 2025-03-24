@@ -6,7 +6,7 @@ import os
 import sys
 import math
 import pandas as pd
-
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from constans import CATEGORY_MAPPING
 
 
@@ -18,7 +18,7 @@ def categorize_genre(genre):
 
 
 def load_genre_data():
-    file_path = "Asset/data_buku_2.xlsx"  # Menggunakan file data_buku_2.xlsx
+    file_path = "assets/data_buku_2.xlsx"  # Menggunakan file data_buku_2.xlsx
     df = pd.read_excel(file_path)
     if "Kategori" in df.columns:
         df["Category"] = df["Kategori"].apply(categorize_genre)
@@ -808,3 +808,4 @@ if __name__ == '__main__':
     root = ctk.CTk()
     root.title("Daftar Buku")
     root.geometry("1024x768")
+
