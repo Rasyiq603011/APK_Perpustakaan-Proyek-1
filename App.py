@@ -11,6 +11,7 @@ from UI.DaftarBukuFrame import DataBookFrame
 from UI.DetailsBookFrame import DetailsBookFrame
 from UI.UpdateBookFrame import UpdateBookFrame
 from UI.AddBookFrame import AddBookFrame
+from UI.MyBookFrame import MyBookFrame
 
 
 class Application:
@@ -77,6 +78,7 @@ class Application:
             "DetailsBookFrame": DetailsBookFrame,
             "UpdateBookFrame": UpdateBookFrame,
             "AddBookFrame": AddBookFrame,
+            "MyBookFrame": MyBookFrame,
             
         }
 
