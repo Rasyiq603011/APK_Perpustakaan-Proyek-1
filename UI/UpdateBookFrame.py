@@ -6,11 +6,18 @@ import sys
 import shutil
 from PIL import Image
 
+from constans import COLOR_DARK, COLOR_LIGHT  # Sesuai dengan folder utama
+
+
 class UpdateBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         self.controller = controller
-        self.configure(fg_color="#1E1E1E", corner_radius=0) 
+        self.is_dark_mode = True
+        self.color = COLOR_DARK if self.is_dark_mode else COLOR_LIGHT
+        
+        # Configure frame with bg color from palette
+        self.configure(fg_color=self.color["background"], corner_radius=0)
         
         self.book = None
         self.selected_cover_path = None  
@@ -21,12 +28,11 @@ class UpdateBookFrame(ctk.CTkFrame):
             self.cover_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "Cover")
             self.default_cover = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "IMG.jpg")
 
-
         self.Layout()
 
     def Layout(self):
          # Main frame layout 
-        self.columnconfigure(0, weight=3) # From Section
+        self.columnconfigure(0, weight=3) # Form Section
         self.columnconfigure(1, weight=2)  # Cover Section
         self.rowconfigure(0, weight=0)  # Header
         self.rowconfigure(1, weight=1)  # content
@@ -42,16 +48,16 @@ class UpdateBookFrame(ctk.CTkFrame):
         self.header_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=20, pady=(20, 0))
         self.header_frame.columnconfigure(0, weight=1)  # Back button
         self.header_frame.columnconfigure(1, weight=2)  # Title
-        self.header_frame.columnconfigure(2, weight=1)  # empty (saran radit)
+        self.header_frame.columnconfigure(2, weight=1)  # empty
             
-            # Back button - made slightly more compact
+        # Back button - dengan warna dari palette
         self.back_btn = ctk.CTkButton(
                 self.header_frame, 
                 text="← Kembali", 
                 command=lambda: self.controller.showFrame("DataBookFrame"),
-                fg_color="#6200EA",
-                hover_color= "#5000D0",
-                text_color="white",
+                fg_color=self.color["primary"],
+                hover_color=self.color["hover"]["primary"],
+                text_color=self.color["primaryText"],
                 font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
                 corner_radius=15,
                 width=120,
@@ -59,47 +65,47 @@ class UpdateBookFrame(ctk.CTkFrame):
         )
         self.back_btn.grid(row=0, column=0, sticky="w", padx=10)
             
-            # Title - same size but centered better
+        # Title - dengan warna dari palette
         self.title_label = ctk.CTkLabel(
                 self.header_frame,
                 text="UPDATE BUKU", 
                 font=ctk.CTkFont(family="Arial", size=24, weight="bold"),
-                text_color="white"
+                text_color=self.color["primaryText"]
         )
         self.title_label.grid(row=0, column=1)
             
     def Content(self):
-    # ===== CONTENT SECTION =====
-    # Form container
-        self.form_container = ctk.CTkFrame(self, fg_color="#2B2B2B", corner_radius=10)  # Slightly lighter background for form
+        # ===== CONTENT SECTION =====
+        # Form container dengan warna dari palette
+        self.form_container = ctk.CTkFrame(self, fg_color=self.color["surface"], corner_radius=10)
         self.form_container.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=20)
             
-        self.form_container.columnconfigure(0, weight= 0)
-        self.form_container.columnconfigure(1, weight= 1)
-        self.form_container.columnconfigure(2, weight= 0)
-        self.form_container.columnconfigure(3, weight= 1)
+        self.form_container.columnconfigure(0, weight=0)
+        self.form_container.columnconfigure(1, weight=1)
+        self.form_container.columnconfigure(2, weight=0)
+        self.form_container.columnconfigure(3, weight=1)
 
         self.create_form_fields()
             
-    # Cover container (right side) - more compact
-        self.cover_container = ctk.CTkFrame(self, fg_color="#2B2B2B", corner_radius=10)  # Matching form container color
+        # Cover container (right side)
+        self.cover_container = ctk.CTkFrame(self, fg_color=self.color["surface"], corner_radius=10)
         self.cover_container.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=20)
         self.create_cover_section()
             
     def Footer(self):
-    # ===== FOOTER SECTION =====
+        # ===== FOOTER SECTION =====
         self.footer = ctk.CTkFrame(self, fg_color="transparent", height=60, corner_radius=10)
         self.footer.grid(row=2, column=0, columnspan=2, sticky="ew", padx=20, pady=(0, 20))
         self.footer.pack_propagate(False)
             
-            # Cancel button - Left side
+        # Cancel button - dengan warna dari palette
         self.cancelBtn = ctk.CTkButton(
                 self.footer,
                 text="Batal",
                 command=lambda: self.controller.showFrame("DetailsBookFrame"),
-                fg_color="#F44336",
-                hover_color="#D32F2F",
-                text_color="white",
+                fg_color=self.color["cancelButton"],
+                hover_color=self.color["error"],
+                text_color=self.color["primaryText"],
                 font=ctk.CTkFont(family="Arial", size=14),
                 corner_radius=10,
                 height=40,
@@ -107,14 +113,14 @@ class UpdateBookFrame(ctk.CTkFrame):
             )
         self.cancelBtn.pack(side="left", padx=40, pady=10)
             
-            # Update button - Right side
+        # Update button - dengan warna dari palette
         self.updateBtn = ctk.CTkButton(
                 self.footer,
                 text="Update book", 
                 command=self.update_book,
-                fg_color="#4CAF50", 
-                hover_color="#388E3C",
-                text_color="white",
+                fg_color=self.color["success"], 
+                hover_color=self.color["active"]["accent"],
+                text_color=self.color["primaryText"],
                 font=ctk.CTkFont(family="Arial", size=16, weight="bold"),
                 corner_radius=10,
                 height=40,
@@ -139,71 +145,66 @@ class UpdateBookFrame(ctk.CTkFrame):
         for field in fields:
             field_name, row, col = field
 
-            # Label
+            # Label dengan warna dari palette
             label = ctk.CTkLabel(
                 self.form_container,
                 text=f"{field_name}:",
                 font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
-                text_color="white",
+                text_color=self.color["primaryText"],
                 anchor="w",
-                width=70  # Reduced width
+                width=70
             )
             label.grid(row=row, column=col, padx=(20), pady=15, sticky="w")
             
             if field_name == "Kategori":
-
+                # Dropdown dengan warna dari palette
                 dropdown = ctk.CTkOptionMenu(
                     self.form_container,
                     values=["Science Fiction","Young Adult","Graphic Novels","Fiction","Non-Fiction", "Education","Arts & Humanities","Religion & Spirituality", "Social Sciences","Nature & Environment"],
                     font=ctk.CTkFont(family="Arial", size=14),
-                    fg_color="#1E1E1E",
-                    button_color="#6200EA",
-                    button_hover_color="#5000D0",
-                    dropdown_fg_color="#1E1E1E",
-                    text_color="white",
+                    fg_color=self.color["inputField"],
+                    button_color=self.color["primary"],
+                    button_hover_color=self.color["hover"]["primary"],
+                    dropdown_fg_color=self.color["surface"],
+                    text_color=self.color["primaryText"],
                     height=30,
                     dynamic_resizing=False
                 )
-
                 dropdown.grid(row=row, column=col+1, padx=(20), pady=15, sticky="ew")
-                dropdown.configure(width=entry.winfo_width())
                 self.entries[field_name] = dropdown
             else:
-                # Create regular entry for other fields
+                # Entry dengan warna dari palette
                 entry = ctk.CTkEntry(
                     self.form_container,
                     font=ctk.CTkFont(family="Arial", size=14),
-                    fg_color="#3D3D3D",
-                    border_color="#666666",
-                    text_color="white",
+                    fg_color=self.color["inputField"],
+                    border_color=self.color["border"],
+                    text_color=self.color["primaryText"],
                     corner_radius=8,
                     height=30
                 )
                 entry.grid(row=row, column=col+1, padx=(20), pady=15, sticky="ew")
                 self.entries[field_name] = entry
 
-            
-
-        
-        # Description label (spans all columns)
+        # Description label dengan warna dari palette
         self.desc_label = ctk.CTkLabel(
             self.form_container,
             text="Deskripsi:",
             font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
-            text_color="white",
+            text_color=self.color["primaryText"],
             anchor="w"
         )
         self.desc_label.grid(row=4, column=0, padx=20, pady=(20, 5), sticky="w")
         
-        # Description textbox (spans all columns)
+        # Description textbox dengan warna dari palette
         self.desc_text = ctk.CTkTextbox(
             self.form_container,
             font=ctk.CTkFont(family="Arial", size=14),
-            fg_color="#3D3D3D",  # Lighter input field background
-            border_color="#666666",  # Lighter border
-            text_color="white",
+            fg_color=self.color["inputField"],
+            border_color=self.color["border"],
+            text_color=self.color["primaryText"],
             corner_radius=8,
-            height=120  # Reduced height
+            height=120
         )
         self.desc_text.grid(row=5, column=0, columnspan=4, padx=20, pady=(0, 20), sticky="nsew")
 
@@ -211,56 +212,56 @@ class UpdateBookFrame(ctk.CTkFrame):
         self.form_container.rowconfigure(5, weight=1)
     
     def create_cover_section(self):
-        
-        # Cover title
+        # Cover title dengan warna dari palette
         cover_title = ctk.CTkLabel(
             self.cover_container,
             text="Cover Buku",
             font=ctk.CTkFont(family="Arial", size=18, weight="bold"),
-            text_color="white"
+            text_color=self.color["primaryText"]
         )
         cover_title.pack(pady=(20, 10))
         
-        self.cover_frame = ctk.CTkFrame(self.cover_container, fg_color="#F5F5F5", corner_radius=10)  # Light background for cover like in design
+        # Cover frame
+        self.cover_frame = ctk.CTkFrame(self.cover_container, fg_color=self.color["background"], corner_radius=10)
         self.cover_frame.pack(padx=20, pady=10, fill="both", expand=True)
         
-        # Cover image label - using the recommended 180x270 ratio
+        # Cover image label
         self.cover_label = ctk.CTkLabel(self.cover_frame, text="", image=None)
         self.cover_label.pack(padx=20, pady=20)
         
-        # Update cover button
+        # Upload button dengan warna dari palette
         self.upload_btn = ctk.CTkButton(
             self.cover_container,
             text="Upload cover",
             command=self.browse_cover,
-            fg_color="#6200EA",
-            hover_color="#5000D0", 
-            text_color="white",
+            fg_color=self.color["accent"],
+            hover_color=self.color["hover"]["accent"], 
+            text_color=self.color["primaryText"],
             font=ctk.CTkFont(family="Arial", size=14),
             corner_radius=8,
             height=36
         )
         self.upload_btn.pack(pady=10)
         
-        # Selected file info
+        # Selected file info dengan warna dari palette
         self.selected_file_label = ctk.CTkLabel(
             self.cover_container,
             text="Tidak ada file dipilih",
             font=ctk.CTkFont(family="Arial", size=12),
-            text_color="#AAAAAA", 
+            text_color=self.color["secondaryText"], 
             justify="center"
         )
         self.selected_file_label.pack()
 
-        # Cover info
-        info_frame = ctk.CTkFrame(self.cover_container, fg_color="#363636", corner_radius=8) 
+        # Cover info dengan warna dari palette
+        info_frame = ctk.CTkFrame(self.cover_container, fg_color=self.color["inputField"], corner_radius=8) 
         info_frame.pack(padx=20, pady=20, fill="x")
         
         info_text = ctk.CTkLabel(
             info_frame,
             text="Format: JPEG/JPG\nUkuran yang disarankan: 180x270 px",
             font=ctk.CTkFont(family="Arial", size=12),
-            text_color="#FFFFFF",
+            text_color=self.color["primaryText"],
             justify="center"
         )
         info_text.pack(pady=15, padx=15)
@@ -472,11 +473,10 @@ class UpdateBookFrame(ctk.CTkFrame):
             if self.winfo_exists():
                 self.updateBtn.configure(state="normal", text="Simpan Perubahan")
 
-
 # Test function if run directly
 if __name__ == "__main__":
     root = ctk.CTk()
-    root.title("Update Buku")  # Changed to reflect this is updating, not adding
+    root.title("Update Buku")
     root.geometry("1024x768")
     
     # Create simple controller class for testing
@@ -509,5 +509,5 @@ if __name__ == "__main__":
     app.book = sample_book
     app.load_book_data()  # Populate form with book data
     app.pack(expand=True, fill="both")
-    
+        
     root.mainloop()
