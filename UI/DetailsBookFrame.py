@@ -14,7 +14,7 @@ from constans import COLOR_DARK, COLOR_LIGHT
 class DetailsBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
-        self.configure(fg_color="#1E1E1E", corner_radius=0)  # Dark background
+        self.configure(fg_color=COLOR_DARK["background"], corner_radius=0)  # Dark background from palette
         self.is_dark_mode = True
         self.color = COLOR_DARK if self.is_dark_mode else COLOR_LIGHT
         self.controller = controller
@@ -40,21 +40,20 @@ class DetailsBookFrame(ctk.CTkFrame):
         self.Footer()
 
     def Header(self):
-       # ===== HEADER SECTION =====
+        # ===== HEADER SECTION =====
         self.header_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.header_frame.grid(row=0, column=0, columnspan=2, sticky="ew", padx=20, pady=(20, 0))
         self.header_frame.columnconfigure(0, weight=1)  # Back button
         self.header_frame.columnconfigure(1, weight=2)  # Title
         self.header_frame.columnconfigure(2, weight=1)  # empty (saran radit)
             
-            # Back button - made slightly more compact
         self.back_btn = ctk.CTkButton(
                 self.header_frame, 
                 text="← Kembali", 
                 command=lambda: self.controller.showFrame("DataBookFrame"),
                 fg_color=self.color["primary"],
-                hover_color= self.color["primaryText"],
-                text_color="white",
+                hover_color=self.color["hover"]["primary"],
+                text_color=self.color["primaryText"],
                 font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
                 corner_radius=15,
                 width=120,
@@ -62,7 +61,7 @@ class DetailsBookFrame(ctk.CTkFrame):
         )
         self.back_btn.grid(row=0, column=0, sticky="w", padx=10)
             
-            # Title - same size but centered better
+        # Title - same size but centered better
         self.title_label = ctk.CTkLabel(
                 self.header_frame,
                 text="DETAIL BUKU", 
@@ -72,18 +71,22 @@ class DetailsBookFrame(ctk.CTkFrame):
         self.title_label.grid(row=0, column=1)
         
     def Content(self):
-        # ===== CONTENT SECTION =====
+        info_width = 600  # Width for info container
+        cover_width = 250  # Width for cover container
+        
         # Info container (left side)
-        self.info_container = ctk.CTkFrame(self, fg_color="#2B2B2B", corner_radius=10)  # Slightly lighter background for info
-        self.info_container.grid(row=1, column=0, sticky="nsew", padx=(20, 10), pady=20)
+        self.info_container = ctk.CTkFrame(self, fg_color=self.color["surface"], corner_radius=10, width=info_width)
+        self.info_container.grid(row=1, column=0, sticky="nsew", padx=(30, 10), pady=20)
+        self.info_container.grid_propagate(False)  # Prevent resizing based on content
         
         # Initialize info frame - will be populated in update_book_details
         self.info_frame = ctk.CTkFrame(self.info_container, fg_color="transparent")
         self.info_frame.pack(fill="both", expand=True, padx=20, pady=20)
         
         # Cover container (right side)
-        self.cover_container = ctk.CTkFrame(self, fg_color="#2B2B2B", corner_radius=10)  # Matching info container color
-        self.cover_container.grid(row=1, column=1, sticky="nsew", padx=(10, 20), pady=20)
+        self.cover_container = ctk.CTkFrame(self, fg_color=self.color["surface"], corner_radius=10, width=cover_width)
+        self.cover_container.grid(row=1, column=1, sticky="nsew", padx=(10, 30), pady=20)
+        self.cover_container.grid_propagate(False)  # Prevent resizing based on content
         
         self.setup_cover_section()
         self.update_book_details()
@@ -109,9 +112,9 @@ class DetailsBookFrame(ctk.CTkFrame):
         self.editBtn.pack(side="left", padx=40, pady=10)
         
         if self.StatusUser == "Administrator":
-            self.editBtn.configure(command=lambda: self.controller.showFrame("UpdateBookFrame"), text = "Edit Buku")
+            self.editBtn.configure(command=lambda: self.controller.showFrame("UpdateBookFrame"), text="Edit Buku")
         
-            # Update button - Right side
+        # Update button - Right side
         self.borrow_btn = ctk.CTkButton(
                 self.footer,
                 text="Borrow", 
@@ -131,40 +134,59 @@ class DetailsBookFrame(ctk.CTkFrame):
             self.update_book_details()
 
     def setup_cover_section(self):
+        # Use grid layout for more control over spacing
         self.cover_container.columnconfigure(0, weight=1)
-        self.cover_container.rowconfigure(0, weight=0)  # Label
-        self.cover_container.rowconfigure(1, weight=1)  # Cover image
-        self.cover_container.rowconfigure(2, weight=0)  # Info
+        self.cover_container.rowconfigure(0, weight=0)  # Label - fixed height
+        self.cover_container.rowconfigure(1, weight=1)  # Cover image - flexible
+        self.cover_container.rowconfigure(2, weight=0)  # Status - fixed height
         
-        # Cover title
+        # Cover title with fixed height
+        title_frame = ctk.CTkFrame(self.cover_container, fg_color="transparent", height=40)
+        title_frame.grid(row=0, column=0, sticky="ew", pady=(20, 0))
+        title_frame.grid_propagate(False)  # Prevent resizing
+        
         cover_title = ctk.CTkLabel(
-            self.cover_container,
+            title_frame,
             text="Cover Buku",
             font=ctk.CTkFont(family="Arial", size=18, weight="bold"),
-            text_color="white"
+            text_color=self.color["primaryText"]
         )
-        cover_title.pack(pady =(30,40))
+        cover_title.pack(pady=5)
         
-        # Cover image frame - Light background like in React design
-        self.cover_frame = ctk.CTkFrame(self.cover_container, fg_color=self.color["background"], corner_radius=10)  # Light background for cover like in design
-        self.cover_frame.pack(padx=20, pady=10, fill="both", expand=True)
+        # Cover image frame with fixed dimensions
+        self.cover_frame = ctk.CTkFrame(
+            self.cover_container, 
+            fg_color=self.color["inputField"], 
+            corner_radius=10,
+            width=240,    # Fixed width for cover frame
+            height=330    # Fixed height for cover frame
+        )
+        self.cover_frame.grid(row=1, column=0, sticky="n", padx=20, pady=10)
+        self.cover_frame.grid_propagate(False)  # Prevent resizing
         
-        # Cover image label - using the recommended 180x270 ratio
+        # Cover image label - centered inside the fixed frame
         self.cover_label = ctk.CTkLabel(self.cover_frame, text="", image=None)
-        self.cover_label.pack(padx=20, pady=20)
+        self.cover_label.place(relx=0.5, rely=0.5, anchor="center")
         
-        # Book status info
-        status_frame = ctk.CTkFrame(self.cover_container, fg_color="#363636", corner_radius=5)  # Slightly darker info frame
-        status_frame.pack(padx=20, pady=(40,60))
+        # Book status info with fixed height
+        status_frame = ctk.CTkFrame(
+            self.cover_container, 
+            fg_color=self.color["inputField"], 
+            corner_radius=5,
+            height=40,
+            width=200
+        )
+        status_frame.grid(row=2, column=0, sticky="n", padx=20, pady=(20, 40))
+        status_frame.grid_propagate(False)  # Prevent resizing
         
         self.status_label = ctk.CTkLabel(
             status_frame,
             text="Status: Tersedia",  # Default status, will be updated
             font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
-            text_color="#FFFFFF",
+            text_color=self.color["primaryText"],
             justify="center"
         )
-        self.status_label.pack(pady=8, padx=10)
+        self.status_label.place(relx=0.5, rely=0.5, anchor="center")
 
     def borrow_book(self):
         if self.selectedBook is None:
@@ -183,29 +205,30 @@ class DetailsBookFrame(ctk.CTkFrame):
         if status == "Available":
             self.borrow_btn.configure(
                 text="Borrow Book",
-                fg_color="#4CAF50",
-                hover_color="#388E3C",
+                fg_color=self.color["success"],
+                hover_color=self.color["active"]["accent"],
                 command=self.borrow_book,
                 state="normal"
             )
         elif status == "Booked":
             self.borrow_btn.configure(
                 text="Book Already Reserved",
-                fg_color="#FF6D00",
-                hover_color="#E65100",
+                fg_color=self.color["warning"],
+                hover_color=self.color["warning"],
                 state="disabled"
             )
         else:  # Borrowed or other status
             self.borrow_btn.configure(
                 text="Book Now",
-                fg_color="#FF6D00",
-                hover_color="#E65100",
+                fg_color=self.color["highlight"],
+                hover_color=self.color["active"]["accent"],
                 command=self.book_now,
                 state="normal"
             )
 
     def book_now(self):
         pass
+        
     def update_book_details(self):
         if self.selectedBook is None:
             return
@@ -233,7 +256,7 @@ class DetailsBookFrame(ctk.CTkFrame):
         
         # Update status
         status = self.selectedBook.get('Status', 'Available')
-        status_color = self.color["success"] if status == "Available" else self.color["error"]  # Green if available, red otherwise
+        status_color = self.color["success"] if status == "Available" else self.color["error"]
         self.status_label.configure(text=f"Status: {status}", text_color=status_color)
             
 
@@ -258,70 +281,84 @@ class DetailsBookFrame(ctk.CTkFrame):
             ("ISBN", 3, 2)
         ]
 
+        # Create title container frame with fixed height to maintain proper spacing
+        title_container = ctk.CTkFrame(details_grid, fg_color="transparent", height=60)
+        title_container.grid(row=0, column=0, columnspan=4, sticky="ew", pady=(0, 5))
+        title_container.pack_propagate(False)  # Prevent height from adjusting to content
+        
         for field in fields:
             field_name, row, col = field
 
             if field_name == "Judul":
-                parent = details_grid.winfo_width()
-                value = ctk.CTkLabel(
-                    details_grid,
-                    text=self.selectedBook.get(field_name, ""),
+                # Use a fixed wraplength to ensure consistent wrapping
+                title_value = ctk.CTkLabel(
+                    title_container,
+                    text=self.selectedBook.get(field_name, " "),
                     font=ctk.CTkFont(family="Arial", size=18, weight="bold"),
-                    text_color="white",
+                    text_color=self.color["primaryText"],
                     anchor="w",
-                    wraplength=int(parent * 0.9),  
+                    wraplength=480,  # Fixed wrap length
                     justify="left"
                 )
-                value.grid(row=row, column=col, columnspan = 4,padx=(0, 10), pady=8, sticky="w")
+                title_value.pack(side="left", fill="x", expand=True, anchor="w")
 
             else:
-                # Label
+                # Create a frame for each field with fixed height to ensure consistent spacing
+                field_frame = ctk.CTkFrame(details_grid, fg_color="transparent", height=40)
+                field_frame.grid(row=row, column=col, columnspan=2, sticky="ew", pady=(5, 5))
+                field_frame.grid_propagate(False)  # Prevent height from adjusting to content
+                
+                # Label - fixed width to ensure alignment
                 label = ctk.CTkLabel(
-                    details_grid,
+                    field_frame,
                     text=f"{field_name}:",
                     font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
                     text_color=self.color["primaryText"],
                     anchor="w",
-                    width=70  # Reduced width
+                    width=80  # Fixed width for label
                 )
-                label.grid(row=row, column=col, padx=(0,20), pady=15, sticky="w")
-                
+                label.pack(side="left", padx=(0, 5))
                 
                 # Value
                 value = ctk.CTkLabel(
-                    details_grid,
-                    text=f"{self.selectedBook.get(field_name, "")}",
+                    field_frame,
+                    text=f"{self.selectedBook.get(field_name, '')}",
                     font=ctk.CTkFont(family="Arial", size=14),
-                    text_color="white",
-                    anchor="w"
+                    text_color=self.color["secondaryText"],
+                    anchor="w",
+                    wraplength=150  # Fixed wrap length for long values
                 )
-                value.grid(row=row, column=col+1, padx=(0, 10), pady=8, sticky="w")
+                value.pack(side="left", fill="x")
 
-        # Description section
+        # Description section with fixed height container
         if 'Deskripsi' in self.selectedBook and str(self.selectedBook['Deskripsi']) != 'nan':
+            # Description container with fixed positioning
+            desc_container = ctk.CTkFrame(self.info_frame, fg_color="transparent")
+            desc_container.pack(fill="both", expand=True, pady=(20, 0))
+            
             desc_title = ctk.CTkLabel(
-                self.info_frame,
+                desc_container,
                 text="Deskripsi:",
                 font=ctk.CTkFont(family="Arial", size=16, weight="bold"),
-                text_color="white",
+                text_color=self.color["primaryText"],
                 anchor="w"
             )
-            desc_title.pack(anchor="w", pady=(20, 5))
+            desc_title.pack(anchor="w", pady=(0, 10))
             
-            # Description textbox with scrollbar
+            # Description textbox with fixed height and scrollbar
             desc_textbox = ctk.CTkTextbox(
-                self.info_frame,
-                height=150,
+                desc_container,
+                height=150,  # Fixed height
                 font=ctk.CTkFont(family="Arial", size=14),
-                text_color="white",
+                text_color=self.color["secondaryText"],
                 wrap="word",
-                fg_color="#3D3D3D",  # Lighter background for textarea
-                border_color="#666666",  # Matching border color
+                fg_color=self.color["inputField"],
+                border_color=self.color["border"],
                 corner_radius=8,
                 border_width=1,
                 activate_scrollbars=True
             )
-            desc_textbox.pack(fill="both", expand=True, pady=(0, 10))
+            desc_textbox.pack(fill="x", expand=False, pady=(0, 10))
             
             desc_textbox.insert("1.0", str(self.selectedBook['Deskripsi']))
             desc_textbox.configure(state="disabled")

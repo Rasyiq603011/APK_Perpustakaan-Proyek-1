@@ -83,7 +83,7 @@ class Application:
         }
 
         self.setupFrames()
-        self.showFrame("AddBookFrame")  # Start with book list
+        self.showFrame("DetailsBookFrame")  # Start with book list
 
     def setupFrames(self):
         for name, FrameClass in self.frameClasses.items():
