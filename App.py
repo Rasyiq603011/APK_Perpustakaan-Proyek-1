@@ -12,6 +12,8 @@ from UI.DetailsBookFrame import DetailsBookFrame
 from UI.UpdateBookFrame import UpdateBookFrame
 from UI.AddBookFrame import AddBookFrame
 from UI.MyBookFrame import MyBookFrame
+from UI.LoginFrame import LoginFrame
+from UI.HomeFrame import HomeFrame
 
 
 class Application:
