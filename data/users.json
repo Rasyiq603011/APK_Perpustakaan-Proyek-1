@@ -1,7 +1,27 @@
 {
-  "admin": {
-    "password": "admin123",
-    "email": "admin@bookku.com",
-    "role": "admin"
-  }
+    "admin@bookku.com": {
+        "name": "Administrator",
+        "password": "admin123",
+        "role": "admin"
+    },
+    "cipta@gmail.com": {
+        "name": "Cipta Haidar",
+        "password": "cipta123",
+        "role": "user"
+    },
+    "agus@gmail.com": {
+        "name": "agus",
+        "password": "agustusan",
+        "role": "user"
+    },
+    "asep@gmail.com": {
+        "name": "Asep",
+        "password": "asepi123",
+        "role": "user"
+    },
+    "arrafi@gmail.com": {
+        "name": "Muhammad Arrafi",
+        "password": "arrafi12",
+        "role": "user"
+    }
 }
