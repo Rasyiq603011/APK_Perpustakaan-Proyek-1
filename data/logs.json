@@ -1,1 +1,14 @@
-[]
+[
+    {
+        "email": "admin",
+        "role": "admin",
+        "action": "login",
+        "timestamp": "2025-03-25 08:21:38"
+    },
+    {
+        "email": "muh.nabil@gmail.com",
+        "role": "user",
+        "action": "login",
+        "timestamp": "2025-03-25 08:23:11"
+    }
+]

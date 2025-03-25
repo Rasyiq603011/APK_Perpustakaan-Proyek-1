@@ -1,8 +1,10 @@
 import tkinter as tk
 import customtkinter as ctk
 import os
+import sys
 from PIL import Image, ImageTk
-from logic.Home import HomeManager
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from Moduls.Home import HomeManager
 
 class HomeFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):

@@ -22,6 +22,7 @@ class Application:
         self.root.title("Book-Ku")
         self.root.geometry("1024x768")
         self.currentFrame = None
+        self.current_user = None
         self.setupDirectories()
         self.bookManager = BookManager(
             os.path.join(self.data_dir, "data_buku_2.xlsx"),
@@ -31,6 +32,7 @@ class Application:
         self.color= None
         self.selectedBook = None
         self.createWidgets()
+        
     
     def setupDirectories(self):
         # Base directory
@@ -81,11 +83,12 @@ class Application:
             "UpdateBookFrame": UpdateBookFrame,
             "AddBookFrame": AddBookFrame,
             "MyBookFrame": MyBookFrame,
-            
+            "LoginFrame" : LoginFrame,
+            "HomeFrame" : HomeFrame,    
         }
 
         self.setupFrames()
-        self.showFrame("DetailsBookFrame")  # Start with book list
+        self.showFrame("LoginFrame")  # Start with book list
 
     def setupFrames(self):
         for name, FrameClass in self.frameClasses.items():

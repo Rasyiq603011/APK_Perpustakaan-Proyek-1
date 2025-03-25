@@ -2,10 +2,12 @@ import tkinter as tk
 import customtkinter as ctk
 from tkinter import messagebox
 import os
+import sys
 import json
 from datetime import datetime
 from PIL import Image, ImageTk
-from logic.Login import AuthManager
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+from Moduls.Login import AuthManager
 
 class LoginFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):

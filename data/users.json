@@ -1,7 +1,12 @@
 {
-  "admin": {
-    "password": "admin123",
-    "email": "admin@bookku.com",
-    "role": "admin"
-  }
+    "admin": {
+        "password": "admin123",
+        "email": "admin@bookku.com",
+        "role": "admin"
+    },
+    "muh.nabil@gmail.com": {
+        "name": "Muhammad Nabil Syauqi Rasyiq",
+        "password": "BumiBumi",
+        "role": "user"
+    }
 }
