@@ -100,8 +100,8 @@ class UpdateBookFrame(ctk.CTkFrame):
         # Cancel button - dengan warna dari palette
         self.cancelBtn = ctk.CTkButton(
                 self.footer,
-                text="Batal",
-                command=lambda: self.controller.showFrame("DetailsBookFrame"),
+                text="Reset",
+                command=self.load_book_data,
                 fg_color=self.color["cancelButton"],
                 hover_color=self.color["error"],
                 text_color=self.color["primaryText"],

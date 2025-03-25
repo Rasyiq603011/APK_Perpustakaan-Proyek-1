@@ -288,13 +288,12 @@ class LoginFrame(ctk.CTkFrame):
         
         if success:
             self.controller.current_user = user_info
-            print(user_info)
             # Show home page based on role
             messagebox.showinfo("Login Successful", f"Welcome back, {user_info['name']}!")
+            self.setup_login_panel()
             self.controller.showFrame("HomeFrame")
         else:
             messagebox.showerror("Login Error", message)
-
 
 # For testing purposes
 if __name__ == "__main__":

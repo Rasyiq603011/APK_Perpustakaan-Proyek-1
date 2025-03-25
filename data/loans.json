@@ -18,5 +18,25 @@
     "return_date": "2025-04-01",
     "status": "active",
     "created_at": "2025-03-25 10:15:03"
+  },
+  {
+    "username": null,
+    "isbn": 9789791102469,
+    "title": "Rembulan tenggelam di wajahmu",
+    "borrow_date": "2025-03-25",
+    "return_date": "2025-04-01",
+    "status": "completed",
+    "created_at": "2025-03-25 23:34:09",
+    "actual_return_date": "2025-03-25",
+    "returned_late": false
+  },
+  {
+    "username": null,
+    "isbn": 9789791102261,
+    "title": "Bidadari-bidadari surga",
+    "borrow_date": "2025-03-25",
+    "return_date": "2025-04-01",
+    "status": "active",
+    "created_at": "2025-03-25 23:36:41"
   }
 ]

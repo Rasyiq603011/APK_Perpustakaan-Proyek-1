@@ -69,8 +69,8 @@ class DataBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
         self.genre_options = load_genre_data()
-
-        self.color = COLOR_DARK
+        self.is_dark_mode = True
+        self.color = COLOR_DARK if self.is_dark_mode else COLOR_LIGHT
 
         self.configure(fg_color=self.color["surface"], corner_radius=0)  # Dark background
 
@@ -208,7 +208,7 @@ class DataBookFrame(ctk.CTkFrame):
             self.header_frame,
             fg_color=self.color["primary"],
             text="Back",
-            command=lambda: self.controller.showFrame("MainMenuFrame")
+            command=lambda: self.controller.showFrame("HomeFrame")
         )
         back_btn.grid(row=0, column=0, padx=20, pady=12, sticky="w")
 

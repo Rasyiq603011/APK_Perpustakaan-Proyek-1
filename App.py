@@ -14,6 +14,7 @@ from UI.AddBookFrame import AddBookFrame
 from UI.MyBookFrame import MyBookFrame
 from UI.LoginFrame import LoginFrame
 from UI.HomeFrame import HomeFrame
+from UI.BorrowPopUp import BorrowPopUp
 # from UI.PenaltyBookFrame import PenaltyBookFrame
 
 
@@ -129,12 +130,17 @@ class Application:
                 Newframe = HomeFrame(self.container, self)
                 Newframe.grid(row=0, column=0, sticky="nsew")
                 frame = Newframe
+
+            if frameName == "MyBookFrame":
+                if hasattr(frame, "load_current_books"):
+                    frame.load_current_books()
+                
             
             frame.tkraise()
             self.currentFrame = frameName
 
     def GetStatusUser(self):
-        pass
+        return self.current_user["role"]
     def showBookDetail(self, book):
         """Show details of the selected book"""
         self.selectedBook = book
@@ -160,42 +166,8 @@ class Application:
             return result
         return False
         
-    def borrowBook(self, book):
-        """Handle book borrowing functionality"""
-        if book is None:
-            messagebox.showerror("Error", "No book selected!")
-            return False
-            
-        # Create a dictionary from the Series to avoid pandas Series issues
-        if hasattr(book, 'to_dict'):
-            book_copy = book.to_dict()
-        else:
-            book_copy = dict(book)
-        
-        # Change status to "Dipinjam"
-        book_copy["Status"] = "Dipinjam"
-        
-        # Update the book in the database
-        if hasattr(self.bookManager, "UpdateBook"):
-            result = self.bookManager.UpdateBook(book_copy)
-            if result:
-                messagebox.showinfo("Success", f"Buku '{book_copy['Judul']}' berhasil dipinjam!")
-                # Update the selectedBook with the new data
-                if hasattr(self.bookManager, "getBookByIndeks"):
-                    # Get the fresh data from the manager
-                    # This assumes you have a way to get a book by ISBN in your manager
-                    for idx, row in self.bookManager.getBook().iterrows():
-                        if row['ISBN'] == book_copy['ISBN']:
-                            self.selectedBook = row
-                            break
-                
-                # Update the book details display
-                if "DetailsBookFrame" in self.frames:
-                    self.frames["DetailsBookFrame"].selectedBook = self.selectedBook
-                    if hasattr(self.frames["DetailsBookFrame"], "update_book_details"):
-                        self.frames["DetailsBookFrame"].update_book_details()
-            return result
-        return False
+    def showBorrowPopup(self, book, is_booking=False):
+        BorrowPopUp(self.root, self, book, is_booking)
     
     def getBook(self):
         if hasattr(self.bookManager, "getBook"):

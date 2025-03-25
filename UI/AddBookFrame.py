@@ -45,7 +45,7 @@ class AddBookFrame(ctk.CTkFrame):
         self.back_btn = ctk.CTkButton(
                 self.header_frame, 
                 text="← Kembali", 
-                command=lambda: self.controller.showFrame("DataBookFrame"),
+                command=lambda: self.controller.showFrame("HomeFrame"),
                 fg_color=self.color["primary"],
                 hover_color= self.color["primaryText"],
                 text_color="white",
@@ -92,8 +92,8 @@ class AddBookFrame(ctk.CTkFrame):
             # Cancel button - Left side
         self.cancelBtn = ctk.CTkButton(
                 self.footer,
-                text="Batal",
-                command=lambda: self.controller.showFrame("DetailsBookFrame"),
+                text="Reset",
+                command=self.clear_form,
                 fg_color=self.color["cancelButton"],
                 hover_color=self.color["error"],
                 text_color=self.color["primaryText"],
@@ -455,9 +455,11 @@ class AddBookFrame(ctk.CTkFrame):
             self.save_btn.configure(state="normal", text="Simpan Buku")
         
     def clear_form(self):
-        """Clear all form fields"""
         for entry in self.entries.values():
-            entry.delete(0, "end")
+            if entry == self.entries["Kategori"]:
+                entry.set("Select an option")
+            else:
+                entry.delete(0, "end")
         
         self.desc_text.delete("1.0", "end")
         self.load_default_cover()

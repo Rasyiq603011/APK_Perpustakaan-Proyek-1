@@ -7,9 +7,10 @@ import os
 from tkinter import messagebox
 import pandas as pd
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from Moduls.Book_Manager import BookManager as L
+from Moduls.Book_Manager import BookManager
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from constans import COLOR_DARK, COLOR_LIGHT 
+from UI.BorrowPopUp import BorrowPopUp
 
 class DetailsBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):
@@ -18,8 +19,6 @@ class DetailsBookFrame(ctk.CTkFrame):
         self.is_dark_mode = True
         self.color = COLOR_DARK if self.is_dark_mode else COLOR_LIGHT
         self.controller = controller
-
-        self.StatusUser = self.controller.GetStatusUser()
         self.selectedBook = self.controller.selectedBook
         self.defaultCover = self.controller.defaultCover
         self.dataDir = self.controller.covers_dir
@@ -100,7 +99,7 @@ class DetailsBookFrame(ctk.CTkFrame):
         self.editBtn = ctk.CTkButton(
                 self.footer,
                 text="Back Home",
-                command=lambda: self.controller.showFrame("UpdateBookFrame"),
+                command=lambda: self.controller.showFrame("HomeFrame"),
                 fg_color=self.color["primary"],
                 hover_color=self.color["hover"]["primary"],
                 text_color=self.color["primaryText"],
@@ -110,9 +109,6 @@ class DetailsBookFrame(ctk.CTkFrame):
                 width=120
             )
         self.editBtn.pack(side="left", padx=40, pady=10)
-        
-        if self.StatusUser == "Administrator":
-            self.editBtn.configure(command=lambda: self.controller.showFrame("UpdateBookFrame"), text="Edit Buku")
         
         # Update button - Right side
         self.borrow_btn = ctk.CTkButton(
@@ -129,7 +125,6 @@ class DetailsBookFrame(ctk.CTkFrame):
             )
         self.borrow_btn.pack(side="right", padx=40, pady=10)
         
-        self.update_borrow_button()
         if self.selectedBook is not None:
             self.update_book_details()
 
@@ -207,7 +202,7 @@ class DetailsBookFrame(ctk.CTkFrame):
                 text="Borrow Book",
                 fg_color=self.color["success"],
                 hover_color=self.color["active"]["accent"],
-                command=self.borrow_book,
+                command=self.show_borrow_popup,
                 state="normal"
             )
         elif status == "Booked":
@@ -222,17 +217,16 @@ class DetailsBookFrame(ctk.CTkFrame):
                 text="Book Now",
                 fg_color=self.color["highlight"],
                 hover_color=self.color["active"]["accent"],
-                command=self.book_now,
+                command=self.show_booking_popup,
                 state="normal"
             )
-
-    def book_now(self):
-        pass
         
     def update_book_details(self):
         if self.selectedBook is None:
             return
-            
+        
+        self.update_borrow_button()
+
         # Clear existing content in info frame
         for widget in self.info_frame.winfo_children():
             widget.destroy()
@@ -330,6 +324,10 @@ class DetailsBookFrame(ctk.CTkFrame):
                 )
                 value.pack(side="left", fill="x")
 
+        if self.controller.GetStatusUser() == "admin":
+            self.editBtn.configure(command=lambda: self.controller.showFrame("UpdateBookFrame"), text="Edit Buku")              
+        
+
         # Description section with fixed height container
         if 'Deskripsi' in self.selectedBook and str(self.selectedBook['Deskripsi']) != 'nan':
             # Description container with fixed positioning
@@ -364,65 +362,72 @@ class DetailsBookFrame(ctk.CTkFrame):
             desc_textbox.configure(state="disabled")
             desc_textbox.see("1.0")
 
+    def show_borrow_popup(self):
+        if hasattr(self.controller, 'showBorrowPopup'):
+            self.controller.showBorrowPopup(self.selectedBook, is_booking=False)
+
+    def show_booking_popup(self):
+        if hasattr(self.controller, 'showBorrowPopup'):
+            self.controller.showBorrowPopup(self.selectedBook, is_booking=True)
 
 # Test function if run directly
-if __name__ == "__main__":
-    root = ctk.CTk()
-    root.title("Detail Buku")
-    root.geometry("1024x768")
+# if __name__ == "__main__":
+#     root = ctk.CTk()
+#     root.title("Detail Buku")
+#     root.geometry("1024x768")
     
-    # For testing, make a simple controller class
-    class TestController:
-        def __init__(self):
-            self.selectedBook = None
-            self.setupDirectories()
-        def setupDirectories(self):
-        # Base directory
-            self.base_dir = os.path.dirname(os.path.abspath(os.path.join(os.path.dirname(__file__))))
+#     # For testing, make a simple controller class
+#     class TestController:
+#         def __init__(self):
+#             self.selectedBook = None
+#             self.setupDirectories()
+#         def setupDirectories(self):
+#         # Base directory
+#             self.base_dir = os.path.dirname(os.path.abspath(os.path.join(os.path.dirname(__file__))))
             
-            # Data directory
-            self.data_dir = os.path.join(self.base_dir, "data")
-            os.makedirs(self.data_dir, exist_ok=True)
+#             # Data directory
+#             self.data_dir = os.path.join(self.base_dir, "data")
+#             os.makedirs(self.data_dir, exist_ok=True)
             
-            # Assets directory
-            self.assets_dir = os.path.join(self.base_dir, "assets")
-            os.makedirs(self.assets_dir, exist_ok=True)
+#             # Assets directory
+#             self.assets_dir = os.path.join(self.base_dir, "assets")
+#             os.makedirs(self.assets_dir, exist_ok=True)
             
-            # Covers directory
-            self.covers_dir = os.path.join(self.assets_dir, "Cover")
-            os.makedirs(self.covers_dir, exist_ok=True)
+#             # Covers directory
+#             self.covers_dir = os.path.join(self.assets_dir, "Cover")
+#             os.makedirs(self.covers_dir, exist_ok=True)
 
-            self.defaultCover = os.path.join(self.assets_dir, "IMG.jpg")
-        def show_frame(self, frame_name):
-            print(f"Would show frame: {frame_name}")
+#             self.defaultCover = os.path.join(self.assets_dir, "IMG.jpg")
+#         def show_frame(self, frame_name):
+#             print(f"Would show frame: {frame_name}")
         
-        def showFrame(self, frame_name):
-            print(f"Would show frame (camelCase): {frame_name}")
+#         def showFrame(self, frame_name):
+#             print(f"Would show frame (camelCase): {frame_name}")
         
-        def borrowBook(self, book):
-            print(f"Would borrow book: {book.get('Judul', 'Unknown')}")
+#         def borrowBook(self, book):
+#             print(f"Would borrow book: {book.get('Judul', 'Unknown')}")
 
-        def GetStatusUser(self):
-            return "Administrator"
+#         def GetStatusUser(self):
+#             return "Administrator"
     
-    # Sample book data for testing
-    test_controller = TestController()
-    test_controller.selectedBook = {
-        'Judul': 'Laskar Pelangi Laskar Pelangi Laskar Pelangi Laskar Pelangi Laskar Pelangi',
-        'Penulis': 'Andrea Hirata',
-        'Penerbit': 'Bentang Pustaka',
-        'Tahun': '2005',
-        'Kategori': 'Novel',
-        'ISBN': '9789793062792',
-        'Halaman': '529',
-        'Status': 'Booked',
-        'Deskripsi': 'Novel ini bercerita tentang kehidupan 10 anak dari keluarga miskin yang bersekolah di sebuah sekolah Muhammadiyah di Belitung yang penuh dengan keterbatasan. Meskipun sekolah itu sangat sederhana, mereka menjadikan masa kanak-kanak mereka yang bahagia, dan Ikal menjadi penulis buku bertaraf internasional.'
-    }
+#     # Sample book data for testing
+#     test_controller = TestController()
+#     test_controller.selectedBook = {
+#         'Judul': 'Laskar Pelangi Laskar Pelangi Laskar Pelangi Laskar Pelangi Laskar Pelangi',
+#         'Penulis': 'Andrea Hirata',
+#         'Penerbit': 'Bentang Pustaka',
+#         'Tahun': '2005',
+#         'Kategori': 'Novel',
+#         'ISBN': '9789793062792',
+#         'Halaman': '529',
+#         'Status': 'Booked',
+#         'Deskripsi': 'Novel ini bercerita tentang kehidupan 10 anak dari keluarga miskin yang bersekolah di sebuah sekolah Muhammadiyah di Belitung yang penuh dengan keterbatasan. Meskipun sekolah itu sangat sederhana, mereka menjadikan masa kanak-kanak mereka yang bahagia, dan Ikal menjadi penulis buku bertaraf internasional.'
+#     }
     
-    frame = ctk.CTkFrame(root)
-    frame.pack(expand=True, fill="both")
+#     frame = ctk.CTkFrame(root)
+#     frame.pack(expand=True, fill="both")
     
-    app = DetailsBookFrame(frame, test_controller)
-    app.pack(expand=True, fill="both")
+#     app = DetailsBookFrame(frame, test_controller)
+#     app.pack(expand=True, fill="both")
     
-    root.mainloop()
+#     root.mainloop()

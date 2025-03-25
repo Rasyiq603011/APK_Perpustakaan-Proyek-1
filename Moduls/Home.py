@@ -28,7 +28,7 @@ class HomeManager:
         elif user_role == "user":
             return [
                 {"text": "Browse Books", "icon": "books.png", "frame": "DataBookFrame", "color": "#6200EA"},
-                {"text": "My Penalties", "icon": "penalty.png", "frame": "PenaltyFrame", "color": "#D50000"},
+                {"text": "My Penalties", "icon": "penalty.png", "frame": "PenaltyBookFrame", "color": "#D50000"},
                 {"text": "My Books", "icon": "my_books.png", "frame": "MyBookFrame", "color": "#00B0FF"}
             ]
         else:  # guest
