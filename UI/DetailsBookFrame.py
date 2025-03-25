@@ -290,7 +290,7 @@ class DetailsBookFrame(ctk.CTkFrame):
                 # Value
                 value = ctk.CTkLabel(
                     details_grid,
-                    text=f"{self.selectedBook.get(field_name, "")}",
+                    text=self.selectedBook.get(field_name, ""),
                     font=ctk.CTkFont(family="Arial", size=14),
                     text_color="white",
                     anchor="w"
