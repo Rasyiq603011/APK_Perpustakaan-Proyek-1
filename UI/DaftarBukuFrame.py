@@ -206,6 +206,7 @@ class DataBookFrame(ctk.CTkFrame):
         # Back button
         back_btn = self.create_button(
             self.header_frame,
+            fg_color=self.color["primary"],
             text="Back",
             command=lambda: self.controller.showFrame("MainMenuFrame")
         )
@@ -277,7 +278,7 @@ class DataBookFrame(ctk.CTkFrame):
             fg_color=self.color["inputField"],
             button_color=self.color["primary"],
             button_hover_color=self.color["active"]["primary"],
-            dropdown_fg_color=self.color["disabled"],
+            dropdown_fg_color=self.color["surface"],
             text_color=self.color["secondaryText"],
             width=120,
             height=36,
@@ -304,7 +305,7 @@ class DataBookFrame(ctk.CTkFrame):
             fg_color=self.color["inputField"],
             button_color=self.color["primary"],
             button_hover_color=self.color["active"]["primary"],
-            dropdown_fg_color=self.color["disabled"],
+            dropdown_fg_color=self.color["surface"],
             text_color=self.color["secondaryText"],
             width=120,
             height=36,
@@ -469,7 +470,7 @@ class DataBookFrame(ctk.CTkFrame):
         # Membuat frame buku
         book_frame = self.create_frame(
             self.book_grid,
-            fg_color="#2B2B2B",
+            fg_color=self.color["inputField"],
             corner_radius=10,
             border_width=0
         )
@@ -489,7 +490,7 @@ class DataBookFrame(ctk.CTkFrame):
             image=img,
             text="",
             fg_color="transparent",
-            hover_color="#3D3D3D",
+            hover_color=self.color["active"]["button"],
             border_width=0,
             command=lambda b=book: self.controller.showBookDetail(b)
         )
@@ -522,7 +523,7 @@ class DataBookFrame(ctk.CTkFrame):
             author_label = self.create_label(
                 book_frame,
                 text=author_truncated,
-                text_color="#AAAAAA",
+                text_color=self.color["primaryText"],
                 font_size=12,
                 wraplength=120,
                 anchor="center"
@@ -557,11 +558,11 @@ class DataBookFrame(ctk.CTkFrame):
     def get_status_color(self, status):
         """Mendapatkan warna berdasarkan status buku"""
         if status == "Available":
-            return "#4CAF50"  # Green
+            return self.color["success"]  # Green
         elif status == "Booked":
-            return "#FF6D00"  # Orange
+            return self.color["warning"]  # Orange
         else:
-            return "#F44336"  # Red
+            return self.color["error"]  # Red
 
     # =================== PAGINATION FUNCTIONS ===================
 
@@ -647,7 +648,7 @@ class DataBookFrame(ctk.CTkFrame):
 
         # Tampilan merah yang menandakan error di border
         original_border = self.page_entry.cget("border_color")
-        self.page_entry.configure(border_color="#F44336")  # Red border
+        self.page_entry.configure(border_color=self.color["error"])  # Red border
         self.page_entry.after(100, lambda: self.page_entry.configure(border_color=original_border))
 
     # =================== GRID MANAGEMENT FUNCTIONS ===================
