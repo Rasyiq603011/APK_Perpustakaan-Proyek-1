@@ -22,7 +22,7 @@ class DetailsBookFrame(ctk.CTkFrame):
         self.StatusUser = self.controller.GetStatusUser()
         self.selectedBook = self.controller.selectedBook
         self.defaultCover = self.controller.defaultCover
-        self.dataDir = self.controller.data_dir
+        self.dataDir = self.controller.covers_dir
         
         # Main frame layout - Optimized for 1024x768
         self.columnconfigure(0, weight=3)  # Detail content
@@ -321,13 +321,8 @@ class DetailsBookFrame(ctk.CTkFrame):
                 
                 # Value
                 value = ctk.CTkLabel(
-<<<<<<< HEAD
                     field_frame,
                     text=f"{self.selectedBook.get(field_name, '')}",
-=======
-                    details_grid,
-                    text=self.selectedBook.get(field_name, ""),
->>>>>>> 997834e56c29050d296668212d1c2a465f9d1685
                     font=ctk.CTkFont(family="Arial", size=14),
                     text_color=self.color["secondaryText"],
                     anchor="w",
