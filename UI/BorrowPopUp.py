@@ -11,8 +11,12 @@ class BorrowPopUp(ctk.CTkToplevel):
     def __init__(self, parent, controller, book, is_booking=False):
         super().__init__(parent)
         self.title("BOOK-KU - Borrow Book")
-        self.geometry("500x400")
+        self.geometry("600x380")
         self.resizable(False, False)
+        self.minsize(600, 380)
+        
+        # Center the window
+        self.center_window()
         
         # Make the popup modal
         self.transient(parent)
@@ -22,13 +26,19 @@ class BorrowPopUp(ctk.CTkToplevel):
         self.book = book
         self.is_booking = is_booking
         
-        # Get directories from controller
-        self.data_dir = self.controller.data_dir
-        self.assets_dir = self.controller.assets_dir
-        self.cover_dir = os.path.join(self.assets_dir, "covers")
-        self.default_cover = os.path.join(self.assets_dir, "IMG.jpg")
+        # Get database from controller
+        self.db = self.controller.db if hasattr(self.controller, 'db') else None
         
-        # Data files
+        # Calendar constants
+        self.months = ["January", "February", "March", "April", "May", "June", 
+                      "July", "August", "September", "October", "November", "December"]
+        
+        # Get cover dir from controller or use default
+        self.cover_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "covers")
+        self.default_cover = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "default_cover.jpg")
+        
+        # Data dir for booking records
+        self.data_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
         self.bookings_file = os.path.join(self.data_dir, "bookings.json")
         self.loans_file = os.path.join(self.data_dir, "loans.json")
         
@@ -51,273 +61,513 @@ class BorrowPopUp(ctk.CTkToplevel):
         
         # Create the UI
         self.create_ui()
+        
+        # Lift window to top
+        self.lift()
+        self.focus_force()
+    
+    def center_window(self):
+        """Center the window on the screen"""
+        # Update window size
+        self.update_idletasks()
+        
+        # Get screen dimensions
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        
+        # Calculate position
+        x = (screen_width - 600) // 2  # 600 is window width
+        y = (screen_height - 380) // 2  # 380 is window height
+        
+        # Set position
+        self.geometry(f"600x380+{x}+{y}")
     
     def create_ui(self):
-        # Main container
-        self.main_frame = ctk.CTkFrame(self, fg_color="#232323")
-        self.main_frame.pack(fill="both", expand=True, padx=10, pady=10)
-        
-        # Title
+        """Create the main UI layout"""
+        # Main frame
+        self.main_frame = ctk.CTkFrame(self, fg_color="#1E1E1E")
+        self.main_frame.pack(fill="both", expand=True)
+
+        # Create header
+        self.create_header()
+
+        # Create content based on mode
+        if self.is_booking:
+            self.create_booking_layout()
+        else:
+            self.create_borrow_layout()
+    
+    def create_header(self):
+        """Create the header section of the UI"""
+        header_frame = ctk.CTkFrame(self.main_frame, fg_color="#2B2B2B", height=60)
+        header_frame.pack(fill="x", padx=10, pady=(10, 5))
+        header_frame.pack_propagate(False)
+
         title_text = "Book Reservation" if self.is_booking else "Borrow Book"
-        title_label = ctk.CTkLabel(
-            self.main_frame,
+        header_label = ctk.CTkLabel(
+            header_frame,
             text=title_text,
-            font=ctk.CTkFont(family="Arial", size=24, weight="bold"),
+            font=ctk.CTkFont(family="Arial", size=22, weight="bold"),
             text_color="white"
         )
-        title_label.pack(pady=20)
+        header_label.pack(expand=True)
+    
+    def create_borrow_layout(self):
+        """Create layout for direct borrowing"""
+        content_frame = ctk.CTkScrollableFrame(
+            self.main_frame,
+            fg_color="transparent",
+            height=600
+        )
+        content_frame.pack(fill="both", expand=True, padx=10, pady=10)
         
-        # Book details
-        details_frame = ctk.CTkFrame(self.main_frame, fg_color="#2B2B2B")
+        # Two columns layout
+        content_frame.columnconfigure(0, weight=1)  # Info column
+        content_frame.columnconfigure(1, weight=1)  # Cover column
+        
+        # Book information
+        info_frame = ctk.CTkFrame(content_frame, fg_color="#2B2B2B", corner_radius=10)
+        info_frame.grid(row=0, column=0, sticky="nsew", padx=(0, 5), pady=10)
+        
+        book_title = self.book.get('Judul', 'Unknown Title')
+        title_label = ctk.CTkLabel(
+            info_frame,
+            text=book_title,
+            font=ctk.CTkFont(family="Arial", size=18, weight="bold"),
+            text_color="white",
+            wraplength=250
+        )
+        title_label.pack(padx=20, pady=(20, 10))
+        
+        # Borrow details
+        details_frame = ctk.CTkFrame(info_frame, fg_color="#333333", corner_radius=8)
         details_frame.pack(fill="x", padx=20, pady=10)
         
-        # Book title
-        book_title = ctk.CTkLabel(
-            details_frame,
-            text=self.book.get('Judul', 'Unknown Title'),
-            font=ctk.CTkFont(family="Arial", size=18, weight="bold"),
-            text_color="white"
-        )
-        book_title.pack(pady=10)
+        # Status
+        status_frame = ctk.CTkFrame(details_frame, fg_color="transparent")
+        status_frame.pack(fill="x", padx=10, pady=(10, 5))
         
-        # Dates
-        dates_frame = ctk.CTkFrame(details_frame, fg_color="transparent")
-        dates_frame.pack(fill="x", padx=20, pady=10)
+        status_label = ctk.CTkLabel(
+            status_frame,
+            text="Status:",
+            font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
+            text_color="#AAAAAA",
+            anchor="w",
+            width=120
+        )
+        status_label.pack(side="left")
+        
+        status_value = ctk.CTkLabel(
+            status_frame,
+            text="Available",
+            font=ctk.CTkFont(family="Arial", size=14),
+            text_color="#4CAF50",
+            anchor="w"
+        )
+        status_value.pack(side="left", fill="x", expand=True)
         
         # Borrow date
+        borrow_frame = ctk.CTkFrame(details_frame, fg_color="transparent")
+        borrow_frame.pack(fill="x", padx=10, pady=5)
+        
         borrow_label = ctk.CTkLabel(
-            dates_frame,
-            text=f"Borrow Date: {self.today.strftime('%d %B %Y')}",
-            font=ctk.CTkFont(family="Arial", size=14),
-            text_color="white"
+            borrow_frame,
+            text="Borrow Date:",
+            font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
+            text_color="#AAAAAA",
+            anchor="w",
+            width=120
         )
-        borrow_label.pack(pady=5)
+        borrow_label.pack(side="left")
+        
+        borrow_value = ctk.CTkLabel(
+            borrow_frame,
+            text=self.today.strftime("%d %B %Y"),
+            font=ctk.CTkFont(family="Arial", size=14),
+            text_color="white",
+            anchor="w"
+        )
+        borrow_value.pack(side="left", fill="x", expand=True)
         
         # Return date
-        return_label = ctk.CTkLabel(
-            dates_frame,
-            text=f"Return By: {self.return_date.strftime('%d %B %Y')}",
-            font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
-            text_color="#FF6D00"
-        )
-        return_label.pack(pady=5)
+        return_frame = ctk.CTkFrame(details_frame, fg_color="transparent")
+        return_frame.pack(fill="x", padx=10, pady=(5, 10))
         
-        # Note
-        note_label = ctk.CTkLabel(
-            details_frame,
-            text="Please return the book on time to avoid penalties.\nLate fees are Rp5,000 per day.",
+        return_label = ctk.CTkLabel(
+            return_frame,
+            text="Return By:",
+            font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
+            text_color="#AAAAAA",
+            anchor="w",
+            width=120
+        )
+        return_label.pack(side="left")
+        
+        return_value = ctk.CTkLabel(
+            return_frame,
+            text=self.return_date.strftime("%d %B %Y"),
+            font=ctk.CTkFont(family="Arial", size=14),
+            text_color="#FF6D00",
+            anchor="w"
+        )
+        return_value.pack(side="left", fill="x", expand=True)
+
+        # Confirm button below return date with green color
+        self.confirm_btn = ctk.CTkButton(
+            details_frame,  # Changed from content_frame to details_frame
+            text="Confirm Borrow",
+            command=self.confirm_action,
+            fg_color="#4CAF50",
+            hover_color="#388E3C",
+            text_color="white",
+            font=ctk.CTkFont(family="Arial", size=16, weight="bold"),
+            corner_radius=8,
+            width=200,
+            height=45
+        )
+        self.confirm_btn.pack(pady=(0, 10))  # Added padding at bottom
+
+        # Warning text
+        warning_text = "Please return the book on time to avoid penalties. Late fees are Rp5,000 per day."
+        warning_label = ctk.CTkLabel(
+            info_frame,
+            text=warning_text,
             font=ctk.CTkFont(family="Arial", size=12),
+            text_color="#AAAAAA",
+            wraplength=250
+        )
+        warning_label.pack(padx=20, pady=(0, 20))
+        
+        # Book cover
+        cover_frame = ctk.CTkFrame(content_frame, fg_color="#2B2B2B", corner_radius=10)
+        cover_frame.grid(row=0, column=1, sticky="nsew", padx=(5, 0), pady=10)
+        
+        cover_img = self.load_book_cover()
+        cover_label = ctk.CTkLabel(cover_frame, image=cover_img, text="")
+        cover_label.image = cover_img  # Keep reference
+        cover_label.pack(padx=20, pady=20)
+    
+    def create_booking_layout(self):
+        """Create layout for booking"""
+        # Create main content frame with scrollbar
+        content_frame = ctk.CTkScrollableFrame(
+            self.main_frame,
+            fg_color="transparent",
+            height=600
+        )
+        content_frame.pack(fill="both", expand=True, padx=10, pady=5)
+        
+        # Book information
+        info_frame = ctk.CTkFrame(content_frame, fg_color="#2B2B2B", corner_radius=10)
+        info_frame.pack(fill="x", padx=0, pady=(0, 5))
+        
+        book_title = self.book.get('Judul', 'Unknown Title')
+        title_label = ctk.CTkLabel(
+            info_frame,
+            text=book_title,
+            font=ctk.CTkFont(family="Arial", size=18, weight="bold"),
+            text_color="white",
+            wraplength=500
+        )
+        title_label.pack(padx=20, pady=(10, 5))
+        
+        # Current status and availability info
+        status_frame = ctk.CTkFrame(info_frame, fg_color="#333333", corner_radius=8)
+        status_frame.pack(fill="x", padx=20, pady=(0, 10))
+        
+        # Current Status
+        current_status = self.book.get('Status', 'Unknown')
+        status_label = ctk.CTkLabel(
+            status_frame,
+            text=f"Current Status: {current_status}",
+            font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
+            text_color="#FF6D00",
+            anchor="w"
+        )
+        status_label.pack(padx=20, pady=(5, 3))
+        
+        # Next availability message
+        next_available = self.booking_start_date.strftime("%d %B %Y")
+        avail_text = f"This book will be available starting from {next_available}"
+        avail_label = ctk.CTkLabel(
+            status_frame,
+            text=avail_text,
+            font=ctk.CTkFont(family="Arial", size=14),
+            text_color="white",
+            wraplength=500,
+            justify="left"
+        )
+        avail_label.pack(padx=20, pady=(0, 5))
+        
+        # Calendar section
+        calendar_frame = ctk.CTkFrame(content_frame, fg_color="#2B2B2B", corner_radius=10)
+        calendar_frame.pack(fill="x", padx=0, pady=5)
+        
+        # Month and Year selection in one row
+        month_year_frame = ctk.CTkFrame(calendar_frame, fg_color="#333333", corner_radius=8)
+        month_year_frame.pack(fill="x", padx=20, pady=5)
+        
+        # Month dropdown
+        current_month = self.booking_start_date.month - 1
+        self.month_var = ctk.StringVar(value=self.months[current_month])
+        month_dropdown = ctk.CTkOptionMenu(
+            month_year_frame,
+            values=self.months,
+            variable=self.month_var,
+            command=self.update_calendar,
+            font=ctk.CTkFont(family="Arial", size=14),
+            fg_color="#1E1E1E",
+            button_color="#6200EA",
+            button_hover_color="#5000D0",
+            width=120
+        )
+        month_dropdown.pack(side="left", padx=10, pady=5)
+        
+        # Year dropdown
+        current_year = self.booking_start_date.year
+        years = [str(current_year + i) for i in range(3)]
+        self.year_var = ctk.StringVar(value=str(current_year))
+        year_dropdown = ctk.CTkOptionMenu(
+            month_year_frame,
+            values=years,
+            variable=self.year_var,
+            command=self.update_calendar,
+            font=ctk.CTkFont(family="Arial", size=14),
+            fg_color="#1E1E1E",
+            button_color="#6200EA",
+            button_hover_color="#5000D0",
+            width=100
+        )
+        year_dropdown.pack(side="left", padx=10, pady=5)
+        
+        # Calendar grid
+        self.calendar_grid = ctk.CTkFrame(calendar_frame, fg_color="#333333", corner_radius=8)
+        self.calendar_grid.pack(padx=20, pady=5)
+        
+        # Days of week header
+        days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+        for i, day in enumerate(days):
+            day_label = ctk.CTkLabel(
+                self.calendar_grid,
+                text=day,
+                font=ctk.CTkFont(family="Arial", size=12),
+                text_color="#AAAAAA"
+            )
+            day_label.grid(row=0, column=i, padx=3, pady=3)
+        
+        # Initialize calendar
+        self.update_calendar()
+        
+        # Selected date info
+        self.selected_date_label = ctk.CTkLabel(
+            calendar_frame,
+            text="Please select a date to continue",
+            font=ctk.CTkFont(family="Arial", size=14),
             text_color="#AAAAAA"
         )
-        note_label.pack(pady=10)
+        self.selected_date_label.pack(pady=(10, 3))
         
-        # Buttons frame
-        buttons_frame = ctk.CTkFrame(self.main_frame, fg_color="transparent", height=50)
-        buttons_frame.pack(fill="x", padx=20, pady=20)
-        
-        # Cancel button
-        cancel_btn = ctk.CTkButton(
-            buttons_frame,
-            text="Cancel",
-            command=self.destroy,
-            fg_color="#F44336",
-            hover_color="#D32F2F",
-            text_color="white",
+        # Return date info
+        self.return_date_label = ctk.CTkLabel(
+            calendar_frame,
+            text="",
             font=ctk.CTkFont(family="Arial", size=14),
-            width=100,
-            height=35
+            text_color="#FF6D00"
         )
-        cancel_btn.pack(side="left", padx=10)
-        
-        # Confirm button
-        confirm_text = "Confirm Booking" if self.is_booking else "Confirm Borrow"
-        confirm_color = "#FF6D00" if self.is_booking else "#4CAF50"
-        hover_color = "#E65100" if self.is_booking else "#388E3C"
-        
-        confirm_btn = ctk.CTkButton(
-            buttons_frame,
-            text=confirm_text,
+        self.return_date_label.pack(pady=(0, 5))
+
+        # Confirm button below calendar
+        self.confirm_btn = ctk.CTkButton(
+            calendar_frame,
+            text="Confirm Booking",
             command=self.confirm_action,
-            fg_color=confirm_color,
-            hover_color=hover_color,
+            fg_color="#FF6D00",
+            hover_color="#E65100",
             text_color="white",
-            font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
-            width=150,
-            height=35
+            font=ctk.CTkFont(family="Arial", size=16, weight="bold"),
+            corner_radius=8,
+            width=200,
+            height=45,
+            state="disabled"  # Initially disabled until date is selected
         )
-        confirm_btn.pack(side="right", padx=10)
+        self.confirm_btn.pack(pady=(0, 10))
     
-    def save_loan_record(self):
-        """Menyimpan data peminjaman ke loans.json dan datapeminjaman.txt"""
-        try:
-            # Load existing loans
-            with open(self.loans_file, 'r') as f:
-                loans = json.load(f)
-            
-            # Create new loan record
-            loan_record = {
-                "isbn": self.book['ISBN'],
-                "title": self.book['Judul'],
-                "username": self.controller.current_user.get("username", "unknown"),
-                "borrow_date": self.today.strftime("%Y-%m-%d"),
-                "return_date": self.return_date.strftime("%Y-%m-%d"),
-                "status": "Borrowed" if not self.is_booking else "Booked"
-            }
-            
-            # Add to loans list
-            loans.append(loan_record)
-            
-            # Save back to file
-            with open(self.loans_file, 'w') as f:
-                json.dump(loans, f, indent=2)
-            
-            # Save to datapeminjaman.txt
-            data_peminjaman_file = os.path.join(self.data_dir, "datapeminjaman.txt")
-            with open(data_peminjaman_file, 'a') as f:
-                f.write(f"ISBN: {self.book['ISBN']}\n")
-                f.write(f"Judul: {self.book['Judul']}\n")
-                f.write(f"Peminjam: {self.controller.current_user.get('username', 'unknown')}\n")
-                f.write(f"Tanggal Pinjam: {self.today.strftime('%Y-%m-%d')}\n")
-                f.write(f"Tanggal Kembali: {self.return_date.strftime('%Y-%m-%d')}\n")
-                f.write(f"Status: {'Booked' if self.is_booking else 'Borrowed'}\n")
-                f.write("-" * 50 + "\n")
-            
-            # Update MyBookFrame
-            if "MyBookFrame" in self.controller.frames:
-                if hasattr(self.controller.frames["MyBookFrame"], "load_current_books"):
-                    self.controller.frames["MyBookFrame"].load_current_books()
-            
-            # Check for overdue books and move to penalties
-            self.check_overdue_books()
+    def update_calendar(self, *args):
+        """Update calendar grid based on selected month and year"""
+        # Clear existing calendar buttons
+        for widget in self.calendar_grid.grid_slaves():
+            if int(widget.grid_info()["row"]) > 0:  # Preserve day headers
+                widget.destroy()
+        
+        # Get selected month and year
+        month = self.months.index(self.month_var.get()) + 1
+        year = int(self.year_var.get())
+        
+        # Get first day of month and number of days
+        first_day = datetime(year, month, 1)
+        num_days = calendar.monthrange(year, month)[1]
+        
+        # Calculate first day of week (0 = Monday, 6 = Sunday)
+        first_weekday = first_day.weekday()
+        
+        # Create calendar buttons
+        day = 1
+        for week in range(6):  # Maximum 6 weeks
+            if day > num_days:
+                break
+            for weekday in range(7):
+                if week == 0 and weekday < first_weekday:
+                    continue
+                if day > num_days:
+                    break
+                    
+                # Create date object for this button
+                current_date = datetime(year, month, day).date()
                 
-            return True
-        except Exception as e:
-            print(f"Error saving loan record: {e}")
-            return False
+                # Check if date is valid (after booking_start_date)
+                is_valid = current_date >= self.booking_start_date
+                
+                date_btn = ctk.CTkButton(
+                    self.calendar_grid,
+                    text=str(day),
+                    command=lambda d=current_date: self.select_date(d) if is_valid else None,
+                    fg_color="#1E1E1E" if is_valid else "#333333",
+                    hover_color="#6200EA" if is_valid else "#333333",
+                    text_color="white" if is_valid else "#666666",
+                    font=ctk.CTkFont(family="Arial", size=16),
+                    width=60,
+                    height=60,
+                    state="normal" if is_valid else "disabled",
+                    corner_radius=5
+                )
+                date_btn.grid(row=week+1, column=weekday, padx=4, pady=4)
+                day += 1
     
-    def check_overdue_books(self):
-        """Memeriksa buku yang terlambat dan memindahkannya ke penalties"""
-        try:
-            # Load current loans
-            with open(self.loans_file, 'r') as f:
-                loans = json.load(f)
-            
-            # Load penalties
-            penalties_file = os.path.join(self.data_dir, "penalties.json")
-            if not os.path.exists(penalties_file):
-                with open(penalties_file, 'w') as f:
-                    json.dump([], f)
-            
-            with open(penalties_file, 'r') as f:
-                penalties = json.load(f)
-            
-            current_date = datetime.now().date()
-            
-            # Check each loan
-            for loan in loans[:]:  # Use slice copy to avoid modification during iteration
-                return_date = datetime.strptime(loan['return_date'], "%Y-%m-%d").date()
-                
-                # If book is overdue
-                if current_date > return_date and loan['status'] == "Borrowed":
-                    # Create penalty record
-                    penalty_record = {
-                        "isbn": loan['isbn'],
-                        "title": loan['title'],
-                        "username": loan['username'],
-                        "borrow_date": loan['borrow_date'],
-                        "return_date": loan['return_date'],
-                        "overdue_days": (current_date - return_date).days,
-                        "penalty_amount": (current_date - return_date).days * 5000  # Rp5,000 per day
-                    }
-                    
-                    # Add to penalties
-                    penalties.append(penalty_record)
-                    
-                    # Update book status
-                    if hasattr(self.controller, 'book_manager'):
-                        self.controller.book_manager.UpdateStatus(loan['isbn'], "Overdue")
-                    
-                    # Remove from loans
-                    loans.remove(loan)
-            
-            # Save updated loans
-            with open(self.loans_file, 'w') as f:
-                json.dump(loans, f, indent=2)
-            
-            # Save updated penalties
-            with open(penalties_file, 'w') as f:
-                json.dump(penalties, f, indent=2)
-            
-            # Refresh MyBookFrame and PenaltyFrame
-            if "MyBookFrame" in self.controller.frames:
-                if hasattr(self.controller.frames["MyBookFrame"], "load_current_books"):
-                    self.controller.frames["MyBookFrame"].load_current_books()
-            
-            if "PenaltyFrame" in self.controller.frames:
-                if hasattr(self.controller.frames["PenaltyFrame"], "load_penalties"):
-                    self.controller.frames["PenaltyFrame"].load_penalties()
-                    
-        except Exception as e:
-            print(f"Error checking overdue books: {e}")
+    def select_date(self, date):
+        """Handle date selection for booking"""
+        self.selected_booking_date = date
+        self.return_date = date + timedelta(days=7)
+        
+        # Update labels
+        self.selected_date_label.configure(
+            text=f"Selected date: {date.strftime('%d %B %Y')}",
+            text_color="white"
+        )
+        self.return_date_label.configure(
+            text=f"Return by: {self.return_date.strftime('%d %B %Y')}"
+        )
+        
+        # Enable confirm button and update its appearance
+        self.confirm_btn.configure(
+            state="normal",
+            fg_color="#FF6D00",
+            hover_color="#E65100"
+        )
     
     def confirm_action(self):
-        """Handle confirm button click"""
+        """Handle the confirm button action (borrow or book)"""
+        if not hasattr(self.controller, 'current_user') or not self.controller.current_user:
+            messagebox.showinfo("Login Required", "Please login first.")
+            self.destroy()
+            if hasattr(self.controller, 'showFrame'):
+                self.controller.showFrame("LoginFrame")
+            return
+            
+        username = self.controller.current_user.get('username')
+        
         try:
-            # Pastikan controller memiliki book_manager
-            if not hasattr(self.controller, 'book_manager'):
-                print("Controller attributes:", dir(self.controller))
-                messagebox.showerror("Error", "Book manager not initialized")
-                return
-
-            # Debug info
-            print("Book ISBN:", self.book['ISBN'])
-            print("Book Status:", self.book.get('Status', 'Unknown'))
-            print("Is Booking:", self.is_booking)
-
             if self.is_booking:
                 # Handle booking
-                if self.controller.book_manager.UpdateStatus(self.book['ISBN'], "Booked"):
-                    # Simpan data booking
-                    if self.save_loan_record():
-                        messagebox.showinfo("Success", "Book booked successfully!")
-                        # Log aksi booking
-                        if hasattr(self.controller, 'log_action'):
-                            self.controller.log_action(f"Booked book: {self.book['Judul']} (ISBN: {self.book['ISBN']})")
-                        # Refresh MyBookFrame
-                        if "MyBookFrame" in self.controller.frames:
-                            if hasattr(self.controller.frames["MyBookFrame"], "load_current_books"):
-                                self.controller.frames["MyBookFrame"].load_current_books()
-                    else:
-                        messagebox.showerror("Error", "Failed to save booking record")
-                else:
-                    messagebox.showerror("Error", "Failed to book the book")
+                if not self.selected_booking_date:
+                    messagebox.showerror("Error", "Please select a booking date.")
+                    return
+                    
+                # Add booking record
+                self.add_booking_record(username)
+                new_status = "Booked"
+                action_text = "booked"
+                date_text = f"\n\nYou can pick it up on {self.selected_booking_date.strftime('%d %B %Y')}."
             else:
-                # Handle borrowing
-                if self.controller.book_manager.UpdateStatus(self.book['ISBN'], "Borrowed"):
-                    # Simpan data peminjaman
-                    if self.save_loan_record():
-                        messagebox.showinfo("Success", "Book borrowed successfully!")
-                        # Log aksi peminjaman
-                        if hasattr(self.controller, 'log_action'):
-                            self.controller.log_action(f"Borrowed book: {self.book['Judul']} (ISBN: {self.book['ISBN']})")
-                        # Refresh MyBookFrame
-                        if "MyBookFrame" in self.controller.frames:
-                            if hasattr(self.controller.frames["MyBookFrame"], "load_current_books"):
-                                self.controller.frames["MyBookFrame"].load_current_books()
-                    else:
-                        messagebox.showerror("Error", "Failed to save loan record")
-                else:
-                    messagebox.showerror("Error", "Failed to borrow the book")
+                # Handle direct borrowing
+                self.add_loan_record(username)
+                new_status = "Borrowed"
+                action_text = "borrowed"
+                date_text = ""
             
-            self.destroy()
-        except AttributeError as e:
-            print("AttributeError detail:", str(e))
-            print("Controller attributes:", dir(self.controller))
-            messagebox.showerror("Error", f"Book manager not properly initialized: {str(e)}")
+            # Update book status in database
+            if hasattr(self.controller, 'updateBookStatus'):
+                success = self.controller.updateBookStatus(self.book.get('ISBN', ''), new_status)
+                
+                if success:
+                    # Show success message
+                    message = f"You have successfully {action_text} '{self.book.get('Judul', 'this book')}'.{date_text}"
+                    message += f"\nPlease return by {self.return_date.strftime('%d %B %Y')}."
+                    messagebox.showinfo("Success", message)
+                    
+                    # Close popup
+                    self.destroy()
+                    
+                    # Refresh book details page if available
+                    if hasattr(self.controller, 'refreshBookDetails'):
+                        self.controller.refreshBookDetails()
+                else:
+                    messagebox.showerror("Error", "Failed to update book status. Please try again.")
+            else:
+                messagebox.showinfo("Success", f"Book has been {action_text}: {self.book.get('Judul', 'Unknown')}")
+                self.destroy()
+                
         except Exception as e:
-            print("Exception detail:", str(e))
-            print("Controller attributes:", dir(self.controller))
-            messagebox.showerror("Error", f"Failed to {'book' if self.is_booking else 'borrow'} book: {str(e)}")
+            messagebox.showerror("Error", f"An error occurred: {str(e)}")
+    
+    def add_booking_record(self, username):
+        """Add a booking record to bookings.json"""
+        booking_date = self.selected_booking_date.strftime("%Y-%m-%d")
+        return_date = self.return_date.strftime("%Y-%m-%d")
+        
+        try:
+            with open(self.bookings_file, 'r') as f:
+                bookings = json.load(f)
+        except:
+            bookings = []
+        
+        # Add new booking
+        bookings.append({
+            "username": username,
+            "isbn": self.book.get('ISBN', ''),
+            "title": self.book.get('Judul', 'Unknown Title'),
+            "booking_date": booking_date,
+            "return_date": return_date,
+            "status": "active",
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        })
+        
+        with open(self.bookings_file, 'w') as f:
+            json.dump(bookings, f, indent=2)
+    
+    def add_loan_record(self, username):
+        """Add a loan record to loans.json"""
+        borrow_date = self.today.strftime("%Y-%m-%d")
+        return_date = self.return_date.strftime("%Y-%m-%d")
+        
+        try:
+            with open(self.loans_file, 'r') as f:
+                loans = json.load(f)
+        except:
+            loans = []
+        
+        # Add new loan
+        loans.append({
+            "username": username,
+            "isbn": self.book.get('ISBN', ''),
+            "title": self.book.get('Judul', 'Unknown Title'),
+            "borrow_date": borrow_date,
+            "return_date": return_date,
+            "status": "active",
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        })
+        
+        with open(self.loans_file, 'w') as f:
+            json.dump(loans, f, indent=2)
     
     def find_first_available_date(self):
         """Find the first available date for booking"""
@@ -414,14 +664,9 @@ if __name__ == "__main__":
         def __init__(self):
             self.current_user = {"username": "test_user", "role": "user"}
         
-        def update_book_status(self, isbn, status):
-            print(f"Would update book status to: {isbn}, {status}")
-        
-        def create_booking_record(self, booking_data):
-            print(f"Would create booking record: {booking_data}")
-        
-        def create_loan_record(self, loan_data):
-            print(f"Would create loan record: {loan_data}")
+        def borrowBook(self, book):
+            print(f"Would update book status to: {book['Status']}")
+            return True
         
         def loadCover(self, isbn):
             return None

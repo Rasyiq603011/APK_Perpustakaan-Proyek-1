@@ -248,151 +248,199 @@ class MyBookFrame(ctk.CTkFrame):
         card.pack(fill="x", pady=10)
         card.pack_propagate(False)  # Fixed height
         
-        # Grid configuration
-        card.columnconfigure(1, weight=1)  # Title column expands
+        # Make card clickable if the book exists in catalog
+        if hasattr(self.controller, 'showBookDetail') and book.get('isbn'):
+            card.bind("<Button-1>", lambda e, b=book: self.show_book_details(b))
         
-        try:
-            # Book cover (left side)
-            cover_frame = ctk.CTkFrame(card, fg_color="transparent", width=80, height=120)
-            cover_frame.grid(row=0, column=0, padx=10, pady=10)
-            cover_frame.grid_propagate(False)
-            
-            # Try to load cover image
-            cover_image = self.load_book_cover(book.get('isbn', ''))
-            if cover_image:
-                cover_label = ctk.CTkLabel(cover_frame, image=cover_image, text="")
-                cover_label.place(relx=0.5, rely=0.5, anchor="center")
-            
-            # Book details (middle)
-            details_frame = ctk.CTkFrame(card, fg_color="transparent")
-            details_frame.grid(row=0, column=1, sticky="nsew", padx=10, pady=10)
-            
-            # Title
-            title_label = ctk.CTkLabel(
-                details_frame,
-                text=book.get('title', 'Unknown Title'),
-                font=ctk.CTkFont(family="Arial", size=16, weight="bold"),
-                text_color="white",
-                anchor="w"
-            )
-            title_label.pack(anchor="w")
-            
-            # Status and dates
-            status_text = f"Status: {book.get('status', 'Unknown')}"
-            dates_text = f"From: {self.format_date(book.get('borrow_date'))} - Until: {self.format_date(book.get('return_date'))}"
-            
-            status_label = ctk.CTkLabel(
-                details_frame,
-                text=status_text,
-                font=ctk.CTkFont(family="Arial", size=12),
-                text_color="#AAAAAA",
-                anchor="w"
-            )
-            status_label.pack(anchor="w", pady=(5, 0))
-            
-            dates_label = ctk.CTkLabel(
-                details_frame,
-                text=dates_text,
-                font=ctk.CTkFont(family="Arial", size=12),
-                text_color="#AAAAAA",
-                anchor="w"
-            )
-            dates_label.pack(anchor="w", pady=(2, 0))
-            
-            # Buttons frame (right side)
-            buttons_frame = ctk.CTkFrame(card, fg_color="transparent")
-            buttons_frame.grid(row=0, column=2, padx=10, pady=10)
-            
-            # Different buttons based on status
-            if book.get('status') == 'Borrowed':
+        # Two-column layout
+        card.columnconfigure(0, weight=0)  # Cover image
+        card.columnconfigure(1, weight=1)  # Book info
+        
+        # Try to load cover image
+        cover_img = self.load_book_cover(book.get('isbn', ''))
+        cover_label = ctk.CTkLabel(card, image=cover_img, text="")
+        cover_label.image = cover_img  # Keep reference
+        cover_label.grid(row=0, column=0, padx=15, pady=15)
+        
+        # Book information
+        info_frame = ctk.CTkFrame(card, fg_color="transparent")
+        info_frame.grid(row=0, column=1, sticky="nsew", padx=(0, 15), pady=15)
+        
+        # Book title
+        title_label = ctk.CTkLabel(
+            info_frame,
+            text=book.get('title', 'Unknown Title'),
+            font=ctk.CTkFont(family="Arial", size=16, weight="bold"),
+            text_color="white",
+            anchor="w"
+        )
+        title_label.pack(anchor="w")
+        
+        # Date information
+        dates_frame = ctk.CTkFrame(info_frame, fg_color="transparent")
+        dates_frame.pack(fill="x", pady=5)
+        
+        # Different date labels for active and historical books
+        if book.get('status') == 'active':
+            # For currently borrowed books
+            if 'borrow_date' in book:
+                date_text = f"Borrowed: {self.format_date(book.get('borrow_date'))} • Return by: {self.format_date(book.get('return_date'))}"
+            else:
+                # For booked books
+                date_text = f"Booked for: {self.format_date(book.get('booking_date'))} • Return by: {self.format_date(book.get('return_date'))}"
+        else:
+            # For historical books
+            date_text = f"Borrowed: {self.format_date(book.get('borrow_date'))} • Returned: {self.format_date(book.get('actual_return_date', 'Unknown'))}"
+        
+        date_label = ctk.CTkLabel(
+            dates_frame,
+            text=date_text,
+            font=ctk.CTkFont(family="Arial", size=12),
+            text_color="#AAAAAA",
+            anchor="w"
+        )
+        date_label.pack(anchor="w")
+        
+        # Status indicator and action button
+        button_frame = ctk.CTkFrame(info_frame, fg_color="transparent")
+        button_frame.pack(fill="x", pady=(5, 0))
+        
+        # Different status indicators and buttons for different book types
+        status_text = book.get('status', 'unknown')
+        
+        if status_text == 'active':
+            if 'borrow_date' in book:
+                # Currently borrowed book
+                status_label = ctk.CTkLabel(
+                    button_frame,
+                    text="Currently Borrowed",
+                    font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
+                    text_color="#4CAF50",
+                    anchor="w"
+                )
+                status_label.pack(side="left")
+                
+                # Return button
                 return_btn = ctk.CTkButton(
-                    buttons_frame,
+                    button_frame,
                     text="Return Book",
                     command=lambda b=book: self.return_book(b),
-                    fg_color="#4CAF50",
-                    hover_color="#388E3C",
+                    fg_color="#F44336",
+                    hover_color="#D32F2F",
                     text_color="white",
                     font=ctk.CTkFont(family="Arial", size=12),
+                    corner_radius=8,
                     width=100,
-                    height=32
+                    height=30
                 )
-                return_btn.pack(pady=2)
-            
-            elif book.get('status') == 'Booked':
+                return_btn.pack(side="right")
+                
+                # Read button
+                read_btn = ctk.CTkButton(
+                    button_frame,
+                    text="Read Book",
+                    command=lambda b=book: self.read_book(b),
+                    fg_color="#6200EA",
+                    hover_color="#5000D0",
+                    text_color="white",
+                    font=ctk.CTkFont(family="Arial", size=12),
+                    corner_radius=8,
+                    width=100,
+                    height=30
+                )
+                read_btn.pack(side="right", padx=(0, 10))
+                
+            else:
+                # Booked book
+                status_label = ctk.CTkLabel(
+                    button_frame,
+                    text="Booked",
+                    font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
+                    text_color="#FF6D00",
+                    anchor="w"
+                )
+                status_label.pack(side="left")
+                
+                # Cancel booking button
                 cancel_btn = ctk.CTkButton(
-                    buttons_frame,
+                    button_frame,
                     text="Cancel Booking",
                     command=lambda b=book: self.cancel_booking(b),
                     fg_color="#F44336",
                     hover_color="#D32F2F",
                     text_color="white",
                     font=ctk.CTkFont(family="Arial", size=12),
-                    width=100,
-                    height=32
+                    corner_radius=8,
+                    width=120,
+                    height=30
                 )
-                cancel_btn.pack(pady=2)
+                cancel_btn.pack(side="right")
+        else:
+            # Historical book
+            if book.get('returned_late', False):
+                status_text = "Returned Late"
+                status_color = "#F44336"
+            else:
+                status_text = "Returned On Time"
+                status_color = "#4CAF50"
+                
+            status_label = ctk.CTkLabel(
+                button_frame,
+                text=status_text,
+                font=ctk.CTkFont(family="Arial", size=12, weight="bold"),
+                text_color=status_color,
+                anchor="w"
+            )
+            status_label.pack(side="left")
             
-            # Details button
-            details_btn = ctk.CTkButton(
-                buttons_frame,
-                text="Details",
-                command=lambda b=book: self.show_book_details(b),
-                fg_color="#666666",
-                hover_color="#777777",
+            # Borrow again button
+            borrow_again_btn = ctk.CTkButton(
+                button_frame,
+                text="Borrow Again",
+                command=lambda b=book: self.borrow_again(b),
+                fg_color="#6200EA",
+                hover_color="#5000D0",
                 text_color="white",
                 font=ctk.CTkFont(family="Arial", size=12),
-                width=100,
-                height=32
+                corner_radius=8,
+                width=120,
+                height=30
             )
-            details_btn.pack(pady=2)
-            
-        except Exception as e:
-            print(f"Error creating book card: {e}")
-            error_label = ctk.CTkLabel(
-                card,
-                text="Error loading book details",
-                font=ctk.CTkFont(family="Arial", size=12),
-                text_color="#FF0000"
-            )
-            error_label.pack(pady=10)
+            borrow_again_btn.pack(side="right")
     
     def get_active_loans(self, username):
-        """Get currently borrowed books for the user"""
+        """Get all active loans for the user"""
         try:
-            with open(self.loans_file, 'r') as f:
-                loans = json.load(f)
-            
-            # Filter active loans for current user
-            active_loans = []
-            for loan in loans:
-                if (loan.get('username') == username and 
-                    loan.get('status') == 'Borrowed' and
-                    datetime.strptime(loan.get('return_date', ''), "%Y-%m-%d").date() >= datetime.now().date()):
-                    active_loans.append(loan)
-            
-            return active_loans
+            if os.path.exists(self.loans_file):
+                with open(self.loans_file, 'r') as f:
+                    loans = json.load(f)
+                
+                # Filter active loans for this user
+                return [
+                    loan for loan in loans 
+                    if loan.get('username') == username and loan.get('status') == 'active'
+                ]
         except Exception as e:
-            print(f"Error loading active loans: {e}")
-            return []
+            print(f"Error loading loans: {e}")
+        
+        return []
     
     def get_active_bookings(self, username):
-        """Get currently booked books for the user"""
+        """Get all active bookings for the user"""
         try:
-            with open(self.loans_file, 'r') as f:
-                loans = json.load(f)
-            
-            # Filter active bookings for current user
-            active_bookings = []
-            for loan in loans:
-                if (loan.get('username') == username and 
-                    loan.get('status') == 'Booked' and
-                    datetime.strptime(loan.get('return_date', ''), "%Y-%m-%d").date() >= datetime.now().date()):
-                    active_bookings.append(loan)
-            
-            return active_bookings
+            if os.path.exists(self.bookings_file):
+                with open(self.bookings_file, 'r') as f:
+                    bookings = json.load(f)
+                
+                # Filter active bookings for this user
+                return [
+                    booking for booking in bookings 
+                    if booking.get('username') == username and booking.get('status') == 'active'
+                ]
         except Exception as e:
-            print(f"Error loading active bookings: {e}")
-            return []
+            print(f"Error loading bookings: {e}")
+        
+        return []
     
     def get_completed_loans(self, username):
         """Get all completed loans for the user"""
