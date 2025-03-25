@@ -54,7 +54,7 @@ class Application:
         
         # Create required files if they don't exist
         required_files = [
-            ("users.json", {"admin": {"password": "admin123", "email": "admin@bookku.com", "role": "admin"}}),
+            ("users.json", {"admin@bookku.com": {"name": "Administrator","password": "admin123","role": "admin"},}),
             ("logs.json", []),
             ("loans.json", []),
             ("bookings.json", []),

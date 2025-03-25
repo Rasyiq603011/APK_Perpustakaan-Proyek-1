@@ -171,6 +171,8 @@ class HomeFrame(ctk.CTkFrame):
         
         # Get button configuration based on role
         user_info = self.home_manager.get_user_info(self.controller.current_user)
+        print(self.controller.current_user)
+        print(user_info["role"])
         button_config = self.home_manager.get_navigation_config(user_info["role"])
         
         # Create the buttons

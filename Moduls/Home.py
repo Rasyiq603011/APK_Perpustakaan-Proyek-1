@@ -10,7 +10,6 @@ class HomeManager:
         return datetime.now().strftime("%A, %d %B %Y")
     
     def get_user_info(self, current_user):
-        """Get user information"""
         if current_user:
             return {
                 "name": current_user.get("name", "Guest"),

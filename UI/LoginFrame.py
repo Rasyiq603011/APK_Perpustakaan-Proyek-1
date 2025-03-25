@@ -426,7 +426,7 @@ class LoginFrame(ctk.CTkFrame):
         if success:
             # Store user info in controller
             self.controller.current_user = user_info
-            
+            print(user_info)
             # Show home page based on role
             messagebox.showinfo("Login Successful", f"Welcome back, {user_info['name']}!")
             self.controller.showFrame("HomeFrame")
