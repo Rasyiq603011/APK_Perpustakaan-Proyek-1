@@ -23,5 +23,10 @@
         "name": "Muhammad Arrafi",
         "password": "arrafi12",
         "role": "user"
+    },
+    "Udin@gmail.com": {
+        "name": "Udin",
+        "password": "udinmakan",
+        "role": "user"
     }
 }

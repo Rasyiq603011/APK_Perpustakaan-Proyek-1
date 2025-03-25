@@ -1,1 +1,21 @@
-[]
+[
+  {
+    "username": "test_user",
+    "isbn": "9780743273565",
+    "title": "The Great Gatsby",
+    "booking_date": "2027-04-22",
+    "return_date": "2027-04-29",
+    "status": "canceled",
+    "created_at": "2025-03-25 09:25:17",
+    "canceled_at": "2025-03-25 09:25:55"
+  },
+  {
+    "username": "test_user",
+    "isbn": "9780743273565",
+    "title": "The Great Gatsby",
+    "booking_date": "2027-07-24",
+    "return_date": "2027-07-31",
+    "status": "active",
+    "created_at": "2025-03-25 10:15:50"
+  }
+]

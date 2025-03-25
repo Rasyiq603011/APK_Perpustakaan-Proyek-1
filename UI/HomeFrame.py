@@ -12,10 +12,16 @@ class HomeFrame(ctk.CTkFrame):
         self.controller = controller
         self.home_manager = HomeManager()
         self.configure(fg_color="#1E1E1E", corner_radius=0)
+        self.current_user = None
         
         # Create main layout
         self.create_layout()
-        
+    
+    def get_current_user(self):
+        self.current_user = self.controller.current_user
+        print(self.current_user.current_user)
+    
+
     def create_layout(self):
         # Main container
         main_container = ctk.CTkFrame(self, fg_color="transparent")
@@ -74,7 +80,7 @@ class HomeFrame(ctk.CTkFrame):
         date_label.pack(side="top", anchor="e")
         
         # Current user
-        user_info = self.home_manager.get_user_info(self.controller.current_user)
+        user_info = self.home_manager.get_user_info(self.current_user)
         user_text = f"Welcome, {user_info['name']}"
         user_label = ctk.CTkLabel(
             info_frame,
@@ -119,11 +125,11 @@ class HomeFrame(ctk.CTkFrame):
         self.create_banner(banner_frame)
         
         # Navigation buttons
-        nav_frame = ctk.CTkFrame(center_content, fg_color="transparent")
-        nav_frame.grid(row=1, column=0, sticky="nsew")
+        self.nav_frame = ctk.CTkFrame(center_content, fg_color="transparent")
+        self.nav_frame.grid(row=1, column=0, sticky="nsew")
         
         # Create navigation buttons based on user role
-        self.create_navigation_buttons(nav_frame)
+        self.create_navigation_buttons()
     
     def create_banner(self, parent):
         # Try to load banner image
@@ -158,9 +164,9 @@ class HomeFrame(ctk.CTkFrame):
             )
             subtitle_label.place(relx=0.5, rely=0.6, anchor="center")
     
-    def create_navigation_buttons(self, parent):
+    def create_navigation_buttons(self):
         # Container for 3 main buttons
-        button_container = ctk.CTkFrame(parent, fg_color="transparent")
+        button_container = ctk.CTkFrame(self.nav_frame, fg_color="transparent")
         button_container.pack(fill="both", expand=True)
         
         # Configure grid for equal spacing
@@ -170,8 +176,8 @@ class HomeFrame(ctk.CTkFrame):
         button_container.rowconfigure(0, weight=1)
         
         # Get button configuration based on role
-        user_info = self.home_manager.get_user_info(self.controller.current_user)
-        print(self.controller.current_user)
+        user_info = self.home_manager.get_user_info(self.current_user)
+        print(self.current_user)
         print(user_info["role"])
         button_config = self.home_manager.get_navigation_config(user_info["role"])
         

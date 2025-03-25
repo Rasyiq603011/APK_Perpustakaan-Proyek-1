@@ -22,7 +22,7 @@ class Application:
         self.root.title("Book-Ku")
         self.root.geometry("1024x768")
         self.currentFrame = None
-        self.current_user = None
+        
         self.setupDirectories()
         self.bookManager = BookManager(
             os.path.join(self.data_dir, "data_buku_2.xlsx"),
@@ -31,6 +31,7 @@ class Application:
         )
         self.color= None
         self.selectedBook = None
+        self.current_user = None
         self.createWidgets()
         
     
@@ -88,7 +89,7 @@ class Application:
         }
 
         self.setupFrames()
-        self.showFrame("LoginFrame")  # Start with book list
+        self.showFrame("UpdateBookFrame")  # Start with book list
 
     def setupFrames(self):
         for name, FrameClass in self.frameClasses.items():
@@ -118,6 +119,10 @@ class Application:
             elif frameName == "DataBookFrame":
                 if hasattr(frame, "populate_book_grid"):
                     frame.populate_book_grid()
+
+            # elif frameName == "HomeFrame":
+            #     if hasattr(frame, "create_layout"):
+            #         frame.create_layout()
             
             frame.tkraise()
             self.currentFrame = frameName
