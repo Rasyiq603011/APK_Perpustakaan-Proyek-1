@@ -14,6 +14,7 @@ from UI.AddBookFrame import AddBookFrame
 from UI.MyBookFrame import MyBookFrame
 from UI.LoginFrame import LoginFrame
 from UI.HomeFrame import HomeFrame
+# from UI.PenaltyBookFrame import PenaltyBookFrame
 
 
 class Application:
@@ -85,11 +86,12 @@ class Application:
             "AddBookFrame": AddBookFrame,
             "MyBookFrame": MyBookFrame,
             "LoginFrame" : LoginFrame,
-            "HomeFrame" : HomeFrame,    
+            "HomeFrame" : HomeFrame,
+            # "PenaltyBookFrame": PenaltyBookFrame,    
         }
 
         self.setupFrames()
-        self.showFrame("UpdateBookFrame")  # Start with book list
+        self.showFrame("LoginFrame")  # Start with book list
 
     def setupFrames(self):
         for name, FrameClass in self.frameClasses.items():
@@ -110,19 +112,23 @@ class Application:
                     frame.update_book_details()
             
             # For UpdateBookFrame, pass the book data
-            elif frameName == "UpdateBookFrame":
+            if frameName == "UpdateBookFrame":
                 frame.book = self.selectedBook
                 if hasattr(frame, "load_book_data"):
                     frame.load_book_data()
             
             # For DataBookFrame, refresh the book grid
-            elif frameName == "DataBookFrame":
+            if frameName == "DataBookFrame":
                 if hasattr(frame, "populate_book_grid"):
                     frame.populate_book_grid()
 
-            # elif frameName == "HomeFrame":
-            #     if hasattr(frame, "create_layout"):
-            #         frame.create_layout()
+            if frameName == "HomeFrame":
+                OldFrame = self.frames["HomeFrame"]
+                OldFrame.destroy()
+                print(self.current_user)
+                Newframe = HomeFrame(self.container, self)
+                Newframe.grid(row=0, column=0, sticky="nsew")
+                frame = Newframe
             
             frame.tkraise()
             self.currentFrame = frameName

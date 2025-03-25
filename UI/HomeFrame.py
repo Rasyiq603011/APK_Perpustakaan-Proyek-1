@@ -12,14 +12,11 @@ class HomeFrame(ctk.CTkFrame):
         self.controller = controller
         self.home_manager = HomeManager()
         self.configure(fg_color="#1E1E1E", corner_radius=0)
-        self.current_user = None
+        self.current_user = self.controller.current_user
         
         # Create main layout
         self.create_layout()
-    
-    def get_current_user(self):
-        self.current_user = self.controller.current_user
-        print(self.current_user.current_user)
+
     
 
     def create_layout(self):
