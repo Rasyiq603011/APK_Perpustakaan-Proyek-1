@@ -14,7 +14,9 @@ class LoginFrame(ctk.CTkFrame):
         super().__init__(parent)
         self.controller = controller
         self.auth_manager = AuthManager()
-        self.configure(fg_color="#1E1E1E", corner_radius=0)
+        self.is_dark_mode = True
+        self.color = COLOR_DARK if self.is_dark_mode else COLOR_LIGHT
+        self.configure(fg_color=self.color["surface"], corner_radius=0)
         
         # Make the frame fill the entire container
         self.pack_propagate(False)
@@ -37,8 +39,8 @@ class LoginFrame(ctk.CTkFrame):
     def _setup_ui(self):
         """Setup utama UI"""
         # Buat dan konfigurasi panels
-        self.left_panel = self._create_panel("left", "#121212")
-        self.right_panel = self._create_panel("right", "#1E1E1E")
+        self.left_panel = self._create_panel("left", self.color["surface"])
+        self.right_panel = self._create_panel("right", self.color["surface"])
         
         # Setup panels
         self._setup_left_panel()
@@ -60,7 +62,7 @@ class LoginFrame(ctk.CTkFrame):
             frame, 
             text=label_text,
             font=ctk.CTkFont(family="Arial", size=14),
-            text_color="#FFFFFF",
+            text_color=self.color["primaryText"],
             anchor="w"
         ).pack(anchor="w", padx=5, pady=(0, 5))
         
@@ -68,9 +70,9 @@ class LoginFrame(ctk.CTkFrame):
             frame,
             placeholder_text=placeholder,
             font=ctk.CTkFont(family="Arial", size=14),
-            fg_color="#2B2B2B",
-            border_color="#666666",
-            text_color="#FFFFFF",
+            fg_color=self.color["inputField"],
+            border_color=self.color["border"],
+            text_color=self.color["secondaryText"],
             corner_radius=8,
             height=40,
             show=show
@@ -82,13 +84,13 @@ class LoginFrame(ctk.CTkFrame):
         """Helper untuk membuat tombol dengan style yang konsisten"""
         styles = {
             "primary": {
-                "fg_color": "#4d6980",
-                "hover_color": "#3c5b74",
+                "fg_color": self.color["primary"],
+                "hover_color": self.color["hover"]["primary"],
                 "weight": "bold"
             },
             "secondary": {
-                "fg_color": "#333333",
-                "hover_color": "#444444",
+                "fg_color": self.color["primaryVariant"],
+                "hover_color": self.color["hover"]["accent"],
                 "weight": "normal"
             }
         }
@@ -102,7 +104,7 @@ class LoginFrame(ctk.CTkFrame):
             font=ctk.CTkFont(family="Arial", size=16, weight=style["weight"]),
             fg_color=style["fg_color"],
             hover_color=style["hover_color"],
-            text_color="#FFFFFF",
+            text_color=self.color["secondaryText"],
             corner_radius=8,
             height=45,
             **kwargs
@@ -119,7 +121,7 @@ class LoginFrame(ctk.CTkFrame):
                 ctk.CTkLabel(self.left_panel, image=self.bg_photo, text="").place(relwidth=1, relheight=1)
             
             # Overlay dan branding
-            overlay = ctk.CTkFrame(self.left_panel, fg_color="#000000", corner_radius=0)
+            overlay = ctk.CTkFrame(self.left_panel, fg_color=self.color["overlay"], corner_radius=0)
             overlay.place(relwidth=1, relheight=1)
             self._create_branding(overlay)
             
@@ -133,14 +135,14 @@ class LoginFrame(ctk.CTkFrame):
             parent,
             text="BOOK-KU",
             font=ctk.CTkFont(family="Arial", size=48, weight="bold"),
-            text_color="#FFFFFF"
+            text_color=self.color["primaryText"]
         ).place(relx=0.5, rely=0.4, anchor="center")
         
         ctk.CTkLabel(
             parent,
             text="Your Digital Library Experience",
             font=ctk.CTkFont(family="Arial", size=18),
-            text_color="#FFFFFF"
+            text_color=self.color["secondaryText"]
         ).place(relx=0.5, rely=0.46, anchor="center")
     
     def _create_fallback_branding(self):
@@ -149,7 +151,7 @@ class LoginFrame(ctk.CTkFrame):
             self.left_panel,
             text="BOOK-KU\nYour Digital Library",
             font=ctk.CTkFont(family="Arial", size=36, weight="bold"),
-            text_color="#FFFFFF"
+            text_color=self.color["primaryText"]
         ).place(relx=0.5, rely=0.5, anchor="center")
     
     def _create_form_header(self, container, title, subtitle):
@@ -158,14 +160,14 @@ class LoginFrame(ctk.CTkFrame):
             container,
             text=title,
             font=ctk.CTkFont(family="Arial", size=32, weight="bold"),
-            text_color="#FFFFFF"
+            text_color=self.color["primaryText"]
         ).pack(pady=(0, 20))
         
         ctk.CTkLabel(
             container,
             text=subtitle,
             font=ctk.CTkFont(family="Arial", size=16),
-            text_color="#AAAAAA"
+            text_color=self.color["secondaryText"]
         ).pack(pady=(0, 40))
     
     def setup_login_panel(self):
@@ -202,7 +204,7 @@ class LoginFrame(ctk.CTkFrame):
             register_frame,
             text="Don't have an account?",
             font=ctk.CTkFont(family="Arial", size=14),
-            text_color="#AAAAAA"
+            text_color=self.color["secondaryText"]
         ).pack(side="left", padx=(0, 5))
         
         ctk.CTkButton(
@@ -210,8 +212,8 @@ class LoginFrame(ctk.CTkFrame):
             text="Register now",
             font=ctk.CTkFont(family="Arial", size=14, weight="bold"),
             fg_color="transparent",
-            hover_color="#333333",
-            text_color="#3c5b74",
+            hover_color=self.color["surface"],
+            text_color=self.color["primary"],
             corner_radius=0,
             command=self.show_register_form
         ).pack(side="left")
