@@ -473,7 +473,7 @@ class BorrowPopUp(ctk.CTkToplevel):
                 self.controller.showFrame("LoginFrame")
             return
             
-        username = self.controller.current_user["username"]
+        username = self.controller.current_user
         
         try:
             if self.is_booking:

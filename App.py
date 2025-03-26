@@ -141,6 +141,7 @@ class Application:
 
     def GetStatusUser(self):
         return self.current_user["role"]
+    
     def showBookDetail(self, book):
         """Show details of the selected book"""
         self.selectedBook = book
@@ -165,9 +166,46 @@ class Application:
                 self.showFrame("DetailsBookFrame")
             return result
         return False
-        
+    
     def showBorrowPopup(self, book, is_booking=False):
         BorrowPopUp(self.root, self, book, is_booking)
+
+    def borrowBook(self, book, status):
+        """Handle book borrowing functionality"""
+        if book is None:
+            messagebox.showerror("Error", "No book selected!")
+            return False
+            
+        # Create a dictionary from the Series to avoid pandas Series issues
+        if hasattr(book, 'to_dict'):
+            book_copy = book.to_dict()
+        else:
+            book_copy = dict(book)
+        
+        # Change status to "Dipinjam"
+        book_copy["Status"] = "Borrowed"
+        
+        # Update the book in the database
+        if hasattr(self.bookManager, "UpdateBook"):
+            result = self.bookManager.UpdateBook(book_copy)
+            if result:
+                messagebox.showinfo("Success", f"Buku '{book_copy['Judul']}' berhasil dipinjam!")
+                # Update the selectedBook with the new data
+                if hasattr(self.bookManager, "getBookByIndeks"):
+                    # Get the fresh data from the manager
+                    # This assumes you have a way to get a book by ISBN in your manager
+                    for idx, row in self.bookManager.getBook().iterrows():
+                        if row['ISBN'] == book_copy['ISBN']:
+                            self.selectedBook = row
+                            break
+                
+                # Update the book details display
+                if "DetailsBookFrame" in self.frames:
+                    self.frames["DetailsBookFrame"].selectedBook = self.selectedBook
+                    if hasattr(self.frames["DetailsBookFrame"], "update_book_details"):
+                        self.frames["DetailsBookFrame"].update_book_details()
+            return result
+        return False
     
     def getBook(self):
         if hasattr(self.bookManager, "getBook"):
