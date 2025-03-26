@@ -113,17 +113,17 @@ class Application:
                     frame.update_book_details()
             
             # For UpdateBookFrame, pass the book data
-            if frameName == "UpdateBookFrame":
+            elif frameName == "UpdateBookFrame":
                 frame.book = self.selectedBook
                 if hasattr(frame, "load_book_data"):
                     frame.load_book_data()
             
             # For DataBookFrame, refresh the book grid
-            if frameName == "DataBookFrame":
+            elif frameName == "DataBookFrame":
                 if hasattr(frame, "populate_book_grid"):
                     frame.populate_book_grid()
 
-            if frameName == "HomeFrame":
+            elif frameName == "HomeFrame":
                 OldFrame = self.frames["HomeFrame"]
                 OldFrame.destroy()
                 print(self.current_user)
@@ -131,7 +131,7 @@ class Application:
                 Newframe.grid(row=0, column=0, sticky="nsew")
                 frame = Newframe
 
-            if frameName == "MyBookFrame":
+            elif frameName == "MyBookFrame":
                 if hasattr(frame, "load_current_books"):
                     frame.load_current_books()
                 

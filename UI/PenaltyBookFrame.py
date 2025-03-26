@@ -2,13 +2,13 @@ import tkinter as tk
 import customtkinter as ctk
 from PIL import Image, ImageTk
 import os
+import sys
 import json
 from datetime import datetime, timedelta
 from typing import Dict, Optional, Callable, List, Any
 from tkinter import messagebox
 
-
-# Import PenaltyManager from file
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from Moduls.Penalty_Manager import PenaltyManager
 
 class PenaltyBookFrame(ctk.CTkFrame):

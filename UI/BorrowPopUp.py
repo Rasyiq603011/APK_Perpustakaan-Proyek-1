@@ -466,6 +466,7 @@ class BorrowPopUp(ctk.CTkToplevel):
     
     def confirm_action(self):
         """Handle the confirm button action (borrow or book)"""
+        print("confirm action")
         if not hasattr(self.controller, 'current_user') or not self.controller.current_user:
             messagebox.showinfo("Login Required", "Please login first.")
             self.destroy()

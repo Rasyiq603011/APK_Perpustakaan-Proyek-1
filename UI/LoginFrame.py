@@ -287,7 +287,10 @@ class LoginFrame(ctk.CTkFrame):
         success, message, user_info = self.auth_manager.login(email, password)
         
         if success:
-            self.controller.current_user = user_info
+            self.controller.current_user = {
+                "name" : user_info["name"],
+                "role" : user_info["role"]
+            }
             # Show home page based on role
             messagebox.showinfo("Login Successful", f"Welcome back, {user_info['name']}!")
             self.setup_login_panel()

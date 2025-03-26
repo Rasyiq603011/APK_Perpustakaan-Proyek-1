@@ -1,7 +1,7 @@
 # Create by ALL
 from App import Application
-import tkinter as tk
+import customtkinter as ctk
 
-root = tk.Tk()
+root = ctk.CTk()
 app = Application(root)
 root.mainloop()
