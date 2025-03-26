@@ -26,6 +26,7 @@ class Application:
         self.currentFrame = None
         
         self.setupDirectories()
+        self.root.iconbitmap(os.path.join(self.assets_dir, "logo.ico"))
         self.bookManager = BookManager(
             os.path.join(self.data_dir, "data_buku_2.xlsx"),
             os.path.join(self.assets_dir, "Cover"),

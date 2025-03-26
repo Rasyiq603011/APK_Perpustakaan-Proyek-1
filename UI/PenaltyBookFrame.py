@@ -10,7 +10,7 @@ from tkinter import messagebox
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from Moduls.Penalty_Manager import PenaltyManager
-
+ctk.deactivate_automatic_dpi_awareness() 
 class PenaltyBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         super().__init__(parent)
@@ -187,7 +187,7 @@ class PenaltyBookFrame(ctk.CTkFrame):
                 self.show_login_required()
                 return
             
-            username = self.controller.current_user.get("username")
+            username = self.controller.current_user.get("name")
             
             # Load overdue books using PenaltyManager
             overdue_books = self.penaltyManager.getOverdueBooks(username)
@@ -396,7 +396,7 @@ class PenaltyBookFrame(ctk.CTkFrame):
             # Center on parent
             x = self.winfo_x() + (self.winfo_width() - 400) // 2
             y = self.winfo_y() + (self.winfo_height() - 600) // 2
-            popup.geometry(f"+{x}+{y}")
+            popup.geometry(f"+{int(x)}+{int(y)}")
             
             # Main container with scrollable content
             main_frame = ctk.CTkScrollableFrame(
@@ -651,7 +651,7 @@ class PenaltyBookFrame(ctk.CTkFrame):
         # Center on parent
         x = parent.winfo_x() + (parent.winfo_width() - 300) // 2
         y = parent.winfo_y() + (parent.winfo_height() - 150) // 2
-        processing.geometry(f"+{x}+{y}")
+        processing.geometry(f"+{int(x)}+{int(y)}")
         
         # Processing message
         frame = ctk.CTkFrame(processing, fg_color="#232323", corner_radius=10)

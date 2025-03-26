@@ -45,7 +45,7 @@ class HomeFrame(ctk.CTkFrame):
         
         # Try to load logo
         try:
-            logo_path = self.home_manager.get_asset_path("logo_small.png")
+            logo_path = self.home_manager.get_asset_path("Logo.png")
             logo_img = Image.open(logo_path)
             logo_img = logo_img.resize((40, 40))
             self.logo_photo = ctk.CTkImage(light_image=logo_img, dark_image=logo_img, size=(40, 40))
@@ -131,7 +131,7 @@ class HomeFrame(ctk.CTkFrame):
     def create_banner(self, parent):
         # Try to load banner image
         try:
-            banner_path = self.home_manager.get_asset_path("banner.jpg")
+            banner_path = self.home_manager.get_asset_path("banner.png")
             banner_img = Image.open(banner_path)
             banner_img = banner_img.resize((980, 200))
             self.banner_photo = ctk.CTkImage(light_image=banner_img, dark_image=banner_img, size=(980, 200))
