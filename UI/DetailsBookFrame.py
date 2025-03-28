@@ -92,12 +92,12 @@ class DetailsBookFrame(ctk.CTkFrame):
         
     def Footer(self):
         # ===== FOOTER SECTION =====
-        self.footer = ctk.CTkFrame(self, fg_color="transparent", height=60, corner_radius=10)
-        self.footer.grid(row=2, column=0, columnspan=2, sticky="ew", padx=20, pady=(0, 20))
-        self.footer.pack_propagate(False)
+        self.footerFrame = ctk.CTkFrame(self, fg_color="transparent", height=60, corner_radius=10)
+        self.footerFrame.grid(row=2, column=0, columnspan=2, sticky="ew", padx=20, pady=(0, 20))
+        self.footerFrame.pack_propagate(False)
             
         self.editBtn = ctk.CTkButton(
-                self.footer,
+                self.footerFrame,
                 text="Back Home",
                 command=lambda: self.controller.showFrame("HomeFrame"),
                 fg_color=self.color["primary"],
@@ -112,7 +112,7 @@ class DetailsBookFrame(ctk.CTkFrame):
         
         # Update button - Right side
         self.borrow_btn = ctk.CTkButton(
-                self.footer,
+                self.footerFrame,
                 text="Borrow", 
                 command=self.borrow_book,
                 fg_color=self.color["success"], 

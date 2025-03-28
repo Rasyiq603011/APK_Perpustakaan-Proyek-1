@@ -430,7 +430,7 @@ class BorrowPopUp(ctk.CTkToplevel):
                 date_btn = ctk.CTkButton(
                     self.calendar_grid,
                     text=str(day),
-                    command=lambda d=current_date: self.select_date(d) if is_valid else None,
+                    command=lambda d=current_date, isValid = is_valid: self.select_date(d) if isValid else None,
                     fg_color="#1E1E1E" if is_valid else "#333333",
                     hover_color="#6200EA" if is_valid else "#333333",
                     text_color="white" if is_valid else "#666666",
@@ -465,69 +465,69 @@ class BorrowPopUp(ctk.CTkToplevel):
         )
     
     def confirm_action(self):
-    """Handle the confirm button action (borrow or book)"""
-    # Cek apakah pengguna sudah login
-    if not hasattr(self.controller, 'current_user') or not self.controller.current_user:
-        messagebox.showinfo("Login Required", "Please login first.")
-        self.destroy()
-        if hasattr(self.controller, 'showFrame'):
-            self.controller.showFrame("LoginFrame")
-        return
-
-    # Ambil username pengguna yang sedang login
-    username = self.controller.current_user
-    
-    try:
-        # Proses booking
-        if self.is_booking:
-            # Pastikan tanggal booking sudah dipilih
-            if not self.selected_booking_date:
-                messagebox.showerror("Error", "Please select a booking date.")
-                return
-                
-            # Tambahkan data pemesanan
-            self.add_booking_record(username)
-            new_status = "Booked"
-            action_text = "booked"
-            date_text = f"\n\nYou can pick it up on {self.selected_booking_date.strftime('%d %B %Y')}."
-        
-        # Proses peminjaman langsung
-        else:
-            self.add_loan_record(username)
-            new_status = "Borrowed"
-            action_text = "borrowed"
-            date_text = ""
-
-        # Update status buku
-        if hasattr(self.controller, "updateBook"):
-            self.book["Status"] = new_status
-            success = self.controller.updateBook(self.book)
-            
-            # Jika update berhasil
-            if success:
-                # Buat pesan konfirmasi
-                message = f"You have successfully {action_text} '{self.book.get('Judul', 'this book')}'.{date_text}"
-                message += f"\nPlease return by {self.return_date.strftime('%d %B %Y')}."
-                
-                # Tampilkan pesan sukses
-                messagebox.showinfo("Success", message)
-                
-                # Tutup popup dan refresh tampilan
-                self.destroy()
-                self.controller.showFrame("DataBookFrame")
-            
-            # Jika update gagal
-            else:
-                messagebox.showerror("Error", "Failed to update book status. Please try again.")
-        
-        # Jika metode update tidak tersedia
-        else:
-            messagebox.showinfo("Success", f"Book has been {action_text}: {self.book.get('Judul', 'Unknown')}")
+        """Handle the confirm button action (borrow or book)"""
+        # Cek apakah pengguna sudah login
+        if not hasattr(self.controller, 'current_user') or not self.controller.current_user:
+            messagebox.showinfo("Login Required", "Please login first.")
             self.destroy()
-    
-    # Tangani kesalahan yang mungkin terjadi
-    except Exception as e:
-        messagebox.showerror("Error", f"An error occurred: {str(e)}")
+            if hasattr(self.controller, 'showFrame'):
+                self.controller.showFrame("LoginFrame")
+            return
+
+        # Ambil username pengguna yang sedang login
+        username = self.controller.current_user
+        
+        try:
+            # Proses booking
+            if self.is_booking:
+                # Pastikan tanggal booking sudah dipilih
+                if not self.selected_booking_date:
+                    messagebox.showerror("Error", "Please select a booking date.")
+                    return
+                    
+                # Tambahkan data pemesanan
+                self.add_booking_record(username)
+                new_status = "Booked"
+                action_text = "booked"
+                date_text = f"\n\nYou can pick it up on {self.selected_booking_date.strftime('%d %B %Y')}."
+            
+            # Proses peminjaman langsung
+            else:
+                self.add_loan_record(username)
+                new_status = "Borrowed"
+                action_text = "borrowed"
+                date_text = ""
+
+            # Update status buku
+            if hasattr(self.controller, "updateBook"):
+                self.book["Status"] = new_status
+                success = self.controller.updateBook(self.book)
+                
+                # Jika update berhasil
+                if success:
+                    # Buat pesan konfirmasi
+                    message = f"You have successfully {action_text} '{self.book.get('Judul', 'this book')}'.{date_text}"
+                    message += f"\nPlease return by {self.return_date.strftime('%d %B %Y')}."
+                    
+                    # Tampilkan pesan sukses
+                    messagebox.showinfo("Success", message)
+                    
+                    # Tutup popup dan refresh tampilan
+                    self.destroy()
+                    self.controller.showFrame("DataBookFrame")
+                
+                # Jika update gagal
+                else:
+                    messagebox.showerror("Error", "Failed to update book status. Please try again.")
+            
+            # Jika metode update tidak tersedia
+            else:
+                messagebox.showinfo("Success", f"Book has been {action_text}: {self.book.get('Judul', 'Unknown')}")
+                self.destroy()
+        
+        # Tangani kesalahan yang mungkin terjadi
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {str(e)}")
     
     def add_booking_record(self, username):
         """Add a booking record to bookings.json"""
@@ -537,7 +537,8 @@ class BorrowPopUp(ctk.CTkToplevel):
         try:
             with open(self.bookings_file, 'r') as f:
                 bookings = json.load(f)
-        except:
+        except KeyError as e:
+            print(f"KeyError occurred: {e}")
             bookings = []
         
         # Add new booking
@@ -562,12 +563,13 @@ class BorrowPopUp(ctk.CTkToplevel):
         try:
             with open(self.loans_file, 'r') as f:
                 loans = json.load(f)
-        except:
+        except KeyError as e:
+            print(f"KeyError occurred: {e}")
             loans = []
         
         # Add new loan
         loans.append({
-            "username": username,
+            "username": username["username"],
             "isbn": self.book.get('ISBN', ''),
             "title": self.book.get('Judul', 'Unknown Title'),
             "borrow_date": borrow_date,

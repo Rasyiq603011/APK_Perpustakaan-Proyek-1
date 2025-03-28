@@ -15,7 +15,7 @@ from UI.MyBookFrame import MyBookFrame
 from UI.LoginFrame import LoginFrame
 from UI.HomeFrame import HomeFrame
 from UI.BorrowPopUp import BorrowPopUp
-# from UI.PenaltyBookFrame import PenaltyBookFrame
+from UI.PenaltyBookFrame import PenaltyBookFrame
 
 
 class Application:
@@ -89,7 +89,7 @@ class Application:
             "MyBookFrame": MyBookFrame,
             "LoginFrame" : LoginFrame,
             "HomeFrame" : HomeFrame,
-            # "PenaltyBookFrame": PenaltyBookFrame,    
+            "PenaltyBookFrame": PenaltyBookFrame,    
         }
 
         self.setupFrames()
@@ -129,6 +129,14 @@ class Application:
                 OldFrame.destroy()
                 print(self.current_user)
                 Newframe = HomeFrame(self.container, self)
+                Newframe.grid(row=0, column=0, sticky="nsew")
+                frame = Newframe
+
+            elif frameName == "PenaltyBookFrame":
+                OldFrame = self.frames["PenaltyBookFrame"]
+                OldFrame.destroy()
+                print(self.current_user)
+                Newframe = PenaltyBookFrame(self.container, self)
                 Newframe.grid(row=0, column=0, sticky="nsew")
                 frame = Newframe
 

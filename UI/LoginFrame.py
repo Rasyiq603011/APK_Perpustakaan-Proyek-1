@@ -8,6 +8,7 @@ from datetime import datetime
 from PIL import Image, ImageTk
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from Moduls.Login import AuthManager
+from constans import COLOR_DARK, COLOR_LIGHT
 
 class LoginFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):

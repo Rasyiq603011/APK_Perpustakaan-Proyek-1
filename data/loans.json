@@ -36,8 +36,10 @@
     "title": "Bidadari-bidadari surga",
     "borrow_date": "2025-03-25",
     "return_date": "2025-04-01",
-    "status": "active",
-    "created_at": "2025-03-25 23:36:41"
+    "status": "completed",
+    "created_at": "2025-03-25 23:36:41",
+    "actual_return_date": "2025-03-28",
+    "returned_late": false
   },
   {
     "username": {
@@ -50,5 +52,53 @@
     "return_date": "2025-04-02",
     "status": "active",
     "created_at": "2025-03-26 16:29:13"
+  },
+  {
+    "username": {
+      "username": "test_user",
+      "role": "user"
+    },
+    "isbn": "9780743273565",
+    "title": "The Great Gatsby",
+    "borrow_date": "2025-03-28",
+    "return_date": "2025-04-04",
+    "status": "active",
+    "created_at": "2025-03-28 23:08:56"
+  },
+  {
+    "username": {
+      "name": "Udin",
+      "role": "user"
+    },
+    "isbn": 9789791102261,
+    "title": "Bidadari-bidadari surga",
+    "borrow_date": "2025-03-28",
+    "return_date": "2025-04-04",
+    "status": "active",
+    "created_at": "2025-03-28 23:17:11"
+  },
+  {
+    "username": {
+      "name": "Udin",
+      "role": "user"
+    },
+    "isbn": 9789796865567,
+    "title": "Quidditch dari masa ke masa",
+    "borrow_date": "2025-03-28",
+    "return_date": "2025-04-04",
+    "status": "active",
+    "created_at": "2025-03-28 23:19:06"
+  },
+  {
+    "username": {
+      "name": "Udin",
+      "role": "user"
+    },
+    "isbn": 9786028811095,
+    "title": "A Game of Thrones: Graphic Novel, Volume Four (A Song of Ice and Fire)",
+    "borrow_date": "2025-03-28",
+    "return_date": "2025-04-04",
+    "status": "active",
+    "created_at": "2025-03-28 23:23:16"
   }
 ]
