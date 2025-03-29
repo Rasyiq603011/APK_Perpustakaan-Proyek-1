@@ -115,3 +115,61 @@ CATEGORY_MAPPING = {
     "Nature & Environment": ["Nature", "Nature photography", "Climatic changes", "Wetland animals", "Agriculture",
                              "Animals", "Birds"],
 }
+
+
+#=============== Directories ================#
+import os
+
+# Base directory 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Direktori utama
+DATA_DIR = os.path.join(BASE_DIR, "data")
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
+COVERS_DIR = os.path.join(ASSETS_DIR, "Cover")
+
+# Membuat direktori jika belum ada
+os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(ASSETS_DIR, exist_ok=True)
+os.makedirs(COVERS_DIR, exist_ok=True)
+
+# Path file data
+BOOKS_FILE = os.path.join(DATA_DIR, "data_buku_2.xlsx")
+LOANS_FILE = os.path.join(DATA_DIR, "loans.json")
+USERS_FILE = os.path.join(DATA_DIR, "users.json")
+LOGS_FILE = os.path.join(DATA_DIR, "logs.json")
+PENALTIES_FILE = os.path.join(DATA_DIR, "penalties.json")
+BOOKINGS_FILE = os.path.join(DATA_DIR, "bookings.json")
+
+# Default image
+DEFAULT_COVER = os.path.join(ASSETS_DIR, "default_cover.jpg")
+BANNER = os.path.join(ASSETS_DIR, "banner.jpg")
+LOGO_ICO = os.path.join(ASSETS_DIR, "logo.ico")
+LOGO_PNG = os.path.join(ASSETS_DIR, "logo.png")
+
+# Path untuk akses API dan direktori
+PATHS = {
+    "assets": ASSETS_DIR,
+    "covers": COVERS_DIR,
+    "data": DATA_DIR,
+    "books": BOOKS_FILE,
+    "loans": LOANS_FILE,
+    "users": USERS_FILE,
+    "logs": LOGS_FILE,
+    "penalties": PENALTIES_FILE,
+    "bookings": BOOKINGS_FILE,
+    "default_cover": DEFAULT_COVER,
+    "banner": BANNER,
+    "logo_ico": LOGO_ICO,
+    "logo_png": LOGO_PNG,
+}
+
+# Membuat file JSON kosong jika belum ada
+def create_empty_json_files():
+    for json_file in [LOANS_FILE, USERS_FILE, LOGS_FILE, PENALTIES_FILE, BOOKINGS_FILE]:
+        if not os.path.exists(json_file):
+            with open(json_file, 'w') as f:
+                f.write('{}')
+
+# Jalankan pembuatan file JSON
+create_empty_json_files()
