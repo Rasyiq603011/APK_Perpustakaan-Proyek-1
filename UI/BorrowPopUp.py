@@ -475,7 +475,18 @@ class BorrowPopUp(ctk.CTkToplevel):
             return
 
         # Ambil username pengguna yang sedang login
-        username = self.controller.current_user
+        try:
+            username = self.controller.current_user
+            if not isinstance(username, dict):
+                messagebox.showerror("Error", "Invalid user data format. Please login again.")
+                return
+                
+            if "username" not in username:
+                messagebox.showerror("Error", "Username not found. Please login again.")
+                return
+        except Exception as e:
+            messagebox.showerror("Error", f"Error accessing user data: {str(e)}")
+            return
         
         try:
             # Proses booking
@@ -514,7 +525,8 @@ class BorrowPopUp(ctk.CTkToplevel):
                     
                     # Tutup popup dan refresh tampilan
                     self.destroy()
-                    self.controller.showFrame("DataBookFrame")
+                    if hasattr(self.controller, 'showFrame'):
+                        self.controller.showFrame("DataBookFrame")
                 
                 # Jika update gagal
                 else:
@@ -528,8 +540,9 @@ class BorrowPopUp(ctk.CTkToplevel):
         # Tangani kesalahan yang mungkin terjadi
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {str(e)}")
+            print(f"Error in confirm_action: {e}")
     
-    def add_booking_record(self, username):
+    def add_booking_record(self, user):
         """Add a booking record to bookings.json"""
         booking_date = self.selected_booking_date.strftime("%Y-%m-%d")
         return_date = self.return_date.strftime("%Y-%m-%d")
@@ -537,9 +550,11 @@ class BorrowPopUp(ctk.CTkToplevel):
         try:
             with open(self.bookings_file, 'r') as f:
                 bookings = json.load(f)
-        except KeyError as e:
-            print(f"KeyError occurred: {e}")
+        except (FileNotFoundError, json.JSONDecodeError):
             bookings = []
+        
+        # Extract username from user dictionary
+        username = user.get("username", "")
         
         # Add new booking
         bookings.append({
@@ -567,9 +582,9 @@ class BorrowPopUp(ctk.CTkToplevel):
             print(f"KeyError occurred: {e}")
             loans = []
         
-        # Add new loan
+        # Add new loan dengan format username yang benar
         loans.append({
-            "username": username["username"],
+            "username": username["username"],  # Menggunakan username dari dictionary
             "isbn": self.book.get('ISBN', ''),
             "title": self.book.get('Judul', 'Unknown Title'),
             "borrow_date": borrow_date,
