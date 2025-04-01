@@ -105,7 +105,7 @@ class AddBookFrame(ctk.CTkFrame):
         self.cancelBtn.pack(side="left", padx=40, pady=10)
             
             # Update button - Right side
-        self.updateBtn = ctk.CTkButton(
+        self.saveBtn = ctk.CTkButton(
                 self.footer,
                 text="save book", 
                 command=self.save_book,
@@ -117,7 +117,7 @@ class AddBookFrame(ctk.CTkFrame):
                 height=40,
                 width=150
             )
-        self.updateBtn.pack(side="right", padx=40, pady=10)
+        self.saveBtn.pack(side="right", padx=40, pady=10)
     
         
     def create_form_fields(self):
@@ -436,7 +436,7 @@ class AddBookFrame(ctk.CTkFrame):
         }
         
         # Add a loading indicator
-        self.save_btn.configure(state="disabled", text="Menyimpan...")
+        self.saveBtn.configure(state="disabled", text="Menyimpan...")
         self.update_idletasks()  # Force UI update
         
         # Call controller to add book
@@ -452,7 +452,7 @@ class AddBookFrame(ctk.CTkFrame):
                 self.clear_form()
         finally:
             # Restore button state
-            self.save_btn.configure(state="normal", text="Simpan Buku")
+            self.saveBtn.configure(state="normal", text="Simpan Buku")
         
     def clear_form(self):
         for entry in self.entries.values():

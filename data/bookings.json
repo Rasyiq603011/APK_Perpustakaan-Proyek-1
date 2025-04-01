@@ -17,41 +17,5 @@
     "return_date": "2027-07-31",
     "status": "active",
     "created_at": "2025-03-25 10:15:50"
-  },
-  {
-    "username": {
-      "name": "Udin",
-      "role": "user"
-    },
-    "isbn": 9789791102261,
-    "title": "Bidadari-bidadari surga",
-    "booking_date": "2025-04-25",
-    "return_date": "2025-05-02",
-    "status": "active",
-    "created_at": "2025-03-28 23:17:30"
-  },
-  {
-    "username": {
-      "name": "Muhammad Nabil Syauqi Rasyiq",
-      "role": "user"
-    },
-    "isbn": 9789796865567,
-    "title": "Quidditch dari masa ke masa",
-    "booking_date": "2025-04-05",
-    "return_date": "2025-04-12",
-    "status": "active",
-    "created_at": "2025-03-28 23:21:58"
-  },
-  {
-    "username": {
-      "name": "Udin",
-      "role": "user"
-    },
-    "isbn": 9786028811095,
-    "title": "A Game of Thrones: Graphic Novel, Volume Four (A Song of Ice and Fire)",
-    "booking_date": "2025-04-12",
-    "return_date": "2025-04-19",
-    "status": "active",
-    "created_at": "2025-03-28 23:23:52"
   }
 ]
