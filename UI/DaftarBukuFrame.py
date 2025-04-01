@@ -15,13 +15,14 @@ from constans import CATEGORY_MAPPING
 from constans import COLOR_DARK, COLOR_LIGHT
 
 
+# Mendefinisikan category yang ada pada CATEGORY_MAPPING untuk fungsi filter
 def categorize_genre(genre):
     for category, keywords in CATEGORY_MAPPING.items():
         if genre in keywords:
             return category
     return "Other"
 
-
+# Sistem load genre dari file data buku
 def load_genre_data():
     file_path = "data/data_buku_2.xlsx"  # Menggunakan file data_buku_2.xlsx
     df = pd.read_excel(file_path)
@@ -31,7 +32,7 @@ def load_genre_data():
     return []
 
 
-# Create our own Tooltip class instead of importing from tkcalendar
+# Membuat fungsi tooltip untuk melihat teks yang di truncate / singkat
 class Tooltip:
     def __init__(self, widget, text):
         self.widget = widget
@@ -40,22 +41,24 @@ class Tooltip:
         self.widget.bind("<Enter>", self.show_tooltip)
         self.widget.bind("<Leave>", self.hide_tooltip)
 
+    # Menampilkan tooltip
     def show_tooltip(self, event=None):
         x, y, _, _ = self.widget.bbox("insert")
         x += self.widget.winfo_rootx() + 25
         y += self.widget.winfo_rooty() + 25
 
-        # Create a toplevel window
+        # Membuat window terpisah
         self.tooltip = tk.Toplevel(self.widget)
         self.tooltip.wm_overrideredirect(True)
         self.tooltip.wm_geometry(f"+{x}+{y}")
 
-        # Create the tooltip content
+        # Membuat isi tooltip
         label = tk.Label(self.tooltip, text=self.text,
                          background="#1E1E1E", foreground="white",
                          relief="solid", borderwidth=1, padx=5, pady=3)
         label.pack()
 
+    # Sembunyikan tooltip
     def hide_tooltip(self, event=None):
         if self.tooltip:
             self.tooltip.destroy()
@@ -65,6 +68,7 @@ class Tooltip:
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
+# Class DataBookFrame (Window)
 class DataBookFrame(ctk.CTkFrame):
     def __init__(self, parent, controller):
         ctk.CTkFrame.__init__(self, parent)
@@ -86,14 +90,14 @@ class DataBookFrame(ctk.CTkFrame):
         self.current_page = 1
         self.total_pages = 1
 
-        # Create main container
+        # Config untuk Isi window utama
         self.columnconfigure(0, weight=1)
         self.rowconfigure(0, weight=0)  # Header
         self.rowconfigure(1, weight=0)  # Search & Filter
         self.rowconfigure(2, weight=1)  # Content / Book Grid
         self.rowconfigure(3, weight=0)  # Pagination controls
 
-        # Set up the UI components
+        # Set up UI components
         self.setup_header()
         self.setup_misc_bar()
         self.setup_content_area()
@@ -104,9 +108,13 @@ class DataBookFrame(ctk.CTkFrame):
 
         # Populate grid with books
         self.populate_book_grid()
+        
 
-    # =================== WIDGET FACTORY FUNCTIONS ===================
+    # =============================== WIDGET FACTORY FUNCTIONS ===============================
+    # Membuat widget dengan setelan default (warna, font, background, foreground, ukuran, dll)
+    # ========================================================================================
 
+    # Create Button // Buat Tombol
     def create_button(self, parent, text, command=None, fg_color=None, hover_color=None,
                       text_color="white", font_size=14, corner_radius=10, width=100, height=36,
                       font_weight="normal", **kwargs):
@@ -132,6 +140,7 @@ class DataBookFrame(ctk.CTkFrame):
             **kwargs
         )
 
+    # Create Label // Buat Teks
     def create_label(self, parent, text, font_size=14, text_color=None, font_weight="normal",
                      **kwargs):
         """Membuat label dengan styling yang konsisten"""
@@ -147,6 +156,7 @@ class DataBookFrame(ctk.CTkFrame):
             **kwargs
         )
 
+    # Create Entry // Buat Input
     def create_entry(self, parent, placeholder_text="", fg_color=None, border_color=None, text_color=None, width=300, height=36, **kwargs):
         """Membuat entry field dengan styling yang konsisten"""
 
@@ -172,6 +182,7 @@ class DataBookFrame(ctk.CTkFrame):
             **kwargs
         )
 
+    # Create Frame // Buat frame
     def create_frame(self, parent, fg_color=None, corner_radius=0, height=None, **kwargs):
         """Membuat frame dengan styling yang konsisten"""
 
@@ -190,9 +201,13 @@ class DataBookFrame(ctk.CTkFrame):
             frame.pack_propagate(False)
 
         return frame
+        
 
-    # =================== COMPONENT SETUP FUNCTIONS ===================
-
+    # =============================== COMPONENT SETUP FUNCTIONS ===============================
+    #                   Membuat komponen untuk window utama sesuai pengaturan
+    # =========================================================================================
+    
+    # Header
     def setup_header(self):
         """Membangun header aplikasi"""
         self.header_frame = self.create_frame(self, fg_color=None, height=80)
@@ -221,8 +236,7 @@ class DataBookFrame(ctk.CTkFrame):
         )
         title_label.grid(row=0, column=1, padx=28, pady=12)
 
-        # Removed the Add Book button
-
+    # Misc bar
     def setup_misc_bar(self):
         """Membangun bar pencarian menggunakan grid"""
         search_filter_frame = self.create_frame(self, fg_color=self.color["disabled"], height=80)
@@ -298,6 +312,7 @@ class DataBookFrame(ctk.CTkFrame):
         )
         status_label.grid(row=0, column=0, padx=(0, 10))
 
+        # Create dropdown status
         status_dropdown = ctk.CTkOptionMenu(
             status_frame,
             values=["All", "Available", "Borrowed", "Booked"],
@@ -314,6 +329,7 @@ class DataBookFrame(ctk.CTkFrame):
         status_dropdown.grid(row=0, column=1)
         status_dropdown.set("All")
 
+    # Update genre
     def update_genre_dropdown(self):
         """Update the genre dropdown with available genres"""
         # Get available genres
@@ -326,6 +342,7 @@ class DataBookFrame(ctk.CTkFrame):
         self.genre_dropdown.configure(values=dropdown_values)
         self.genre_dropdown.set("All Genre")
 
+    # Content
     def setup_content_area(self):
         """Menyiapkan area konten untuk grid buku"""
         # Content frame
@@ -347,6 +364,7 @@ class DataBookFrame(ctk.CTkFrame):
         self.book_grid = self.create_frame(self.book_container, fg_color=None)
         self.book_grid.pack(fill="both", expand=True)
 
+    # Pagination untuk halaman
     def setup_pagination(self):
         """Membangun kontrol paginasi"""
         self.pagination_frame = self.create_frame(self, fg_color=self.color["selected"], height=50)
@@ -425,7 +443,7 @@ class DataBookFrame(ctk.CTkFrame):
         )
         self.last_btn.pack(side="left", padx=(0, 0))
 
-        # Create a frame for "Go to" components on the right
+        # Create a frame for "Go to" components sebelah kanan
         goto_frame = self.create_frame(self.pagination_frame, fg_color="transparent")
         goto_frame.grid(row=0, column=2, padx=(0, 20), pady=10, sticky="e")
 
@@ -462,9 +480,13 @@ class DataBookFrame(ctk.CTkFrame):
 
         # Add Enter key binding to page entry
         self.page_entry.bind("<Return>", lambda event: self.go_to_page())
+    
 
-    # =================== BOOK CARD FUNCTIONS ===================
+    # =============================== BOOK CARD FUNCTIONS ===============================
+    #               Method yang berkaitan dengan buku (frame, detail, dll)
+    # ===================================================================================
 
+    # Create book card
     def create_book_card(self, book):
         """Membuat kartu buku individual"""
         # Membuat frame buku
@@ -475,6 +497,7 @@ class DataBookFrame(ctk.CTkFrame):
             border_width=0
         )
 
+        # Config isi 
         book_frame.columnconfigure(0, weight=1)
         book_frame.rowconfigure(0, weight=0)  # Cover image
         book_frame.rowconfigure(1, weight=0)  # Title
@@ -549,12 +572,14 @@ class DataBookFrame(ctk.CTkFrame):
 
         return book_frame
 
+    # Truncate // Memotong teks
     def truncate_text(self, text, max_length):
         """Memotong teks jika terlalu panjang"""
         if len(text) > max_length:
             return text[:max_length - 3] + "..."
         return text
 
+    # Get Status Color
     def get_status_color(self, status):
         """Mendapatkan warna berdasarkan status buku"""
         if status == "Available":
@@ -564,8 +589,12 @@ class DataBookFrame(ctk.CTkFrame):
         else:
             return self.color["error"]  # Red
 
-    # =================== PAGINATION FUNCTIONS ===================
+    
+    # =============================== PAGINATION FUNCTIONS ===============================
+    #                 Method yang berhubungan dengan pagination (halaman)
+    # ====================================================================================
 
+    # Update pagination info
     def update_pagination_info(self, total_books):
         """Update informasi paginasi berdasarkan jumlah total buku"""
         self.total_pages = math.ceil(total_books / self.books_per_page)
@@ -579,36 +608,42 @@ class DataBookFrame(ctk.CTkFrame):
         self.prev_btn.configure(state="normal" if self.current_page > 1 else "disabled")
         self.next_btn.configure(state="normal" if self.current_page < self.total_pages else "disabled")
 
+    # Get page slice
     def get_page_slice(self, all_books):
         """Mendapatkan potongan data untuk halaman saat ini"""
         start_idx = (self.current_page - 1) * self.books_per_page
         end_idx = min(start_idx + self.books_per_page, len(all_books))
         return all_books.iloc[start_idx:end_idx]
 
+    # halaman selanjutnya
     def next_page(self):
         """Pindah ke halaman berikutnya"""
         if self.current_page < self.total_pages:
             self.current_page += 1
             self.load_books()
 
+    # halaman pertama
     def first_page(self):
         """Pindah ke halaman pertama"""
         if self.current_page != 1:
             self.current_page = 1
             self.load_books()
 
+    # halaman sebelumnya
     def previous_page(self):
         """Pindah ke halaman sebelumnya"""
         if self.current_page > 1:
             self.current_page -= 1
             self.load_books()
 
+    # halaman terakhir
     def last_page(self):
         """Pindah ke halaman terakhir"""
         if self.current_page != self.total_pages:
             self.current_page = self.total_pages
             self.load_books()
 
+    # pergi ke halaman x
     def go_to_page(self):
         """Menampilkan halaman sesuai user input"""
         try:
@@ -628,8 +663,9 @@ class DataBookFrame(ctk.CTkFrame):
             # Case untuk masukkan selain angka / integer
             self.show_page_error("Please enter a valid page number")
 
+    # page error
     def show_page_error(self, message):
-        """Display error message for invalid page navigation"""
+        """Menampilkan teks apabila navigasi halaman salah"""
         # Create or update error tooltip near the page entry
         if hasattr(self, 'error_tooltip'):
             # Memperbaharui tooltip jika ada
@@ -651,8 +687,11 @@ class DataBookFrame(ctk.CTkFrame):
         self.page_entry.configure(border_color=self.color["error"])  # Red border
         self.page_entry.after(100, lambda: self.page_entry.configure(border_color=original_border))
 
-    # =================== GRID MANAGEMENT FUNCTIONS ===================
+    # =============================== GRID MANAGEMENT FUNCTIONS ===============================
+    #                         Method yang berhubungan grid halaman
+    # =========================================================================================
 
+    # Book grid
     def populate_book_grid(self):
         """Mengisi grid dengan buku-buku untuk halaman saat ini"""
         # Metode ini digunakan untuk populasi awal dan refresh total
@@ -686,6 +725,7 @@ class DataBookFrame(ctk.CTkFrame):
             book_card = self.create_book_card(book)
             book_card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
 
+    # Memperbaharui daftar buku
     def load_books(self):
         """Memuat ulang daftar buku berdasarkan pencarian, genre, dan status dengan perbaikan bug."""
         # Hapus semua buku yang saat ini ada di halaman
@@ -720,6 +760,7 @@ class DataBookFrame(ctk.CTkFrame):
             book_card = self.create_book_card(book)
             book_card.grid(row=row, column=col, padx=10, pady=10, sticky="nsew")
 
+    # Menampilkan teks error
     def show_no_books_message(self):
         """Menampilkan pesan jika tidak ada buku"""
         self.book_grid.columnconfigure(0, weight=1)
@@ -733,6 +774,12 @@ class DataBookFrame(ctk.CTkFrame):
         )
         no_books_label.grid(row=0, column=0, pady=50)
 
+    
+    # =============================== ADD-ONS // MISC ===============================
+    #       Method tambahan yang memiliki fungsi spesifik di dalam method lain
+    # ===============================================================================
+
+    # Fungsi yang mengembalikan buku berdasarkan sistem pencarian
     def get_filtered_books(self):
         """Memfilter buku berdasarkan pencarian, genre, dan status."""
         if not hasattr(self.controller, 'bookManager') or not hasattr(self.controller.bookManager, 'getBook'):
@@ -740,6 +787,7 @@ class DataBookFrame(ctk.CTkFrame):
 
         books = self.controller.getBook()
 
+        # Jika buku kosong
         if books is None or books.empty:
             return None
 
@@ -777,11 +825,13 @@ class DataBookFrame(ctk.CTkFrame):
 
         return books
 
+    # Membuat tooltip dengan isi teks panjang dari teks yang diingkat
     def create_tooltip(self, widget, text):
         """Membuat text panjang dari text yang di truncated dengan tooltip custom"""
         tooltip = Tooltip(widget, text)
         return tooltip
 
+    # Manambahkan timer internal untuk sistem pencarian
     def start_search_timer(self, event=None):
         # Memulai timer untuk pencarian
         if self.search_timer is not None:
@@ -790,6 +840,7 @@ class DataBookFrame(ctk.CTkFrame):
         # Memulai ulang timer setelah 1 detik
         self.search_timer = self.after(1000, self.perform_search)
 
+    # Fungsi pencarian
     def perform_search(self):
         """Program Search"""
         self.search_query = self.search_entry.get().strip()
@@ -799,6 +850,7 @@ class DataBookFrame(ctk.CTkFrame):
         # Reset timer
         self.search_timer = None
 
+    # Method yang mengembalikan daftar genre yang sudah bersih
     def get_available_genres(self):
         """Mendapatkan daftar kategori dari CATEGORY_MAPPING"""
         # Gunakan kategori dari CATEGORY_MAPPING yang sudah didefinisikan
@@ -819,6 +871,7 @@ class DataBookFrame(ctk.CTkFrame):
                         break
         return sorted(categories)
 
+    # Fungsi yang mengubah nilai genre pada filter genre
     def on_genre_filter_change(self, choice):
         """Mengatur perubahan dari filter genre"""
         if choice == "All Genre":
@@ -828,6 +881,7 @@ class DataBookFrame(ctk.CTkFrame):
         self.current_page = 1
         self.load_books()
 
+    # Fungsi yang mengubah nilai status pada filter genre
     def on_status_filter_change(self, choice):
         """Mengatur perubahan dari filter status"""
         if choice == "All":
