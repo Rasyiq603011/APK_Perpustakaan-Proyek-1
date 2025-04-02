@@ -711,8 +711,7 @@ if __name__ == "__main__":
         'ISBN': '9780743273565',
         'Halaman': '180',
         'Status': 'Available',
-        'Deskripsi': 'The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald.'
-    })
+        'Deskripsi': 'The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald.' })
     
     def open_borrow():
         BorrowPopUp(root, controller, sample_book, is_booking=False)
