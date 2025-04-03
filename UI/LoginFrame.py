@@ -187,6 +187,9 @@ class LoginFrame(ctk.CTkFrame):
         # Form fields
         self.email_entry = self._create_entry_field(container, "Email", "Enter your email")
         self.password_entry = self._create_entry_field(container, "Password", "Enter your password", show="●")
+
+        self.email_entry.bind("<Return>", lambda event: self.password_entry.focus_set())
+        self.password_entry.bind("<Return>", lambda event: self.login())
         
         # Login button
         self._create_button(container, "LOGIN", self.login).pack(fill="x", pady=(20, 10))
@@ -240,6 +243,11 @@ class LoginFrame(ctk.CTkFrame):
         self.reg_email_entry = self._create_entry_field(container, "Email", "Enter your email")
         self.reg_password_entry = self._create_entry_field(container, "Password", "Create a password", show="●")
         self.reg_confirm_password_entry = self._create_entry_field(container, "Confirm Password", "Confirm your password", show="●")
+
+        self.reg_name_entry.bind("<Return>", lambda event: self.reg_email_entry.focus_set())
+        self.reg_email_entry.bind("<Return>", lambda event: self.reg_password_entry.focus_set())
+        self.reg_password_entry.bind("<Return>", lambda event: self.reg_confirm_password_entry.focus_set())
+        self.reg_confirm_password_entry.bind("<Return>", lambda event: self.register())
         
         # Button container
         button_container = ctk.CTkFrame(container, fg_color="transparent")
